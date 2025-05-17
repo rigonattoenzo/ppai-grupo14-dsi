@@ -6,11 +6,9 @@ Estructura del repo (por ahora):
 * pruebas -> Donde vamos probando código pero sin certeza que funcione
 * pruebas2 -> Por las dudas jajaj
 
-Como tiene que tener formato de página web, la idea es "más o menos" seguir la estructura que vimos en DDS:
-* backend
-    * con alguna bd(? y un archivo principal con los endpoint o incluso repositorios
-* frontend
-    * public -> con html, css y un index.js
+La idea era hacer una página web, pero dado que solo podemos usar java (no JavaScript), lo más fácil es crear una aplicación de escritorio.
+En una primera instancia, esta va a ser una aplicación "de línea de comandos" hasta que implementemos toda la lógica del caso de uso.
+Más adelante, al tener todo ya implementado, vemos de agregarle una interfaz gráfica con JavaFX o alguna otra.
 
 (vamos a irlo modificando a medida que avancemos)
 
