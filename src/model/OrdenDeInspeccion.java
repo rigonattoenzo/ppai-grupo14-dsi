@@ -67,7 +67,7 @@ public class OrdenDeInspeccion {
 
     //setters
     public void setEstado(Estado estado) {
-        // Podrías agregar lógica para crear un CambioDeEstado, etc.
+        this.estadoActual = estado;
     }
 
     public void setFechaHoraCierre(LocalDateTime fechaHoraCierre) {

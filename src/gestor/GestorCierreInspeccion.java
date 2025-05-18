@@ -1,9 +1,11 @@
 package gestor;
 
+// Import del boundary, modelos y datos
 import boundary.PantallaInspeccion;
+import datos.RepositorioDatos;
 import model.*;
 
-// Imports necesarios
+// Import de utilidades de Java
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.ArrayList;
@@ -11,33 +13,38 @@ import java.util.Map;
 import java.util.Comparator;
 
 public class GestorCierreInspeccion {
+    // Pantalla
     private PantallaInspeccion pantalla;
 
-    // Atributos, seguro faltan más
-    private Empleado empleadoLogueado;
+    // Atributos --> Seguro faltan más
+    // Atributos locales
     private List<OrdenDeInspeccion> ordenesDeInspeccion;
     private String observacionCierreOrden;
-    private List<MotivoFueraDeServicio> motivosFueraServicio;
     private Map<MotivoFueraDeServicio, String> comentarioMotivo;
-    private Estado estadoCerrado;
     private LocalDateTime fechaHoraActual;
-    private Empleado responsableReparacion;
     private String mailResponsable;
     private String correoAEnviar;
-
     private List<Map<String, Object>> ordenesFiltradasConDatos;
 
-    // Atributos referenciales
-    // Referencias a entidades
+    // Atributos referenciales o punteros
+    private Empleado empleadoLogueado;
     private Sesion sesion;
+    private Empleado responsableReparacion;
+    private List<MotivoFueraDeServicio> motivosFueraServicio;
+    private Estado estadoCerrado;
 
-    /*
-    // Referencias a boundary auxiliares
-    private InterfazNotificacionMail interfazMail;
-    private MonitorCCRS monitorCCRS;
-    */
+    // Atributos referenciales de los boundary auxiliares
+    // private InterfazNotificacionMail interfazMail;
+    // private MonitorCCRS monitorCCRS;
+
 
     // Métodos
+    public GestorCierreInspeccion(PantallaInspeccion pantalla) {
+        this.pantalla = pantalla;
+        this.empleadoLogueado = Sesion.getInstancia().getUsuario().getEmpleado();
+        this.ordenesDeInspeccion = RepositorioDatos.obtenerOrdenes();
+    } // Constructor
+
     public void setOrdenesDeInspeccion(List<OrdenDeInspeccion> ordenes) {
         this.ordenesDeInspeccion = ordenes;
     }
@@ -45,11 +52,6 @@ public class GestorCierreInspeccion {
     public List<Map<String,Object>> getOrdenesFiltradasConDatos() {
         return ordenesFiltradasConDatos;
     }
-
-    public GestorCierreInspeccion(PantallaInspeccion pantalla) {
-        this.pantalla = pantalla;
-        // Falta inicializar el resto de los atributos
-    } // Constructor
 
     public void iniciarCierreOrdenInspeccion() {
         obtenerEmpleadoLogueado();

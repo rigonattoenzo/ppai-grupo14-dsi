@@ -1,12 +1,14 @@
 package datos;
 
+// Import del gestor, el boundary y modelos
 import model.*;
 import gestor.GestorCierreInspeccion;
 import boundary.PantallaInspeccion;
 
+// Import de utilidades de java
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Map;
+// import java.util.Map;
 import java.util.ArrayList;
 
 public class RepositorioDatos {
@@ -27,6 +29,13 @@ public class RepositorioDatos {
         // Estaciones
         EstacionSismologica est1 = new EstacionSismologica("EST-001", "DOC-001", LocalDateTime.of(2024,10,1, 9, 0), -34.5, -58.4, "La Plata", "CERT-001", null);
         EstacionSismologica est2 = new EstacionSismologica("EST-002", "DOC-002", LocalDateTime.of(2024,11,1, 9, 0), -31.4, -64.2, "Córdoba", "CERT-002", null);
+
+        // Sismografo
+        Sismografo sism1 = new Sismografo("SISM-001", "334253", LocalDateTime.of(2023,10,1, 15, 34), est1);
+        Sismografo sism2 = new Sismografo("SISM-004", "444332", LocalDateTime.of(2024,03,10, 10, 30), est2);
+
+        est1.setSismografo(sism2);
+        est2.setSismografo(sism1);
 
         // Órdenes
         OrdenDeInspeccion o1 = new OrdenDeInspeccion(101, LocalDateTime.of(2025,5,1,9,0), LocalDateTime.of(2025,5,3,17,0), emp1, est1);
