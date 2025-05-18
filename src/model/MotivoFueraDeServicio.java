@@ -4,7 +4,7 @@ package model;
  * Motivo específico de fuera de servicio, con comentario.
  */
 public class MotivoFueraDeServicio {
-    private String comentario;
+    private String comentario;cd
 
     // Asociación
     private MotivoTipo tipo;
