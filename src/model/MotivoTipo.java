@@ -10,6 +10,7 @@ public class MotivoTipo {
         this.descripcion = descripcion;
     }
 
+    //getter
     public String getDescripcion() {
         return descripcion;
     }

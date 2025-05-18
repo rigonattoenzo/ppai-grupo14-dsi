@@ -12,6 +12,7 @@ public class Rol {
         this.descripcionRol = descripcionRol;
     }
 
+    //getters
     public String getNombreRol() {
         return nombre;
     }

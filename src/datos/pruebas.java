@@ -18,11 +18,11 @@ public class Main {
         Sesion sesion = new Sesion(LocalDateTime.now());
         System.out.println("Usuario " + usuario.getEmpleado().getNombreCompleto() + " inició sesión.");
 
-        // 3. Crear Estación Sismológica (usa LocalDate para fechaSolicitudCertificacion)
+        // 3. Crear Estación Sismológica (usa LocalDateTime para fechaSolicitudCertificacion)
         EstacionSismologica estacion = new EstacionSismologica(
                 "EST001",
                 "DOC-1234",
-                LocalDate.of(2024, 10, 1),
+                LocalDateTime.of(2024, 10, 1),
                 -34.5, -58.4,
                 "Estación La Plata",
                 "CERT-9876",

@@ -27,12 +27,9 @@ public class Sismografo {
         this.estacion = estacion;
     }
 
+    //getters
     public String getIdentificadorSismografo() {
         return identificadorSismografo;
-    }
-
-    public void agregarCambioDeEstado(CambioDeEstado cambio) {
-        cambiosDeEstado.add(cambio);
     }
 
     public List<CambioDeEstado> getCambiosDeEstado() {
@@ -53,9 +50,14 @@ public class Sismografo {
         return nroSerie;
     }
 
+    //setters
     // Setter para estacion, en caso de que el sismografo cambie de estación
     public void setEstacion(EstacionSismologica estacion) {
         this.estacion = estacion;
     }
 
+    //metodos extra
+    public void agregarCambioDeEstado(CambioDeEstado cambio) {
+        cambiosDeEstado.add(cambio);
+    }
 }

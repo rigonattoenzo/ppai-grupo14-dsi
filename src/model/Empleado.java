@@ -24,6 +24,7 @@ public class Empleado {
         this.rol = rol;
     }
 
+    //metodos vista estatica
     public boolean esResponsableDeReparacion() {
         return "ResponsableInspeccion".equals(rol.getNombreRol());
     }
@@ -32,6 +33,7 @@ public class Empleado {
         return mail;
     }
 
+    //getters
     public String getNombreCompleto() {
         return nombre + " " + apellido;
     }

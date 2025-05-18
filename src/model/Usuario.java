@@ -14,18 +14,24 @@ public class Usuario {
         this.nombreUsuario = nombreUsuario;
         this.contrasena = contrasena;
         this.empleado = empleado;
+    } // Constructor
+
+    //getters
+    public Empleado getRiLogueado() {
+        return getEmpleado();
     }
 
     public String getNombreUsuario() {
         return nombreUsuario;
     }
 
-    public String perfilLogueado() {
-        return empleado.getNombreCompleto();
-    }
-
     public Empleado getEmpleado() {
         return empleado;
+    }
+
+    //metodos extra
+    public String perfilLogueado() {
+        return empleado.getNombreCompleto();
     }
 
     // Método para validar contraseña

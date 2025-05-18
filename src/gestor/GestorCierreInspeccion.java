@@ -5,46 +5,117 @@ import model.*;
 
 // Imports necesarios
 import java.time.LocalDateTime;
-//import java.util.List;
-//import java.util.Map;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Map;
+import java.util.Comparator;
 
 public class GestorCierreInspeccion {
     private PantallaInspeccion pantalla;
 
     // Atributos, seguro faltan más
     private Empleado empleadoLogueado;
-    private List<OrdenInspeccion> ordenesDeInspeccion;
+    private List<OrdenDeInspeccion> ordenesDeInspeccion;
     private String observacionCierreOrden;
-    private List<MotivoFueraServicio> motivosFueraServicio;
-    private Map<MotivoFueraServicio, String> comentarioMotivo;
-    private EstadoOrden estadoCerrado;
+    private List<MotivoFueraDeServicio> motivosFueraServicio;
+    private Map<MotivoFueraDeServicio, String> comentarioMotivo;
+    private Estado estadoCerrado;
     private LocalDateTime fechaHoraActual;
     private Empleado responsableReparacion;
     private String mailResponsable;
     private String correoAEnviar;
 
+    private List<Map<String, Object>> ordenesFiltradasConDatos;
+
+    // Atributos referenciales
+    // Referencias a entidades
+    private Sesion sesion;
+
+    /*
+    // Referencias a boundary auxiliares
+    private InterfazNotificacionMail interfazMail;
+    private MonitorCCRS monitorCCRS;
+    */
+
     // Métodos
+    public void setOrdenesDeInspeccion(List<OrdenDeInspeccion> ordenes) {
+        this.ordenesDeInspeccion = ordenes;
+    }
+
+    public List<Map<String,Object>> getOrdenesFiltradasConDatos() {
+        return ordenesFiltradasConDatos;
+    }
+
     public GestorCierreInspeccion(PantallaInspeccion pantalla) {
-        // this.pantalla = pantalla;
-    } // revisar este
+        this.pantalla = pantalla;
+        // Falta inicializar el resto de los atributos
+    } // Constructor
 
     public void iniciarCierreOrdenInspeccion() {
-        // Método vacío -> Se inicializa el gestor
+        obtenerEmpleadoLogueado();
     }
 
     public void obtenerEmpleadoLogueado() {
-        // Método vacío
+        // Ver de justificar este método agregándolo en el diagrama de secuencia (el getInstancia())
+        this.empleadoLogueado = Sesion.getInstancia().getUsuario().getRiLogueado();
+
+        // System.out.println(this.empleadoLogueado);
+
+        buscarOrdenesDeInspeccionDeRI();
     }
 
     public void buscarOrdenesDeInspeccionDeRI() {
-        // Método vacío
+        Empleado empleado = this.empleadoLogueado;
+
+        // Lista de mapas con los datos de las órdenes filtradas
+        List<Map<String, Object>> ordenesFiltradas = new ArrayList<>();
+
+        for (OrdenDeInspeccion orden : ordenesDeInspeccion) {
+            if (orden.sosDeEmpleado(empleado) && orden.sosCompletamenteRealizada()) {
+                // Obtenemos el mapa con los datos
+                Map<String, Object> datosOrden = orden.obtenerDatosOI();
+                ordenesFiltradas.add(datosOrden);
+            }
+        }
+
+        // Guardar las órdenes filtradas con datos
+        this.ordenesFiltradasConDatos = ordenesFiltradas; // crea esta variable en la clase
+
+        ordenarPorFechaDeFinalizacion();
+        pantalla.mostrarOrdCompRealizadas();
+        pedirSelecOrdenInspeccion();
+        // System.out.println("Órdenes válidas encontradas: " + ordenesFiltradas.size());
     }
 
     public void ordenarPorFechaDeFinalizacion() {
+        if (ordenesFiltradasConDatos == null) {
+            System.out.println("No hay órdenes para ordenar");
+            return;
+        }
+
+        ordenesFiltradasConDatos.sort(new Comparator<Map<String, Object>>() {
+            @Override
+            public int compare(Map<String, Object> o1, Map<String, Object> o2) {
+                // Suponiendo que las fechas son Date
+                LocalDateTime fecha1 = (LocalDateTime) o1.get("fechaFinalizacion");
+                LocalDateTime fecha2 = (LocalDateTime) o2.get("fechaFinalizacion");
+
+                if (fecha1 == null && fecha2 == null) return 0;
+                if (fecha1 == null) return -1;
+                if (fecha2 == null) return 1;
+
+                return fecha1.compareTo(fecha2);
+            }
+        });
+
+        // System.out.println("Órdenes ordenadas por fecha de finalización.");
+    }
+
+    public void pedirSelecOrdenInspeccion() {
         // Método vacío
     }
 
-    public void tomarOrdenInspeccionSelec(OrdenInspeccion orden) {
+    public void tomarOrdenInspeccionSelec(OrdenDeInspeccion orden) {
         // Método vacío
     }
 
@@ -64,11 +135,11 @@ public class GestorCierreInspeccion {
         // Método vacío
     }
 
-    public void tomarMotivoTipoFueraServicio(MotivoFueraServicio motivo) {
+    public void tomarMotivoTipoFueraServicio(MotivoFueraDeServicio motivo) {
         // Método vacío
     }
 
-    public void tomarComentario(MotivoFueraServicio motivo, String comentario) {
+    public void tomarComentario(MotivoFueraDeServicio motivo, String comentario) {
         // Método vacío
     }
 

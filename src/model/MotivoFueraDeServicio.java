@@ -4,7 +4,7 @@ package model;
  * Motivo específico de fuera de servicio, con comentario.
  */
 public class MotivoFueraDeServicio {
-    private String comentario;cd
+    private String comentario;
 
     // Asociación
     private MotivoTipo tipo;
@@ -14,6 +14,7 @@ public class MotivoFueraDeServicio {
         this.tipo = tipo;
     }
 
+    //getters y setters
     public String getComentario() {
         return comentario;
     }

@@ -28,6 +28,7 @@ public class CambioDeEstado {
         return fechaHoraFin == null;
     }
 
+    // getters y seters
     public void setFechaHoraFin(LocalDateTime fechaHoraFin) {
         this.fechaHoraFin = fechaHoraFin;
     }
@@ -35,6 +36,7 @@ public class CambioDeEstado {
     public Estado getEstado() {
         return estado;
     }
+
 
     public Empleado getEmpleado() {
         return empleado;
@@ -53,6 +55,7 @@ public class CambioDeEstado {
     public LocalDateTime getFechaHoraFin() {
         return fechaHoraFin;
     }
+
 
     // Método toString para facilitar impresión
     @Override

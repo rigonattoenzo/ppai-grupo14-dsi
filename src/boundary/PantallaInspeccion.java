@@ -1,6 +1,9 @@
 package boundary;
 
 import gestor.GestorCierreInspeccion;
+import java.util.Map;
+import java.util.List;
+import model.*;
 // import model.*; --> creo que no hace falta
 
 public class PantallaInspeccion {
@@ -14,22 +17,33 @@ public class PantallaInspeccion {
     private Boton botonConfirmacionCierreOrden;
 
     // Constructor
-    /* public PantallaInspeccion() {
-        // Ver que hacer con este y opcionCerrarOrdenDeInspeccion
-    } */
+    public PantallaInspeccion() {
+        // Inicializar todos los atributos, para la interfaz gráfica
+    }
+
+    public GestorCierreInspeccion getGestor() {
+        return gestor;
+    }
 
     // Métodos de la interfaz (boundary)
     public void opcionCerrarOrdenDeInspeccion() {
-        // Método vacío -> Aca iría el constructor en realidad
+        habilitarVentana();
     }
 
     public void habilitarVentana() {
-        // this.gestor = new GestorCierreInspeccion(this);
-        // Método vacío -> aca se inicializa el gestor
+        this.gestor = new GestorCierreInspeccion(this); // Se crea el gestor
+        gestor.iniciarCierreOrdenInspeccion();          // comienza el flujo del caso de uso
     }
 
     public void mostrarOrdCompRealizadas() {
-        // Método vacío
+        // El gestor ya debe tener la lista completa de órdenes y el empleado logueado seteados
+        gestor.buscarOrdenesDeInspeccionDeRI();  // Filtra las órdenes completadas del RI
+
+        System.out.println("Órdenes Completamente Realizadas del Empleado:");
+
+        for (Map<String, Object> datosOrden : gestor.getOrdenesFiltradasConDatos()) {
+            System.out.println(datosOrden);
+        }
     }
 
     public void pedirSelecOrdenInspeccion() {
@@ -72,9 +86,9 @@ public class PantallaInspeccion {
         // Método vacío
     }
 
-    /*// Clases auxiliares simuladas para que compile (podés reemplazarlas por las reales)
+    // Clases auxiliares simuladas para que compile (podés reemplazarlas por las reales)
     private class Boton {}
     private class CampoTexto {}
-    private class ComboBox {}*/
+    private class ComboBox {}
 
 }

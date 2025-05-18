@@ -12,12 +12,22 @@ public class Estado {
         this.ambito = ambito;
     }
 
+    //getters y setters
     public String getNombreEstado() {
         return nombreEstado;
     }
 
     public String getAmbito() {
         return ambito;
+    }
+
+    // Metodos en el diagrama de secuencia
+    public boolean esCompletamenteRealizada() {
+        return "Completamente Realizada".equalsIgnoreCase(nombreEstado);
+    }
+
+    public boolean esAmbitoOrdenDeInspeccion() {
+        return "Orden de Inspeccion".equalsIgnoreCase(ambito);
     }
 
     // Dentro de Estado.java

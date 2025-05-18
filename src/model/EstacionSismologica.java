@@ -1,6 +1,6 @@
 package model;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,7 +10,7 @@ import java.util.List;
 public class EstacionSismologica {
     private String codigoEstacion;
     private String documentoCertificacionAdq;
-    private LocalDate fechaSolicitudCertificacion;
+    private LocalDateTime fechaSolicitudCertificacion;
     private double latitud;
     private double longitud;
     private String nombre;
@@ -21,7 +21,7 @@ public class EstacionSismologica {
 
     public EstacionSismologica(String codigoEstacion,
                                String documentoCertificacionAdq,
-                               LocalDate fechaSolicitudCertificacion,
+                               LocalDateTime fechaSolicitudCertificacion,
                                double latitud,
                                double longitud,
                                String nombre,
@@ -37,6 +37,7 @@ public class EstacionSismologica {
         this.sismografo = sismografo;
     }
 
+    //getters y setters
     public String getCodigoEstacion() {
         return codigoEstacion;
     }
@@ -53,7 +54,7 @@ public class EstacionSismologica {
         return documentoCertificacionAdq;
     }
 
-    public LocalDate getFechaSolicitudCertificacion() {
+    public LocalDateTime getFechaSolicitudCertificacion() {
         return fechaSolicitudCertificacion;
     }
 
@@ -69,11 +70,15 @@ public class EstacionSismologica {
         return nroCertificacionAdquisicion;
     }
 
-    // Dentro de EstacionSismologica.java
-
+    //setters
     // Setter para cambiar el sismógrafo asociado
     public void setSismografo(Sismografo sismografo) {
         this.sismografo = sismografo;
+    }
+
+    // Metodos del caso de uso
+    public String obtenerIdentificadorSismografo() {
+        return sismografo.getIdentificadorSismografo();
     }
 
     // toString para impresión
