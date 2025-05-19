@@ -23,7 +23,8 @@ public class GestorCierreInspeccion {
     private String observacionCierreOrden;
     private List<String> descripciones;
     private Map<String, String> motivosYComentarios = new HashMap<>();
-    private MotivoTipo ultimoMotivoSeleccionado = null;
+    // private MotivoTipo ultimoMotivoSeleccionado = null;
+    private String ultimoMotivoSeleccionado;
 
     private String confirmacionCierreOrden;
     private LocalDateTime fechaHoraActual;
@@ -44,6 +45,9 @@ public class GestorCierreInspeccion {
     // private InterfazNotificacionMail interfazMail;
     // private MonitorCCRS monitorCCRS;
 
+    public int getDescripcionesSize() {
+        return descripciones.size();
+    }
 
     // Métodos
     public GestorCierreInspeccion(PantallaInspeccion pantalla) {
@@ -160,33 +164,27 @@ public class GestorCierreInspeccion {
 
             // si no es 0, pedir comentario y guardar
             if (motivoNum != 0) {
-                String motivo = descripciones.get(motivoNum - 1);
-                String comentario = pantalla.pedirComentario();
-                motivosYComentarios.put(motivo, comentario);
+                if (!motivosYComentarios.containsKey(descripciones.get(motivoNum - 1))) {
+                    pantalla.pedirComentario();
+                } else {
+                    pantalla.mostrarMensaje("Error! ese motivo ya fue seleccionado...");
+                }
+            } else {
+                pantalla.mostrarMensaje("Selección de motivos finalizada.");
             }
         }
-
-        pantalla.mostrarMensaje("Selección de motivos finalizada.");
-
-        System.out.println("AQQQQQQQQQQQQQQQQQQQQQQQQ");
 
         pedirConfirmacionCierreOrden();
     }
 
     public void tomarMotivoTipoFueraServicio(int motivoNum) {
-        /*if (motivoNum >= 1 && motivoNum <= descripciones.size()) {
-            String motivo = descripciones.get(motivoNum - 1);
-            this.ultimoMotivoSeleccionado = motivo;
-            // pantalla.mostrarMensaje("Motivo agregado: " + motivo.getDescripcion());
-        } else {
-            System.out.println("Número fuera de rango.");
-        }*/
-
-        // buscarTiposMotivosFueraServicio();
+        String motivo = descripciones.get(motivoNum - 1);
+        this.ultimoMotivoSeleccionado = motivo;
     }
 
-    public void tomarComentario(String comentario) {
 
+    public void tomarComentario(String comentario) {
+        motivosYComentarios.put(this.ultimoMotivoSeleccionado, comentario);
     }
 
     public void pedirConfirmacionCierreOrden() {
@@ -252,7 +250,7 @@ public class GestorCierreInspeccion {
         }
         if (estadoFueraDeServicio != null) {
             this.estadoFueraDeServicio = estadoFueraDeServicio;
-            pantalla.mostrarEstadoFueraDeServicio(estadoFueraDeServicio); // muestra en pantalla
+            // pantalla.mostrarEstadoFueraDeServicio(estadoFueraDeServicio); // muestra en pantalla
         } else {
             pantalla.mostrarErrorEstadoNoEncontrado("FUERA DE SERVICIO");
         }

@@ -116,12 +116,35 @@ public class PantallaInspeccion {
     }
 
     public int pedirSelecMotivoTipo() {
-        int motivoNum = tomarMotivoTipoFueraServicio();
-        return motivoNum;
+        int numMotivo = tomarMotivoTipoFueraServicio();
+        return numMotivo;
     }
 
     public int tomarMotivoTipoFueraServicio() {
-        int motivoNum = 0;
+        int motivoNum = -1;
+
+        while (true) {
+            System.out.print("Seleccione el número del motivo (0 para terminar): ");
+            if (scanner.hasNextInt()) {
+                motivoNum = scanner.nextInt();
+
+                if (motivoNum == 0) {
+                    return 0;
+                }
+
+                if (motivoNum >= 1 && motivoNum <= gestor.getDescripcionesSize()) {
+                    gestor.tomarMotivoTipoFueraServicio(motivoNum);
+                    return motivoNum;
+                } else {
+                    System.out.println("Número fuera de rango. Intente de nuevo.");
+                }
+            } else {
+                scanner.next(); // descarta texto no numérico
+                System.out.println("Entrada inválida. Debe ingresar un número.");
+            }
+        }
+
+        /*int motivoNum = 0;
 
         System.out.print("Seleccione el número del motivo: ");
         if (scanner.hasNextInt()) {
@@ -131,16 +154,14 @@ public class PantallaInspeccion {
         }
 
         gestor.tomarMotivoTipoFueraServicio(motivoNum);
-
-        return motivoNum;
+        return motivoNum;*/
     }
 
-    public String pedirComentario() {
-        String comentario = tomarComentario();
-        return comentario;
+    public void pedirComentario() {
+        tomarComentario();
     }
 
-    public String tomarComentario() {
+    public void tomarComentario() {
         System.out.println("Ingrese un comentario al tipo de motivo seleccionado:");
 
         if (scanner.hasNextLine()) {
@@ -149,7 +170,7 @@ public class PantallaInspeccion {
 
         String comentario = scanner.nextLine(); // lee la observación real
 
-        return comentario;
+        gestor.tomarComentario(comentario);
     }
 
     public void pedirConfirmacionCierreOrden() {
