@@ -45,6 +45,10 @@ public class GestorCierreInspeccion {
     // private InterfazNotificacionMail interfazMail;
     // private MonitorCCRS monitorCCRS;
 
+    public Map<String,Object> getOrdenSeleccionada(){
+        return this.ordenSeleccionada;
+    }
+
     public int getPunteroMotivoSize() {
         return this.punteroMotivos.size();
     }
@@ -258,9 +262,9 @@ public class GestorCierreInspeccion {
 
         if (estadoCerrado != null) {
             this.estadoCerrado = estadoCerrado; // guarda en un atributo si lo tenés declarado
-            pantalla.mostrarEstadoCerrado(estadoCerrado); // muestra en pantalla
+            // pantalla.mostrarEstadoCerrado(estadoCerrado); // muestra en pantalla
         }  else {
-            pantalla.mostrarErrorEstadoNoEncontrado("CERRADO");
+            pantalla.mostrarMensaje("No se encontró el estado Cerrado");
         }
     }
 
@@ -284,7 +288,7 @@ public class GestorCierreInspeccion {
             this.estadoFueraDeServicio = estadoFueraDeServicio;
             // pantalla.mostrarEstadoFueraDeServicio(estadoFueraDeServicio); // muestra en pantalla
         } else {
-            pantalla.mostrarErrorEstadoNoEncontrado("FUERA DE SERVICIO");
+            pantalla.mostrarMensaje("No se encontró el estado Fuera de Servicio");
         }
     }
 

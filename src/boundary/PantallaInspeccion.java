@@ -11,6 +11,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ChoiceDialog;
 import javafx.scene.control.TextInputDialog;
+import javafx.scene.control.Label;
 
 // import de utilidades de Java
 import java.util.Map;
@@ -19,6 +20,7 @@ import java.util.Scanner;
 import java.util.stream.Collectors;
 import java.util.Optional;
 import java.util.stream.IntStream;
+import java.time.format.DateTimeFormatter;
 
 public class PantallaInspeccion {
     // Gestor
@@ -26,14 +28,8 @@ public class PantallaInspeccion {
 
     // Scanner o "input"
     private Scanner scanner = new Scanner(System.in);
-    /*
-    // Atributos (componentes de la interfaz) --> faltan agregar más
-    private Boton botonSeleccionOrdenInspeccion;
-    private CampoTexto campoObservacionCierreOrden;
-    private ComboBox comboMotivoFueraServicio;
-    private CampoTexto campoComentario;
-    private Boton botonConfirmacionCierreOrden; */
 
+    // Atributos de la pantalla
     private VBox root;
     private List<Map<String,Object>> ordenesActuales;
     // Para la entrada de texto
@@ -43,7 +39,7 @@ public class PantallaInspeccion {
     // lista de descripciones proveniente de mostrarMotivosTipoFueraServicio(...)
     private List<String> descripcionesMotivos;
 
-    // Métodos
+    // Métodos de la pantalla
     // Constructor
     public PantallaInspeccion() {
         // Inicializar todos los atributos, para la interfaz gráfica
@@ -101,42 +97,10 @@ public class PantallaInspeccion {
         }
     }
 
-    /*
-    public void pedirSelecOrdenInspeccion(List<Map<String,Object>> ordenes) {
-        Integer seleccion = null;
-        Map<String,Object> ordenSeleccionada = null;
-
-        while (ordenSeleccionada == null) {
-            System.out.println("Seleccione una orden de inspección por número:");
-
-            for (Map<String,Object> o : ordenes) {
-                System.out.println("  " + o.get("nroDeOrden") + "  (" + o.get("idSismografo") + ")");
-            }
-
-            System.out.print("Ingrese el número: ");
-            if (scanner.hasNextInt()) {
-                seleccion = scanner.nextInt();
-                // buscar en la lista
-                for (Map<String,Object> o : ordenes) {
-                    if (seleccion.equals(o.get("nroDeOrden"))) {
-                        ordenSeleccionada = o;
-                        break;
-                    }
-                }
-            } else {
-                scanner.next(); // descarta texto no numérico
-            }
-            if (ordenSeleccionada == null) {
-                System.out.println("Número inválido, inténtalo de nuevo.\n");
-            }
-        }
-
-        tomarOrdenInspeccionSelec(ordenSeleccionada);
-    }*/
-
     public void tomarOrdenInspeccionSelec(Map<String,Object> ordenSeleccionada) {
         gestor.tomarOrdenInspeccionSelec(ordenSeleccionada);
     }
+
 
     public void pedirObservacionCierreOrden() {
         // Limpio la UI
@@ -166,23 +130,6 @@ public class PantallaInspeccion {
         gestor.tomarObservacionCierreOrden(observacionCierre);
     }
 
-    /*
-    public void pedirObservacionCierreOrden() {
-        System.out.println("Ingrese una observación de cierre a la orden de inspección seleccionada:");
-
-        if (scanner.hasNextLine()) {
-            scanner.nextLine(); // limpia el buffer si venís de un nextInt()
-        }
-
-        String observacionCierre = scanner.nextLine(); // lee la observación real
-
-        tomarObservacionCierreOrden(observacionCierre);
-    }
-
-    public void tomarObservacionCierreOrden(String observacionCierre) {
-        gestor.tomarObservacionCierreOrden(observacionCierre);
-    }*/
-
     public void mostrarMotivosTipoFueraServicio(List<String> descrip) {
         this.descripcionesMotivos = descrip;
 
@@ -199,16 +146,11 @@ public class PantallaInspeccion {
         }
     }
 
-        /*public void mostrarMotivosTipoFueraServicio(List<String> descrip) {
-        System.out.println("Motivos Fuera de servicio:");
-
-        for (int i = 0; i < descrip.size(); i++) {
-            System.out.println((i + 1) + ". " + descrip.get(i));
-        }
-    }*/
-
+    /**
+     * Reemplaza el println por un Label en la UI.
+     */
     public void mostrarMensaje(String mensaje) {
-        System.out.println(mensaje);
+        root.getChildren().add(new Label(mensaje));
     }
 
     /**
@@ -259,38 +201,6 @@ public class PantallaInspeccion {
         }
     }
 
-    /*
-    public int pedirSelecMotivoTipo() {
-        int numMotivo = tomarMotivoTipoFueraServicio();
-        return numMotivo;
-    }
-
-    public int tomarMotivoTipoFueraServicio() {
-        int motivoNum = -1;
-
-        while (true) {
-            System.out.print("Seleccione el número del motivo (0 para terminar): ");
-            if (scanner.hasNextInt()) {
-                motivoNum = scanner.nextInt();
-
-                if (motivoNum == 0) {
-                    return 0;
-                }
-
-                if (motivoNum >= 1 && motivoNum <= gestor.getPunteroMotivoSize()) {
-                    gestor.tomarMotivoTipoFueraServicio(motivoNum);
-                    return motivoNum;
-                } else {
-                    System.out.println("Número fuera de rango. Intente de nuevo.");
-                }
-            } else {
-                scanner.next(); // descarta texto no numérico
-                System.out.println("Entrada inválida. Debe ingresar un número.");
-            }
-        }
-    }
-    */
-
     /**
      * Muestra un TextInputDialog para ingresar el comentario;
      * bloquea hasta que el usuario confirme.
@@ -307,46 +217,83 @@ public class PantallaInspeccion {
         resultado.ifPresent(comentario -> gestor.tomarComentario(comentario));
     }
 
-
-    /*
-    public void pedirComentario() {
-        tomarComentario();
-    }
-
-    public void tomarComentario() {
-        System.out.println("Ingrese un comentario al tipo de motivo seleccionado:");
-
-        if (scanner.hasNextLine()) {
-            scanner.nextLine(); // limpia el buffer si venís de un nextInt()
-        }
-
-        String comentario = scanner.nextLine(); // lee la observación real
-
-        gestor.tomarComentario(comentario);
-    }*/
-
+    /**
+     * Muestra una pregunta en pantalla y dos botones: 'SI' y 'CANCELAR'.
+     * Al hacer clic en 'SI' llama a tomarConfirmacionCierreOrden("SI").
+     */
     public void pedirConfirmacionCierreOrden() {
-        Scanner scanner = new Scanner(System.in);
-        String confirmacionCierre;
+        // 1) Limpio la pantalla
+        root.getChildren().clear();
 
-        while (true) {
-            System.out.println("¿Cerrar Orden de Inspección? ('SI' para confirmar):");
-            confirmacionCierre = scanner.nextLine();
+        // 2) Mensaje de confirmación
+        root.getChildren().add(new Label("¿Cerrar Orden de Inspección?"));
 
-            if (confirmacionCierre.equalsIgnoreCase("si")) {
-                tomarConfirmacionCierreOrden(confirmacionCierre);
-                break; // sale del bucle
-            } else {
-                System.out.println("Entrada inválida. Por favor, escriba 'SI' para confirmar.");
-            }
-        }
+        // 3) Botón 'SI'
+        Button btnSi = new Button("SI");
+        btnSi.setOnAction(e -> tomarConfirmacionCierreOrden("SI"));
+
+        // 4) Botón 'CANCELAR' (opcional: vuelve al menú o fin)
+        Button btnCancelar = new Button("CANCELAR");
+        btnCancelar.setOnAction(e -> {
+            // Por ejemplo, volvemos al inicio del CU:
+            opcionCerrarOrdenDeInspeccion();
+        });
+
+        // 5) Agrego botones al layout
+        VBox contenedorBotones = new VBox(10, btnSi, btnCancelar);
+        root.getChildren().add(contenedorBotones);
     }
+
+    /**
+     * Muestra en la misma ventana un resumen de los motivos y comentarios
+     * que el usuario ya ha seleccionado en el gestor, y un botón para confirmar.
+     */
+    public void mostrarResumenMotivosSeleccionados() {
+        // 1) Limpiar todo lo anterior
+        root.getChildren().clear();
+
+        // 2) Título
+        root.getChildren().add(new Label("Resumen de motivos seleccionados:"));
+
+        // 3) Listar cada par motivo→comentario
+        for (Map.Entry<MotivoTipo, String> entry : gestor.getMotivosYComentarios().entrySet()) {
+            String texto = entry.getKey().getDescripcion()
+                    + ": "
+                    + entry.getValue();
+            root.getChildren().add(new Label(texto));
+        }
+
+        // 4) Botón para confirmar el cierre
+        Button btnConfirmar = new Button("Confirmar Cierre de Orden");
+        btnConfirmar.setOnAction(e -> {
+            // Llamar al método de gestor que cierra la orden
+            gestor.tomarConfirmacionCierreOrden("SI");
+        });
+        root.getChildren().add(btnConfirmar);
+    }
+
 
     public void tomarConfirmacionCierreOrden(String confirmacionCierre) {
+        // 1) Llamada original al gestor para que haga el cierre
         gestor.tomarConfirmacionCierreOrden(confirmacionCierre);
+
+        // 2) Limpiar la pantalla y mostrar mensaje de éxito
+        root.getChildren().clear();
+        root.getChildren().add(new Label("✅ La orden de inspección ha sido cerrada exitosamente."));
+
+        // 3) Mostrar detalles de la orden
+        Map<String,Object> datos = gestor.getOrdenSeleccionada();
+        DateTimeFormatter fmt = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
+
+        root.getChildren().add(new Label("Número de orden: "  + datos.get("nroDeOrden")));
+        root.getChildren().add(new Label("Estación: "        + datos.get("nombreEstacionSismologica")));
+        root.getChildren().add(new Label("Sismógrafo: "      + datos.get("idSismografo")));
+        // Fecha de cierre fue seteada en el gestor, la obtenemos:
+        String fechaCierre = gestor.getFechaHoraActual().format(fmt);
+        root.getChildren().add(new Label("Fecha de cierre: " + fechaCierre));
     }
 
-    public void mostrarEstadoCerrado(Estado estado) {
+    /*public void mostrarEstadoCerrado(Estado estado) {
         System.out.println("¡Estado 'CERRADO' encontrado!");
         System.out.println("Nombre: " + estado.getNombreEstado());
         System.out.println("Entidad: " + "OrdenDeInspeccion");
@@ -360,12 +307,5 @@ public class PantallaInspeccion {
 
     public void mostrarErrorEstadoNoEncontrado(String nombreEstado) {
         System.out.println("Error: No se encontró el estado '" + nombreEstado + "'.");
-    }
-
-
-    // Clases auxiliares simuladas para que compile (después se reeplazan por las reales)
-    private class Boton {}
-    private class CampoTexto {}
-    private class ComboBox {}
-
+    }*/
 }
