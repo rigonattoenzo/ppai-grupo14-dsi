@@ -3,7 +3,7 @@ package datos;
 // Import del gestor, el boundary y modelos
 import model.*;
 import gestor.GestorCierreInspeccion;
-import boundary.PantallaInspeccion;
+import boundary.*;
 
 // Import de utilidades de java
 import java.time.LocalDateTime;
@@ -18,15 +18,20 @@ public class RepositorioDatos {
     private static List<Estado> estados = new ArrayList<>();
     private static List<CambioDeEstado> cambiosEstado = new ArrayList<>();
     private static List<Empleado> empleados = new ArrayList<>();
+    private static List<MonitorCCRS> monitores = new ArrayList<>();
+    private static List<String> correosResponsables = new ArrayList<>();
+    private static InterfazNotificacionMail interfazMail;
 
     static {
         // Empleados y usuario
-        Empleado emp1 = new Empleado("Pepe", "López", "0001", "pepe@mail.com", new Rol("RI", "Responsable"));
+        Empleado emp1 = new Empleado("Pepe", "López", "0001", "pepe@mail.com", new Rol("RI", "Responsable Inspección"));
         usuario = new Usuario("pepe123", "pass", emp1);  // asignación
 
-        Empleado emp2 = new Empleado("Otro", "Empleado", "0002", "otro@mail.com", new Rol("RI", "Responsable"));
+        Empleado emp2 = new Empleado("Otro", "Empleado", "0002", "otro@mail.com", new Rol("RI", "Responsable Inspección"));
 
         Empleado emp3 = new Empleado("Claudia", "Reparadora", "0003", "claudia@mail.com", new Rol("RR", "Responsable Reparación"));
+        Empleado emp4 = new Empleado("Mateo", "Reparador", "0004", "matute@mail.com", new Rol("RR", "Responsable Reparación"));
+
         // Estados
         Estado completo = new Estado("Completamente Realizada", "OrdenDeInspeccion");
         Estado enProceso = new Estado("En Proceso", "OrdenDeInspeccion");
@@ -79,6 +84,19 @@ public class RepositorioDatos {
         o3.setEstado(completo);
 
         ordenesDeInspeccion.addAll(List.of(o1, o2, o3));
+
+        correosResponsables.add(emp3.obtenerMail()); // "claudia@mail.com"
+        correosResponsables.add(emp4.obtenerMail()); // "matute@mail.com"
+
+        interfazMail = new InterfazNotificacionMail();
+
+        MonitorCCRS monitor1 = new MonitorCCRS();
+        MonitorCCRS monitor2 = new MonitorCCRS();
+        MonitorCCRS monitor3 = new MonitorCCRS();
+
+        monitores.add(monitor1);
+        monitores.add(monitor2);
+        monitores.add(monitor3);
     }
 
     public static List<OrdenDeInspeccion> obtenerOrdenes() {
@@ -100,4 +118,8 @@ public class RepositorioDatos {
     public static List<Empleado> getEmpleados() {
         return empleados;
     }
+
+    public static List<MonitorCCRS> getMonitores(){ return monitores; }
+
+    public static InterfazNotificacionMail getInterfazMail() { return interfazMail; }
 }

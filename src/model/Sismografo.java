@@ -3,6 +3,7 @@ package model;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Representa un Sismógrafo.
@@ -60,7 +61,7 @@ public class Sismografo {
         this.estacion = estacion;
     }
 
-    public void fueraServicio(Estado estado, List<String> comentarios){
+    public void fueraServicio(Estado estado, Map<MotivoTipo, String> motivosYComentarios){
         CambioDeEstado actual = null;
         for (CambioDeEstado cambio : cambiosDeEstado) {
             if (cambio.esEstadoActual()) {
@@ -73,15 +74,13 @@ public class Sismografo {
             actual.setFechaHoraFin(LocalDateTime.now());
         }
 
-        //ejecutarCambioDeEstado(estado, comentarios);
+        ejecutarCambioDeEstado(estado, motivosYComentarios);
     }
 
-    /*public void ejecutarCambioDeEstado(Estado estado, List<String> comentarios){
-        CambioDeEstado nuevo = new CambioDeEstado();
-        nuevo.setEstado(estado);
-        nuevo.setFechaHoraInicio(LocalDateTime.now());
-        nuevo.crearMotivoFueraServicio(comentarios);
-    }*/
+    public void ejecutarCambioDeEstado(Estado estado, Map<MotivoTipo, String> motivosYComentarios){
+        CambioDeEstado nuevo = new CambioDeEstado(estado, LocalDateTime.now());
+        nuevo.crearMotivoFueraServicio(motivosYComentarios);
+    }
 
     //metodos extra
     public void agregarCambioDeEstado(CambioDeEstado cambio) {

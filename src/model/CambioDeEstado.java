@@ -3,6 +3,7 @@ package model;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Map;
 
 /**
  * Historial de cambios de estado para un objeto.
@@ -28,10 +29,13 @@ public class CambioDeEstado {
 
     // getters y seters
 
-    public void crearMotivoFueraServicio(List<MotivoFueraDeServicio> comentarios){
-        for (int i = 0; i < comentarios.length; i++){
-            MotivoFueraDeServicio motivo = new MotivoFueraDeServicio(comentarios.get(i));
-            motivos.add(motivo);
+    public void crearMotivoFueraServicio(Map<MotivoTipo, String> motivosYComentarios){
+        for (Map.Entry<MotivoTipo, String> motv : motivosYComentarios.entrySet()) {
+            MotivoTipo tipo = motv.getKey();
+            String comentario = motv.getValue();
+
+            MotivoFueraDeServicio motivo = new MotivoFueraDeServicio(comentario, tipo);
+            this.motivos.add(motivo);
         }
     }
 
@@ -51,10 +55,9 @@ public class CambioDeEstado {
         return empleado;
     }
 
-   /* public MotivoFueraDeServicio getMotivo() {
-        return motivo;
+   public List<MotivoFueraDeServicio> getMotivosFueraServicio() {
+        return this.motivos;
     }
-    */
 
     // Getter para fechaHoraInicio
     public LocalDateTime getFechaHoraInicio() {

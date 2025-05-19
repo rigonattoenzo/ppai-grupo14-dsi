@@ -132,7 +132,7 @@ public class PantallaInspeccion {
                     return 0;
                 }
 
-                if (motivoNum >= 1 && motivoNum <= gestor.getDescripcionesSize()) {
+                if (motivoNum >= 1 && motivoNum <= gestor.getPunteroMotivoSize()) {
                     gestor.tomarMotivoTipoFueraServicio(motivoNum);
                     return motivoNum;
                 } else {

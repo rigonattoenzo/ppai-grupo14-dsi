@@ -82,8 +82,8 @@ public class OrdenDeInspeccion {
         this.observacionCierreOrden = observacionCierreOrden;
     }
 
-    public void ponerSismografoFueraServicio(Estado estado, List<String> comentarios){
-        this.estacion.ponerSismografoFueraServicio(estado, comentarios);
+    public void ponerSismografoFueraServicio(Estado estado, Map<MotivoTipo, String> motivosYComentarios){
+        this.estacion.ponerSismografoFueraServicio(estado, motivosYComentarios);
     }
 
     //metodos extra

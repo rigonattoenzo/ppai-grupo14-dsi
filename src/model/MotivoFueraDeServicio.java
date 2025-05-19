@@ -1,5 +1,7 @@
 package model;
 
+import java.util.Map;
+
 /**
  * Motivo específico de fuera de servicio, con comentario.
  */

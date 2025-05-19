@@ -1,7 +1,7 @@
 package gestor;
 
 // Import del boundary, modelos y datos
-import boundary.PantallaInspeccion;
+import boundary.*;
 import datos.RepositorioDatos;
 import model.*;
 
@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Comparator;
+import java.time.format.DateTimeFormatter;
 
 public class GestorCierreInspeccion {
     // Pantalla
@@ -21,13 +22,13 @@ public class GestorCierreInspeccion {
     // Atributos locales
     private List<OrdenDeInspeccion> ordenesDeInspeccion;
     private String observacionCierreOrden;
-    private List<String> descripciones;
-    private Map<String, String> motivosYComentarios = new HashMap<>();
-    // private MotivoTipo ultimoMotivoSeleccionado = null;
-    private String ultimoMotivoSeleccionado;
+    // private List<String> descripciones new ArrayList<>();
+    private Map<MotivoTipo, String> motivosYComentarios = new HashMap<>();
+    private List<MotivoTipo> punteroMotivos = new ArrayList<>();
+    private MotivoTipo ultimoMotivoSeleccionado = null;
 
     private String confirmacionCierreOrden;
-    private LocalDateTime fechaHoraActual;
+    private LocalDateTime fechaHoraActual = LocalDateTime.now();
     private String mailResponsable;
     private String correoAEnviar;
     private List<Map<String, Object>> ordenesFiltradasConDatos;
@@ -37,7 +38,6 @@ public class GestorCierreInspeccion {
     private Empleado empleadoLogueado;
     private Sesion sesion;
     private Empleado responsableReparacion;
-    private List<MotivoFueraDeServicio> motivosFueraServicio;
     private Estado estadoCerrado;
     private Estado estadoFueraDeServicio;
 
@@ -45,8 +45,8 @@ public class GestorCierreInspeccion {
     // private InterfazNotificacionMail interfazMail;
     // private MonitorCCRS monitorCCRS;
 
-    public int getDescripcionesSize() {
-        return descripciones.size();
+    public int getPunteroMotivoSize() {
+        return this.punteroMotivos.size();
     }
 
     // Métodos
@@ -104,7 +104,7 @@ public class GestorCierreInspeccion {
 
     public void ordenarPorFechaDeFinalizacion() {
         if (ordenesFiltradasConDatos == null) {
-            System.out.println("No hay órdenes para ordenar");
+            pantalla.mostrarMensaje("No hay órdenes para ordenar");
             return;
         }
 
@@ -149,16 +149,14 @@ public class GestorCierreInspeccion {
 
     //PASO 6
     public void buscarTiposMotivosFueraServicio() {
-        List<MotivoTipo> motivos = RepositorioDatos.getMotivos();  // obtiene todos los MotivoTipo
+        this.punteroMotivos = RepositorioDatos.getMotivos();  // obtiene todos los MotivoTipo
         List<String> descMotivos = new ArrayList<>();        // lista para guardar solo las descripciones
 
-        for (MotivoTipo motivo : motivos) {
+        for (MotivoTipo motivo : this.punteroMotivos) {
             descMotivos.add(motivo.getDescripcion());        // extrae y agrega cada descripción
         }
 
-        this.descripciones = descMotivos;
-
-        pantalla.mostrarMotivosTipoFueraServicio(descripciones);
+        pantalla.mostrarMotivosTipoFueraServicio(descMotivos);
         pedirSelecMotivosFueraServicio();
     }
 
@@ -171,7 +169,7 @@ public class GestorCierreInspeccion {
 
             // si no es 0, pedir comentario y guardar
             if (motivoNum != 0) {
-                if (!motivosYComentarios.containsKey(descripciones.get(motivoNum - 1))) {
+                if (!motivosYComentarios.containsKey(this.punteroMotivos.get(motivoNum - 1))) {
                     pantalla.pedirComentario();
                 } else {
                     pantalla.mostrarMensaje("Error! ese motivo ya fue seleccionado...");
@@ -186,8 +184,8 @@ public class GestorCierreInspeccion {
 
     //PASO 7
     public void tomarMotivoTipoFueraServicio(int motivoNum) {
-        String motivo = descripciones.get(motivoNum - 1);
-        this.ultimoMotivoSeleccionado = motivo;
+        MotivoTipo motivoSelecc = this.punteroMotivos.get(motivoNum - 1);
+        this.ultimoMotivoSeleccionado = motivoSelecc;
     }
 
 
@@ -209,21 +207,24 @@ public class GestorCierreInspeccion {
     //PASO 10
     public void validarExistenciaObservacion() {
         if (observacionCierreOrden != null && !observacionCierreOrden.trim().isEmpty()) {
-            System.out.println("Observacion validada exitosamente!");
+            pantalla.mostrarMensaje("Observacion validada exitosamente!");
         } else {
-            System.out.println("ERROR! La observacion de cierre es obligatoria para ingresar!!");
+            pantalla.mostrarMensaje("ERROR! La observacion de cierre es obligatoria para ingresar!!");
         };
         validarExistenciaMotivoSeleccionado();
     }
 
     public void validarExistenciaMotivoSeleccionado() {
-        if (motivosFueraServicio != null && !motivosFueraServicio.isEmpty()) {
-            System.out.println("Motivo Seleccionado validado exitosamente!");
+        if (this.motivosYComentarios != null && !motivosYComentarios.isEmpty()) {
+            pantalla.mostrarMensaje("Motivo Seleccionado validado exitosamente!");
         } else {
-            System.out.println("ERROR! El motivo se debe seleccionar obligatoriamente");
+            pantalla.mostrarMensaje("ERROR! El motivo se debe seleccionar obligatoriamente");
         }
+
         buscarEstadoCerrado();
         buscarFueraServicio();
+
+        cerrarOrdenInspeccion();
     }
 
     //PASO 11
@@ -246,9 +247,11 @@ public class GestorCierreInspeccion {
         }
     }
 
-    public void getFechaHoraActual() {
-        fechaHoraActual = LocalDateTime.now();
+    public void setFechaHoraActual() {
+        this.fechaHoraActual = LocalDateTime.now();
     }
+
+    public LocalDateTime getFechaHoraActual() { return this.fechaHoraActual; }
 
     public void buscarFueraServicio() {
         List<Estado> estados = RepositorioDatos.getEstados(); // obtiene todos los estados
@@ -270,20 +273,31 @@ public class GestorCierreInspeccion {
 
 
     public void cerrarOrdenInspeccion() {
-        this.ordenSeleccionada.setFechaHoraCierre();
-        this.ordenSeleccionada.setEstado(this.estadoCerrado);
-        ponerSismografoFueraServicio();
+        OrdenDeInspeccion ordenEncontrada = null;
+        String nroSeleccionado = String.valueOf(this.ordenSeleccionada.get("nroDeOrden"));
+
+        for (OrdenDeInspeccion orden : this.ordenesDeInspeccion) {
+            String nroOrden = String.valueOf(orden.getNumeroOrden());
+
+            if (nroOrden.equals(nroSeleccionado)) {
+                ordenEncontrada = orden;
+                break;
+            }
+        }
+
+        ordenEncontrada.setFechaHoraCierre(getFechaHoraActual());
+        ordenEncontrada.setEstado(this.estadoCerrado);
+        ponerSismografoFueraServicio(ordenEncontrada);
     }
 
     //PASO 12
-    public void ponerSismografoFueraServicio() {
-        String[] comentarios = motivosYComentarios.values().toArray(new String[0]);
-        System.out.println(comentarios);
-        this.ordenSeleccionada.ponerSismografoFueraServicio(this.estadoFueraDeServicio, comentarios);
+    public void ponerSismografoFueraServicio(OrdenDeInspeccion ordenEncontrada) {
+        ordenEncontrada.ponerSismografoFueraServicio(this.estadoFueraDeServicio, this.motivosYComentarios);
+        buscarResponsableReparacion();
     }
 
     //PASO 13
-    /*public List<String> buscarResponsableReparacion() {
+    public void buscarResponsableReparacion() {
         List<Empleado> todosLosEmpleados = RepositorioDatos.getEmpleados(); // asumido
         List<String> mails = new ArrayList<>();
 
@@ -298,23 +312,66 @@ public class GestorCierreInspeccion {
     }
 
     public void enviarCorreo(List<String> mails) {
-        String mensaje = generarMensajeNotificacion(); // Método que armará el texto completo
-        InterfazNotificacionMail interfazMail = new InterfazNotificacionMail();
+        // Obtener las dependencias del repositorio
+        InterfazNotificacionMail interfazMail = RepositorioDatos.getInterfazMail();
+        List<MonitorCCRS> monitores = RepositorioDatos.getMonitores();
 
+        // Generar el mensaje que se enviará y publicará
+        String mensaje = generarMensajeNotificacion();
+
+        // Enviar mail a cada destinatario
         for (String mail : mails) {
             interfazMail.enviarNotificacion(mail, mensaje);
         }
-    }*/
 
-    public void finCU() {
-        System.out.println("Caso de uso ejecutado exitosamente.");
+        // Publicar en cada monitor
+        for (MonitorCCRS monitor : monitores) {
+            monitor.publicarNotificacion(mensaje);
+        }
+
+        finCU();
     }
 
-    /*
-    // Clases auxiliares simuladas (para que compile aunque no existan aún)
-    private class Empleado {}
-    private class OrdenInspeccion {}
-    private class MotivoFueraServicio {}
-    private class EstadoOrden {}
-    */
+    public String generarMensajeNotificacion() {
+        // Obtener la identificación del sismógrafo
+        String identificacionSismografo = "";
+        if (ordenSeleccionada != null) {
+            Object sismo = ordenSeleccionada.get("sismografo");
+            if (sismo instanceof Sismografo) {
+                identificacionSismografo = ((Sismografo) sismo).getIdentificadorSismografo();
+            }
+        }
+
+        // Nombre del estado "Fuera de Servicio"
+        String nombreEstado = estadoFueraDeServicio != null ? estadoFueraDeServicio.getNombreEstado() : "Fuera de Servicio";
+
+        // Fecha y hora actual del cambio de estado
+        String fechaHora = getFechaHoraActual().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss"));
+
+        // Construir texto de motivos y comentarios
+        StringBuilder motivosTexto = new StringBuilder();
+        for (Map.Entry<MotivoTipo, String> entry : motivosYComentarios.entrySet()) {
+            String motivo = entry.getKey().getDescripcion();
+            String comentario = entry.getValue();
+            motivosTexto.append("- ").append(motivo);
+            if (comentario != null && !comentario.isBlank()) {
+                motivosTexto.append(": ").append(comentario);
+            }
+            motivosTexto.append("\n");
+        }
+
+        // Armar mensaje completo
+        StringBuilder mensaje = new StringBuilder();
+        mensaje.append("Notificación de Cambio de Estado del Sismógrafo\n\n");
+        mensaje.append("Sismógrafo: ").append(identificacionSismografo).append("\n");
+        mensaje.append("Nuevo estado: ").append(nombreEstado).append("\n");
+        mensaje.append("Fecha y hora de cambio: ").append(fechaHora).append("\n\n");
+        mensaje.append("Motivos y comentarios:\n").append(motivosTexto);
+
+        return mensaje.toString();
+    }
+
+    public void finCU() {
+        pantalla.mostrarMensaje("Caso de uso ejecutado exitosamente.");
+    }
 }

@@ -3,6 +3,7 @@ package model;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Representa una Estación Sismológica.
@@ -81,8 +82,8 @@ public class EstacionSismologica {
         return sismografo.getIdentificadorSismografo();
     }
 
-    public void ponerSismografoFueraServicio(Estado estado, List<String> comentarios){
-        this.sismografo.fueraServicio(estado, comentarios);
+    public void ponerSismografoFueraServicio(Estado estado, Map<MotivoTipo, String> motivosYComentarios){
+        this.sismografo.fueraServicio(estado, motivosYComentarios);
     }
 
     // toString para impresión
