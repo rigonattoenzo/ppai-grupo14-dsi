@@ -65,6 +65,10 @@ public class OrdenDeInspeccion {
         return estacion.obtenerIdentificadorSismografo();
     }
 
+    public String getObservacionCierreOrden() {
+        return observacionCierreOrden;
+    }
+
     //setters
     public void setEstado(Estado estado) {
         this.estadoActual = estado;
@@ -72,10 +76,6 @@ public class OrdenDeInspeccion {
 
     public void setFechaHoraCierre(LocalDateTime fechaHoraCierre) {
         this.fechaHoraCierre = fechaHoraCierre;
-    }
-
-    public String getObservacionCierreOrden() {
-        return observacionCierreOrden;
     }
 
     public void setObservacionCierreOrden(String observacionCierreOrden) {
@@ -93,6 +93,11 @@ public class OrdenDeInspeccion {
 
     public boolean sosCompletamenteRealizada() {
         return estadoActual.esCompletamenteRealizada();
+    }
+    
+     public void cerrar(Estado estadoCerrado) {
+        this.setFechaHoraCierre(LocalDateTime.now());
+        this.setEstado(estadoCerrado);
     }
 
     // Método principal para que el gestor llame y obtenga los datos

@@ -241,17 +241,19 @@ public class GestorCierreInspeccion {
 
         if (estadoCerrado != null) {
             this.estadoCerrado = estadoCerrado; // guarda en un atributo si lo tenés declarado
-            pantalla.mostrarEstadoCerrado(estadoCerrado); // muestra en pantalla
-        }  else {
-            pantalla.mostrarErrorEstadoNoEncontrado("CERRADO");
-        }
+            //pantalla.mostrarEstadoCerrado(estadoCerrado); // muestra en pantalla
+        }  //else {
+            //pantalla.mostrarErrorEstadoNoEncontrado("CERRADO");
+       // }
     }
 
     public void setFechaHoraActual() {
         this.fechaHoraActual = LocalDateTime.now();
     }
 
-    public LocalDateTime getFechaHoraActual() { return this.fechaHoraActual; }
+    public LocalDateTime getFechaHoraActual() {
+        return this.fechaHoraActual;
+    }
 
     public void buscarFueraServicio() {
         List<Estado> estados = RepositorioDatos.getEstados(); // obtiene todos los estados
@@ -266,11 +268,10 @@ public class GestorCierreInspeccion {
         if (estadoFueraDeServicio != null) {
             this.estadoFueraDeServicio = estadoFueraDeServicio;
             // pantalla.mostrarEstadoFueraDeServicio(estadoFueraDeServicio); // muestra en pantalla
-        } else {
-            pantalla.mostrarErrorEstadoNoEncontrado("FUERA DE SERVICIO");
-        }
+        } //else {
+            //pantalla.mostrarErrorEstadoNoEncontrado("FUERA DE SERVICIO");
+        //}
     }
-
 
     public void cerrarOrdenInspeccion() {
         OrdenDeInspeccion ordenEncontrada = null;
@@ -284,11 +285,14 @@ public class GestorCierreInspeccion {
                 break;
             }
         }
-
-        ordenEncontrada.setFechaHoraCierre(getFechaHoraActual());
-        ordenEncontrada.setEstado(this.estadoCerrado);
+        ordenEncontrada.cerrar(this.estadoCerrado);
         ponerSismografoFueraServicio(ordenEncontrada);
     }
+    /*
+     public void cerrar() {
+        ordenEncontrada.setFechaHoraCierre(getFechaHoraActual());
+        ordenEncontrada.setEstado(this.estadoCerrado);
+    } */
 
     //PASO 12
     public void ponerSismografoFueraServicio(OrdenDeInspeccion ordenEncontrada) {

@@ -34,6 +34,7 @@ public class PantallaInspeccion {
     }
 
     // Métodos del caso de uso 37
+    //PASO 1
     public void opcionCerrarOrdenDeInspeccion() {
         habilitarVentana();
     }
@@ -43,6 +44,7 @@ public class PantallaInspeccion {
         gestor.iniciarCierreOrdenInspeccion();          // comienza el flujo del caso de uso
     }
 
+    //PASO 2
     public void mostrarOrdCompRealizadas() {
         System.out.println("Órdenes Completamente Realizadas del Empleado:");
 
@@ -83,10 +85,12 @@ public class PantallaInspeccion {
         tomarOrdenInspeccionSelec(ordenSeleccionada);
     }
 
+    //PASO 3
     public void tomarOrdenInspeccionSelec(Map<String,Object> ordenSeleccionada) {
         gestor.tomarOrdenInspeccionSelec(ordenSeleccionada);
     }
 
+    //PASO 4
     public void pedirObservacionCierreOrden() {
         System.out.println("Ingrese una observación de cierre a la orden de inspección seleccionada:");
 
@@ -99,10 +103,12 @@ public class PantallaInspeccion {
         tomarObservacionCierreOrden(observacionCierre);
     }
 
+    //PASO 5
     public void tomarObservacionCierreOrden(String observacionCierre) {
         gestor.tomarObservacionCierreOrden(observacionCierre);
     }
 
+    //PASO 6
     public void mostrarMotivosTipoFueraServicio(List<String> descrip) {
         System.out.println("Motivos Fuera de servicio:");
 
@@ -120,6 +126,7 @@ public class PantallaInspeccion {
         return numMotivo;
     }
 
+    //PASO 7
     public int tomarMotivoTipoFueraServicio() {
         int motivoNum = -1;
 
@@ -173,6 +180,7 @@ public class PantallaInspeccion {
         gestor.tomarComentario(comentario);
     }
 
+    //PASO 8
     public void pedirConfirmacionCierreOrden() {
         Scanner scanner = new Scanner(System.in);
         String confirmacionCierre;
@@ -190,10 +198,11 @@ public class PantallaInspeccion {
         }
     }
 
+    //PASO 9 (último de PantallaInspección)
     public void tomarConfirmacionCierreOrden(String confirmacionCierre) {
         gestor.tomarConfirmacionCierreOrden(confirmacionCierre);
     }
-
+     /* //REVISAR!
     public void mostrarEstadoCerrado(Estado estado) {
         System.out.println("¡Estado 'CERRADO' encontrado!");
         System.out.println("Nombre: " + estado.getNombreEstado());
@@ -209,7 +218,7 @@ public class PantallaInspeccion {
     public void mostrarErrorEstadoNoEncontrado(String nombreEstado) {
         System.out.println("Error: No se encontró el estado '" + nombreEstado + "'.");
     }
-
+    */
 
     // Clases auxiliares simuladas para que compile (después se reeplazan por las reales)
     private class Boton {}

@@ -14,13 +14,17 @@ public class MotivoTipo {
     public String getDescripcion() {
         return descripcion;
     }
+    public void setDescripcion(String descripcion) {
+        this.descripcion = descripcion;
+    }
+}
 
     // Dentro de MotivoTipo.java
 
-    @Override
-    public String toString() {
+   /* @Override
+   public String toString() {
         return "MotivoTipo{" +
                 "descripcion='" + descripcion + '\'' +
                 '}';
     }
-}
+}*/
