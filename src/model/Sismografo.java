@@ -14,8 +14,8 @@ public class Sismografo {
 
     // Asociaciones
     private EstacionSismologica estacion;            // Estación donde está instalado
-    private List<CambioDeEstado> cambiosDeEstado
-            = new ArrayList<>();                       // Historial de cambios
+    private List<CambioDeEstado> cambiosDeEstado = new ArrayList<>();
+    private CambioDeEstado cambioEstado; // Historial de cambios
 
     public Sismografo(String identificador,
                       String nroSerie,
@@ -34,6 +34,10 @@ public class Sismografo {
 
     public List<CambioDeEstado> getCambiosDeEstado() {
         return cambiosDeEstado;
+    }
+
+    public void setCambiosDeEstado(List<CambioDeEstado> cambiosDeEstado) {
+        this.cambiosDeEstado = cambiosDeEstado;
     }
 
     public EstacionSismologica getEstacion() {
@@ -55,6 +59,29 @@ public class Sismografo {
     public void setEstacion(EstacionSismologica estacion) {
         this.estacion = estacion;
     }
+
+    public void fueraServicio(Estado estado, List<String> comentarios){
+        CambioDeEstado actual = null;
+        for (CambioDeEstado cambio : cambiosDeEstado) {
+            if (cambio.esEstadoActual()) {
+                actual = cambio;
+                break;
+            }
+        }
+
+        if (actual != null) {
+            actual.setFechaHoraFin(LocalDateTime.now());
+        }
+
+        //ejecutarCambioDeEstado(estado, comentarios);
+    }
+
+    /*public void ejecutarCambioDeEstado(Estado estado, List<String> comentarios){
+        CambioDeEstado nuevo = new CambioDeEstado();
+        nuevo.setEstado(estado);
+        nuevo.setFechaHoraInicio(LocalDateTime.now());
+        nuevo.crearMotivoFueraServicio(comentarios);
+    }*/
 
     //metodos extra
     public void agregarCambioDeEstado(CambioDeEstado cambio) {

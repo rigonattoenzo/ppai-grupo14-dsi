@@ -81,6 +81,10 @@ public class EstacionSismologica {
         return sismografo.getIdentificadorSismografo();
     }
 
+    public void ponerSismografoFueraServicio(Estado estado, List<String> comentarios){
+        this.sismografo.fueraServicio(estado, comentarios);
+    }
+
     // toString para impresión
     @Override
     public String toString() {

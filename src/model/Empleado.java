@@ -25,8 +25,8 @@ public class Empleado {
     }
 
     //metodos vista estatica
-    public boolean esResponsableDeReparacion() {
-        return "ResponsableInspeccion".equals(rol.getNombreRol());
+    public boolean esResponsableReparacion() {
+        return rol != null && rol.esResponsableReparacion();
     }
 
     public String obtenerMail() {

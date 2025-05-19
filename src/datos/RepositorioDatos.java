@@ -14,8 +14,10 @@ import java.util.ArrayList;
 public class RepositorioDatos {
     private static List<OrdenDeInspeccion> ordenesDeInspeccion = new ArrayList<>();
     private static Usuario usuario;  // declarada aquí a nivel de clase
-    private static List<MotivoTipo> motivos;
+    private static List<MotivoTipo> motivos = new ArrayList<>();
     private static List<Estado> estados = new ArrayList<>();
+    private static List<CambioDeEstado> cambiosEstado = new ArrayList<>();
+    private static List<Empleado> empleados = new ArrayList<>();
 
     static {
         // Empleados y usuario
@@ -24,6 +26,7 @@ public class RepositorioDatos {
 
         Empleado emp2 = new Empleado("Otro", "Empleado", "0002", "otro@mail.com", new Rol("RI", "Responsable"));
 
+        Empleado emp3 = new Empleado("Claudia", "Reparadora", "0003", "claudia@mail.com", new Rol("RR", "Responsable Reparación"));
         // Estados
         Estado completo = new Estado("Completamente Realizada", "OrdenDeInspeccion");
         Estado enProceso = new Estado("En Proceso", "OrdenDeInspeccion");
@@ -34,6 +37,22 @@ public class RepositorioDatos {
         estados.add(enProceso);
         estados.add(completo);
         estados.add(fueraDeServicio);
+
+        // Motivos fuera de servicio
+        motivos.add(new MotivoTipo("Sensor dañado"));
+        motivos.add(new MotivoTipo("Interferencia eléctrica"));
+        motivos.add(new MotivoTipo("Condiciones climáticas adversas"));
+
+        // Cambios de Estado
+        CambioDeEstado cambioEstado1 = new CambioDeEstado(completo, LocalDateTime.of(2024, 3, 4, 6, 10));
+        CambioDeEstado cambioEstado2 = new CambioDeEstado(enProceso, LocalDateTime.of(2023, 6, 7, 16, 45));
+        CambioDeEstado cambioEstado3 = new CambioDeEstado(fueraDeServicio, LocalDateTime.of(2024, 5, 7, 19, 40));
+        CambioDeEstado cambioEstado4 = new CambioDeEstado(fueraDeServicio, LocalDateTime.of(2022, 10, 10, 10, 10));
+
+        cambiosEstado.add(cambioEstado1);
+        cambiosEstado.add(cambioEstado2);
+        cambiosEstado.add(cambioEstado3);
+        cambiosEstado.add(cambioEstado4);
 
         // Estaciones
         EstacionSismologica est1 = new EstacionSismologica("EST-001", "DOC-001", LocalDateTime.of(2024,10,1, 9, 0), -34.5, -58.4, "La Plata", "CERT-001", null);
@@ -46,6 +65,9 @@ public class RepositorioDatos {
         est1.setSismografo(sism2);
         est2.setSismografo(sism1);
 
+        sism1.setCambiosDeEstado(cambiosEstado);
+        sism2.setCambiosDeEstado(cambiosEstado);
+
         // Órdenes
         OrdenDeInspeccion o1 = new OrdenDeInspeccion(101, LocalDateTime.of(2025,5,1,9,0), LocalDateTime.of(2025,5,3,17,0), emp1, est1);
         o1.setEstado(completo);
@@ -57,12 +79,6 @@ public class RepositorioDatos {
         o3.setEstado(completo);
 
         ordenesDeInspeccion.addAll(List.of(o1, o2, o3));
-
-        motivos = new ArrayList<>();
-        // Ejemplos de carga inicial (puede estar en otro método también)
-        motivos.add(new MotivoTipo("Sensor dañado"));
-        motivos.add(new MotivoTipo("Interferencia eléctrica"));
-        motivos.add(new MotivoTipo("Condiciones climáticas adversas"));
     }
 
     public static List<OrdenDeInspeccion> obtenerOrdenes() {
@@ -79,5 +95,9 @@ public class RepositorioDatos {
 
     public static List<Estado> getEstados() {
         return estados;
+    }
+
+    public static List<Empleado> getEmpleados() {
+        return empleados;
     }
 }

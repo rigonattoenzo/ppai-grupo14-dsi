@@ -21,6 +21,11 @@ public class Rol {
         return descripcionRol;
     }
 
+    //metodos
+    public boolean esResponsableReparacion() {
+        return nombre.equalsIgnoreCase("RR");
+    }
+
     // Dentro de Rol.java
 
     @Override

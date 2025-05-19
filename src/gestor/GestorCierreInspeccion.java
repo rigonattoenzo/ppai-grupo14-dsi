@@ -64,10 +64,12 @@ public class GestorCierreInspeccion {
         return ordenesFiltradasConDatos;
     }
 
+    //PASO 1
     public void iniciarCierreOrdenInspeccion() {
         obtenerEmpleadoLogueado();
     }
 
+    //PASO 2
     public void obtenerEmpleadoLogueado() {
         // Ver de justificar este método agregándolo en el diagrama de secuencia (el getInstancia())
         this.empleadoLogueado = Sesion.getInstancia().getUsuario().getRiLogueado();
@@ -128,20 +130,24 @@ public class GestorCierreInspeccion {
         pantalla.pedirSelecOrdenInspeccion(this.ordenesFiltradasConDatos);
     }
 
+    //PASO 3
     public void tomarOrdenInspeccionSelec(Map<String,Object> ordenSeleccionada) {
         this.ordenSeleccionada = ordenSeleccionada;
         pedirObservacionCierreOrden();
     }
 
+    //PASO 4
     public void pedirObservacionCierreOrden() {
         pantalla.pedirObservacionCierreOrden();
     }
 
+    //PASO 5
     public void tomarObservacionCierreOrden(String observacion) {
         this.observacionCierreOrden = observacion;
         buscarTiposMotivosFueraServicio();
     }
 
+    //PASO 6
     public void buscarTiposMotivosFueraServicio() {
         List<MotivoTipo> motivos = RepositorioDatos.getMotivos();  // obtiene todos los MotivoTipo
         List<String> descMotivos = new ArrayList<>();        // lista para guardar solo las descripciones
@@ -155,6 +161,7 @@ public class GestorCierreInspeccion {
         pantalla.mostrarMotivosTipoFueraServicio(descripciones);
         pedirSelecMotivosFueraServicio();
     }
+
 
     public void pedirSelecMotivosFueraServicio() { // falta la validación
         int motivoNum = -1;
@@ -177,6 +184,7 @@ public class GestorCierreInspeccion {
         pedirConfirmacionCierreOrden();
     }
 
+    //PASO 7
     public void tomarMotivoTipoFueraServicio(int motivoNum) {
         String motivo = descripciones.get(motivoNum - 1);
         this.ultimoMotivoSeleccionado = motivo;
@@ -187,15 +195,18 @@ public class GestorCierreInspeccion {
         motivosYComentarios.put(this.ultimoMotivoSeleccionado, comentario);
     }
 
+    //PASO 8
     public void pedirConfirmacionCierreOrden() {
         pantalla.pedirConfirmacionCierreOrden();
     }
 
+    //PASO 9
     public void tomarConfirmacionCierreOrden(String confirmacionCierre) {
         this.confirmacionCierreOrden = confirmacionCierre;
         validarExistenciaObservacion();
     }
 
+    //PASO 10
     public void validarExistenciaObservacion() {
         if (observacionCierreOrden != null && !observacionCierreOrden.trim().isEmpty()) {
             System.out.println("Observacion validada exitosamente!");
@@ -215,6 +226,7 @@ public class GestorCierreInspeccion {
         buscarFueraServicio();
     }
 
+    //PASO 11
     public void buscarEstadoCerrado() {
         List<Estado> estados = RepositorioDatos.getEstados(); // obtiene todos los estados
         Estado estadoCerrado = null;
@@ -256,21 +268,43 @@ public class GestorCierreInspeccion {
         }
     }
 
+
     public void cerrarOrdenInspeccion() {
-        // Método vacío
+        this.ordenSeleccionada.setFechaHoraCierre();
+        this.ordenSeleccionada.setEstado(this.estadoCerrado);
+        ponerSismografoFueraServicio();
     }
 
+    //PASO 12
     public void ponerSismografoFueraServicio() {
-        // Método vacío
+        String[] comentarios = motivosYComentarios.values().toArray(new String[0]);
+        System.out.println(comentarios);
+        this.ordenSeleccionada.ponerSismografoFueraServicio(this.estadoFueraDeServicio, comentarios);
     }
 
-    public void buscarResponsableReparacion() {
-        // Método vacío
+    //PASO 13
+    /*public List<String> buscarResponsableReparacion() {
+        List<Empleado> todosLosEmpleados = RepositorioDatos.getEmpleados(); // asumido
+        List<String> mails = new ArrayList<>();
+
+        for (Empleado e : todosLosEmpleados) {
+            if (e.esResponsableReparacion()) { // llama a Empleado -> Rol
+                String mail = e.obtenerMail();
+                mails.add(mail);
+            }
+        }
+
+        enviarCorreo(mails);
     }
 
-    public void enviarCorreo() {
-        // Método vacío
-    }
+    public void enviarCorreo(List<String> mails) {
+        String mensaje = generarMensajeNotificacion(); // Método que armará el texto completo
+        InterfazNotificacionMail interfazMail = new InterfazNotificacionMail();
+
+        for (String mail : mails) {
+            interfazMail.enviarNotificacion(mail, mensaje);
+        }
+    }*/
 
     public void finCU() {
         System.out.println("Caso de uso ejecutado exitosamente.");

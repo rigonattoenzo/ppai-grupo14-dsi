@@ -82,6 +82,10 @@ public class OrdenDeInspeccion {
         this.observacionCierreOrden = observacionCierreOrden;
     }
 
+    public void ponerSismografoFueraServicio(Estado estado, List<String> comentarios){
+        this.estacion.ponerSismografoFueraServicio(estado, comentarios);
+    }
+
     //metodos extra
     public boolean sosDeEmpleado(Empleado empleado) {
         return this.empleado.equals(empleado);
