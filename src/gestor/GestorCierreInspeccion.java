@@ -49,10 +49,27 @@ public class GestorCierreInspeccion {
         return this.punteroMotivos.size();
     }
 
+    public String asString(Map<String, Object> datosOrden) {
+        String nro = String.valueOf(datosOrden.get("nroDeOrden"));
+        String estacion = String.valueOf(datosOrden.get("nombreEstacion"));
+        String idSismografo = String.valueOf(datosOrden.get("idSismografo"));
+        String fechaFin = String.valueOf(datosOrden.get("fechaFinalizacion"));
+
+        return String.format(
+                "Orden #%s - Estación: %s | Sismógrafo: %s | Finalizada: %s",
+                nro, estacion, idSismografo, fechaFin
+        );
+    }
+
+    public Map<MotivoTipo,String> getMotivosYComentarios() {
+        return motivosYComentarios;
+    }
+
     // Métodos
     public GestorCierreInspeccion(PantallaInspeccion pantalla) {
         this.pantalla = pantalla;
         this.empleadoLogueado = Sesion.getInstancia().getUsuario().getEmpleado();
+        //System.out.print(this.empleadoLogueado);
         this.ordenesDeInspeccion = RepositorioDatos.obtenerOrdenes();
     } // Constructor
 
