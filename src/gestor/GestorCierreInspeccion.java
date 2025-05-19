@@ -9,6 +9,7 @@ import model.*;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Comparator;
 
@@ -20,11 +21,16 @@ public class GestorCierreInspeccion {
     // Atributos locales
     private List<OrdenDeInspeccion> ordenesDeInspeccion;
     private String observacionCierreOrden;
-    private Map<MotivoFueraDeServicio, String> comentarioMotivo;
+    private List<String> descripciones;
+    private Map<String, String> motivosYComentarios = new HashMap<>();
+    private MotivoTipo ultimoMotivoSeleccionado = null;
+
+    private String confirmacionCierreOrden;
     private LocalDateTime fechaHoraActual;
     private String mailResponsable;
     private String correoAEnviar;
     private List<Map<String, Object>> ordenesFiltradasConDatos;
+    private Map<String,Object> ordenSeleccionada;
 
     // Atributos referenciales o punteros
     private Empleado empleadoLogueado;
@@ -32,6 +38,7 @@ public class GestorCierreInspeccion {
     private Empleado responsableReparacion;
     private List<MotivoFueraDeServicio> motivosFueraServicio;
     private Estado estadoCerrado;
+    private Estado estadoFueraDeServicio;
 
     // Atributos referenciales de los boundary auxiliares
     // private InterfazNotificacionMail interfazMail;
@@ -114,55 +121,119 @@ public class GestorCierreInspeccion {
     }
 
     public void pedirSelecOrdenInspeccion() {
-        // Método vacío
+        pantalla.pedirSelecOrdenInspeccion(this.ordenesFiltradasConDatos);
     }
 
-    public void tomarOrdenInspeccionSelec(OrdenDeInspeccion orden) {
-        // Método vacío
+    public void tomarOrdenInspeccionSelec(Map<String,Object> ordenSeleccionada) {
+        this.ordenSeleccionada = ordenSeleccionada;
+        pedirObservacionCierreOrden();
     }
 
     public void pedirObservacionCierreOrden() {
-        // Método vacío
+        pantalla.pedirObservacionCierreOrden();
     }
 
     public void tomarObservacionCierreOrden(String observacion) {
-        // Método vacío
+        this.observacionCierreOrden = observacion;
+        buscarTiposMotivosFueraServicio();
     }
 
     public void buscarTiposMotivosFueraServicio() {
-        // Método vacío
+        List<MotivoTipo> motivos = RepositorioDatos.getMotivos();  // obtiene todos los MotivoTipo
+        List<String> descMotivos = new ArrayList<>();        // lista para guardar solo las descripciones
+
+        for (MotivoTipo motivo : motivos) {
+            descMotivos.add(motivo.getDescripcion());        // extrae y agrega cada descripción
+        }
+
+        this.descripciones = descMotivos;
+
+        pantalla.mostrarMotivosTipoFueraServicio(descripciones);
+        pedirSelecMotivosFueraServicio();
     }
 
-    public void pedirSelecMotivosFueraServicio() {
-        // Método vacío
+    public void pedirSelecMotivosFueraServicio() { // falta la validación
+        int motivoNum = -1;
+
+        while (motivoNum != 0) {
+            motivoNum = pantalla.pedirSelecMotivoTipo();
+
+            // si no es 0, pedir comentario y guardar
+            if (motivoNum != 0) {
+                String motivo = descripciones.get(motivoNum - 1);
+                String comentario = pantalla.pedirComentario();
+                motivosYComentarios.put(motivo, comentario);
+            }
+        }
+
+        pantalla.mostrarMensaje("Selección de motivos finalizada.");
+
+        System.out.println("AQQQQQQQQQQQQQQQQQQQQQQQQ");
+
+        pedirConfirmacionCierreOrden();
     }
 
-    public void tomarMotivoTipoFueraServicio(MotivoFueraDeServicio motivo) {
-        // Método vacío
+    public void tomarMotivoTipoFueraServicio(int motivoNum) {
+        /*if (motivoNum >= 1 && motivoNum <= descripciones.size()) {
+            String motivo = descripciones.get(motivoNum - 1);
+            this.ultimoMotivoSeleccionado = motivo;
+            // pantalla.mostrarMensaje("Motivo agregado: " + motivo.getDescripcion());
+        } else {
+            System.out.println("Número fuera de rango.");
+        }*/
+
+        // buscarTiposMotivosFueraServicio();
     }
 
-    public void tomarComentario(MotivoFueraDeServicio motivo, String comentario) {
-        // Método vacío
+    public void tomarComentario(String comentario) {
+
     }
 
     public void pedirConfirmacionCierreOrden() {
-        // Método vacío
+        pantalla.pedirConfirmacionCierreOrden();
     }
 
-    public void tomarConfirmacionCierreOrden() {
-        // Método vacío
+    public void tomarConfirmacionCierreOrden(String confirmacionCierre) {
+        this.confirmacionCierreOrden = confirmacionCierre;
+        validarExistenciaObservacion();
     }
 
     public void validarExistenciaObservacion() {
-        // Método vacío
+        if (observacionCierreOrden != null && !observacionCierreOrden.trim().isEmpty()) {
+            System.out.println("Observacion validada exitosamente!");
+        } else {
+            System.out.println("ERROR! La observacion de cierre es obligatoria para ingresar!!");
+        };
+        validarExistenciaMotivoSeleccionado();
     }
 
     public void validarExistenciaMotivoSeleccionado() {
-        // Método vacío
+        if (motivosFueraServicio != null && !motivosFueraServicio.isEmpty()) {
+            System.out.println("Motivo Seleccionado validado exitosamente!");
+        } else {
+            System.out.println("ERROR! El motivo se debe seleccionar obligatoriamente");
+        }
+        buscarEstadoCerrado();
+        buscarFueraServicio();
     }
 
     public void buscarEstadoCerrado() {
-        // Método vacío
+        List<Estado> estados = RepositorioDatos.getEstados(); // obtiene todos los estados
+        Estado estadoCerrado = null;
+
+        for (Estado estado : estados) {
+            if ("CERRADO".equalsIgnoreCase(estado.getNombreEstado())) {
+                estadoCerrado = estado;
+                break;
+            }
+        }
+
+        if (estadoCerrado != null) {
+            this.estadoCerrado = estadoCerrado; // guarda en un atributo si lo tenés declarado
+            pantalla.mostrarEstadoCerrado(estadoCerrado); // muestra en pantalla
+        }  else {
+            pantalla.mostrarErrorEstadoNoEncontrado("CERRADO");
+        }
     }
 
     public void getFechaHoraActual() {
@@ -170,7 +241,21 @@ public class GestorCierreInspeccion {
     }
 
     public void buscarFueraServicio() {
-        // Método vacío
+        List<Estado> estados = RepositorioDatos.getEstados(); // obtiene todos los estados
+        Estado estadoFueraDeServicio = null;
+
+        for (Estado estado : estados) {
+            if ("FUERA DE SERVICIO".equalsIgnoreCase(estado.getNombreEstado())) {
+                estadoFueraDeServicio = estado;
+                break;
+            }
+        }
+        if (estadoFueraDeServicio != null) {
+            this.estadoFueraDeServicio = estadoFueraDeServicio;
+            pantalla.mostrarEstadoFueraDeServicio(estadoFueraDeServicio); // muestra en pantalla
+        } else {
+            pantalla.mostrarErrorEstadoNoEncontrado("FUERA DE SERVICIO");
+        }
     }
 
     public void cerrarOrdenInspeccion() {

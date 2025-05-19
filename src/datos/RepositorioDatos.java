@@ -14,6 +14,8 @@ import java.util.ArrayList;
 public class RepositorioDatos {
     private static List<OrdenDeInspeccion> ordenesDeInspeccion = new ArrayList<>();
     private static Usuario usuario;  // declarada aquí a nivel de clase
+    private static List<MotivoTipo> motivos;
+    private static List<Estado> estados = new ArrayList<>();
 
     static {
         // Empleados y usuario
@@ -25,6 +27,13 @@ public class RepositorioDatos {
         // Estados
         Estado completo = new Estado("Completamente Realizada", "OrdenDeInspeccion");
         Estado enProceso = new Estado("En Proceso", "OrdenDeInspeccion");
+        Estado cerrado = new Estado("CERRADO", "OrdenDeInspeccion");
+        Estado fueraDeServicio = new Estado("FUERA DE SERVICIO", "EstacionSismologica");
+
+        estados.add(cerrado);
+        estados.add(enProceso);
+        estados.add(completo);
+        estados.add(fueraDeServicio);
 
         // Estaciones
         EstacionSismologica est1 = new EstacionSismologica("EST-001", "DOC-001", LocalDateTime.of(2024,10,1, 9, 0), -34.5, -58.4, "La Plata", "CERT-001", null);
@@ -48,6 +57,12 @@ public class RepositorioDatos {
         o3.setEstado(completo);
 
         ordenesDeInspeccion.addAll(List.of(o1, o2, o3));
+
+        motivos = new ArrayList<>();
+        // Ejemplos de carga inicial (puede estar en otro método también)
+        motivos.add(new MotivoTipo("Sensor dañado"));
+        motivos.add(new MotivoTipo("Interferencia eléctrica"));
+        motivos.add(new MotivoTipo("Condiciones climáticas adversas"));
     }
 
     public static List<OrdenDeInspeccion> obtenerOrdenes() {
@@ -56,5 +71,13 @@ public class RepositorioDatos {
 
     public static Usuario getUsuario() {
         return usuario;
+    }
+
+    public static List<MotivoTipo> getMotivos(){
+        return motivos;
+    }
+
+    public static List<Estado> getEstados() {
+        return estados;
     }
 }

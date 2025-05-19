@@ -26,8 +26,20 @@ public class Estado {
         return "Completamente Realizada".equalsIgnoreCase(nombreEstado);
     }
 
-    public boolean esAmbitoOrdenDeInspeccion() {
+    public boolean sosAmbitoOrdenDeInspeccion() {
         return "Orden de Inspeccion".equalsIgnoreCase(ambito);
+    }
+
+    public boolean sosCerrada() {
+        return "Cerrada".equalsIgnoreCase(nombreEstado);
+    }
+
+    public boolean sosAmbitoSismografo() {
+        return "Sismografo".equalsIgnoreCase(ambito);
+    }
+
+    public boolean sosFueraDeServicio() {
+        return "Fuera De Servicio".equalsIgnoreCase(nombreEstado);
     }
 
     // Dentro de Estado.java

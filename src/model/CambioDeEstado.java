@@ -37,7 +37,6 @@ public class CambioDeEstado {
         return estado;
     }
 
-
     public Empleado getEmpleado() {
         return empleado;
     }

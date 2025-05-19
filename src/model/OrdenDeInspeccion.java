@@ -14,7 +14,7 @@ public class OrdenDeInspeccion {
     private LocalDateTime fechaHoraInicio;
     private LocalDateTime fechaHoraFinalizacion;
     private LocalDateTime fechaHoraCierre;
-    private String observacionCierre;
+    private String observacionCierreOrden;
     private Estado estadoActual;
 
     // Asociaciones
@@ -74,8 +74,12 @@ public class OrdenDeInspeccion {
         this.fechaHoraCierre = fechaHoraCierre;
     }
 
-    public void setObservacionCierre(String observacion) {
-        this.observacionCierre = observacion;
+    public String getObservacionCierreOrden() {
+        return observacionCierreOrden;
+    }
+
+    public void setObservacionCierreOrden(String observacionCierreOrden) {
+        this.observacionCierreOrden = observacionCierreOrden;
     }
 
     //metodos extra
