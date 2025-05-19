@@ -13,7 +13,7 @@ import java.util.ArrayList;
 
 public class RepositorioDatos {
     private static List<OrdenDeInspeccion> ordenesDeInspeccion = new ArrayList<>();
-    private static Usuario usuario;  // declarada aquí a nivel de clase
+    private static Usuario usuario1;  // declarada aquí a nivel de clase
     private static List<MotivoTipo> motivos = new ArrayList<>();
     private static List<Estado> estados = new ArrayList<>();
     private static List<CambioDeEstado> cambiosEstado = new ArrayList<>();
@@ -25,12 +25,22 @@ public class RepositorioDatos {
     static {
         // Empleados y usuario
         Empleado emp1 = new Empleado("Pepe", "López", "0001", "pepe@mail.com", new Rol("RI", "Responsable Inspección"));
-        usuario = new Usuario("pepe123", "pass", emp1);  // asignación
+        usuario1 = new Usuario("pepe123", "pass", emp1);  // asignación
 
         Empleado emp2 = new Empleado("Otro", "Empleado", "0002", "otro@mail.com", new Rol("RI", "Responsable Inspección"));
+        Usuario usuario2 = new Usuario("potro123", "pepass", emp2);  // asignación
 
         Empleado emp3 = new Empleado("Claudia", "Reparadora", "0003", "claudia@mail.com", new Rol("RR", "Responsable Reparación"));
+        Usuario usuario3 = new Usuario("clau123", "pass123", emp3);  // asignación
+
         Empleado emp4 = new Empleado("Mateo", "Reparador", "0004", "matute@mail.com", new Rol("RR", "Responsable Reparación"));
+        Usuario usuario4 = new Usuario("mateo123", "pass456", emp4);  // asignación
+
+        //empleados
+        empleados.add(emp1);
+        empleados.add(emp2);
+        empleados.add(emp3);
+        empleados.add(emp4);
 
         // Estados
         Estado completo = new Estado("Completamente Realizada", "OrdenDeInspeccion");
@@ -77,10 +87,10 @@ public class RepositorioDatos {
         OrdenDeInspeccion o1 = new OrdenDeInspeccion(101, LocalDateTime.of(2025,5,1,9,0), LocalDateTime.of(2025,5,3,17,0), emp1, est1);
         o1.setEstado(completo);
 
-        OrdenDeInspeccion o2 = new OrdenDeInspeccion(102, LocalDateTime.of(2025,5,2,9,0), LocalDateTime.of(2025,5,4,17,0), emp1, est2);
+        OrdenDeInspeccion o2 = new OrdenDeInspeccion(102, LocalDateTime.of(2025,5,2,9,0), LocalDateTime.of(2025,5,4,17,0), emp2, est2);
         o2.setEstado(enProceso);
 
-        OrdenDeInspeccion o3 = new OrdenDeInspeccion(103, LocalDateTime.of(2025,4,28,9,0), LocalDateTime.of(2025,5,1,12,0), emp2, est1);
+        OrdenDeInspeccion o3 = new OrdenDeInspeccion(103, LocalDateTime.of(2025,4,28,9,0), LocalDateTime.of(2025,5,1,12,0), emp1, est1);
         o3.setEstado(completo);
 
         ordenesDeInspeccion.addAll(List.of(o1, o2, o3));
@@ -104,7 +114,7 @@ public class RepositorioDatos {
     }
 
     public static Usuario getUsuario() {
-        return usuario;
+        return usuario1;
     }
 
     public static List<MotivoTipo> getMotivos(){

@@ -45,8 +45,28 @@ public class GestorCierreInspeccion {
     // private InterfazNotificacionMail interfazMail;
     // private MonitorCCRS monitorCCRS;
 
+    public Map<String,Object> getOrdenSeleccionada(){
+        return this.ordenSeleccionada;
+    }
+
     public int getPunteroMotivoSize() {
         return this.punteroMotivos.size();
+    }
+
+    public String asString(Map<String, Object> datosOrden) {
+        String nro = String.valueOf(datosOrden.get("nroDeOrden"));
+        String estacion = String.valueOf(datosOrden.get("nombreEstacion"));
+        String idSismografo = String.valueOf(datosOrden.get("idSismografo"));
+        String fechaFin = String.valueOf(datosOrden.get("fechaFinalizacion"));
+
+        return String.format(
+                "Orden #%s - Estación: %s | Sismógrafo: %s | Finalizada: %s",
+                nro, estacion, idSismografo, fechaFin
+        );
+    }
+
+    public Map<MotivoTipo,String> getMotivosYComentarios() {
+        return motivosYComentarios;
     }
 
     // Métodos
@@ -241,10 +261,10 @@ public class GestorCierreInspeccion {
 
         if (estadoCerrado != null) {
             this.estadoCerrado = estadoCerrado; // guarda en un atributo si lo tenés declarado
-            //pantalla.mostrarEstadoCerrado(estadoCerrado); // muestra en pantalla
-        }  //else {
-            //pantalla.mostrarErrorEstadoNoEncontrado("CERRADO");
-       // }
+            // pantalla.mostrarEstadoCerrado(estadoCerrado); // muestra en pantalla
+        }  else {
+            pantalla.mostrarMensaje("No se encontró el estado Cerrado");
+        }
     }
 
     public void setFechaHoraActual() {
@@ -268,9 +288,9 @@ public class GestorCierreInspeccion {
         if (estadoFueraDeServicio != null) {
             this.estadoFueraDeServicio = estadoFueraDeServicio;
             // pantalla.mostrarEstadoFueraDeServicio(estadoFueraDeServicio); // muestra en pantalla
-        } //else {
-            //pantalla.mostrarErrorEstadoNoEncontrado("FUERA DE SERVICIO");
-        //}
+        } else {
+            pantalla.mostrarMensaje("No se encontró el estado Fuera de Servicio");
+        }
     }
 
     public void cerrarOrdenInspeccion() {
@@ -288,11 +308,6 @@ public class GestorCierreInspeccion {
         ordenEncontrada.cerrar(this.estadoCerrado);
         ponerSismografoFueraServicio(ordenEncontrada);
     }
-    /*
-     public void cerrar() {
-        ordenEncontrada.setFechaHoraCierre(getFechaHoraActual());
-        ordenEncontrada.setEstado(this.estadoCerrado);
-    } */
 
     //PASO 12
     public void ponerSismografoFueraServicio(OrdenDeInspeccion ordenEncontrada) {
