@@ -15,6 +15,9 @@ import javafx.scene.control.Label;
 import javafx.stage.Stage;
 import javafx.scene.control.DialogPane;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
+import javafx.event.ActionEvent;
 
 // import de utilidades de Java
 import java.util.Map;
@@ -212,6 +215,7 @@ public class PantallaInspeccion {
         root.getChildren().add(new Label(mensaje));
     }
 
+    //PASO 7
     /**
      * Muestra un ChoiceDialog con las descripciones numeradas,
      * bloquea hasta que el usuario elija una opción (o cierre).
@@ -222,59 +226,82 @@ public class PantallaInspeccion {
         return numMotivo;
     }
 
-    //PASO 7
     public int tomarMotivoTipoFueraServicio() {
-        // 1) Genero la lista de opciones numeradas
-        List<String> opciones = IntStream
-                .rangeClosed(0, descripcionesMotivos.size())
-                .mapToObj(i -> i == 0
-                        ? "0: Terminar selección"
-                        : String.format("%d: %s", i, descripcionesMotivos.get(i - 1)))
-                .toList();
+        int num = -1;
 
-        // 2) Preparo el texto de resumen de lo ya seleccionado
-        Map<MotivoTipo,String> seleccionados = gestor.getMotivosYComentarios();
-        String resumen = seleccionados.entrySet().stream()
-                .map(e -> "- " + e.getKey().getDescripcion() + ": " + e.getValue())
-                .collect(Collectors.joining("\n"));
-        if (resumen.isEmpty()) {
-            resumen = "(aún no hay motivos seleccionados)";
-        }
+        do {
+            // 1) Genero la lista de opciones numeradas
+            List<String> opciones = IntStream
+                    .rangeClosed(0, descripcionesMotivos.size())
+                    .mapToObj(i -> i == 0
+                            ? "0: Terminar selección"
+                            : String.format("%d: %s", i, descripcionesMotivos.get(i - 1)))
+                    .toList();
 
-        // 3) Construir el diálogo con el resumen en el header
-        ChoiceDialog<String> dialog = new ChoiceDialog<>(opciones.get(0), opciones);
-        dialog.setTitle("Seleccionar motivo");
-        dialog.setHeaderText("YA SELECCIONADOS:\n" + resumen);
-        dialog.setContentText("Seleccione el número del motivo (0 para terminar):");
+            // 2) Preparo el texto de resumen de lo ya seleccionado
+            Map<MotivoTipo,String> seleccionados = gestor.getMotivosYComentarios();
+            String resumen = seleccionados.entrySet().stream()
+                    .map(e -> "- " + e.getKey().getDescripcion() + ": " + e.getValue())
+                    .collect(Collectors.joining("\n"));
+            if (resumen.isEmpty()) {
+                resumen = "(aún no hay motivos seleccionados)";
+            }
 
-        // Para poder cambiar el color de la ventana
-        DialogPane pane = dialog.getDialogPane();
-        pane.setStyle("-fx-padding: 20; -fx-background-color: #e7c6a6;");
+            // 3) Construir el diálogo
+            ChoiceDialog<String> dialog = new ChoiceDialog<>(opciones.get(0), opciones);
+            dialog.setTitle("Seleccionar motivo");
+            dialog.setHeaderText("YA SELECCIONADOS:\n" + resumen);
+            dialog.setContentText("Seleccione el número del motivo (0 para terminar):");
 
-        // Cambiar el color del boton ok
-        Button okButton = (Button) pane.lookupButton(ButtonType.OK);
-        okButton.setStyle("-fx-background-color: #8ee580; -fx-font-weight: bold;");
+            // (estilos...)
+            DialogPane pane = dialog.getDialogPane();
+            pane.setStyle("-fx-padding: 20; -fx-background-color: #e7c6a6;");
+            Button okButton = (Button) pane.lookupButton(ButtonType.OK);
+            okButton.setStyle("-fx-background-color: #8ee580; -fx-font-weight: bold;");
+            Button cancelButton = (Button) pane.lookupButton(ButtonType.CANCEL);
+            cancelButton.setStyle("-fx-background-color: #d95555; -fx-font-weight: bold; -fx-text-fill: white;");
+            pane.lookupAll(".combo-box").forEach(node -> node.setStyle("-fx-background-color: #fae4cd;"));
 
-        // Cambiar el color/estilo del boton cancelar
-        Button cancelButton = (Button) pane.lookupButton(ButtonType.CANCEL);
-        cancelButton.setStyle("-fx-background-color: #d95555; -fx-font-weight: bold; -fx-text-fill: white;");
+            Optional<String> resultado = dialog.showAndWait();
 
-        // Buscar el ComboBox dentro del DialogPane y cambiarle el fondo
-        pane.lookupAll(".combo-box").forEach(node -> {
-            node.setStyle("-fx-background-color: #fae4cd;");
-        });
+            // 4) Si el usuario cierra el diálogo, volver al inicio del CU
+            if (resultado.isEmpty()) {
+                // reiniciamos todo el caso de uso
+                opcionCerrarOrdenDeInspeccion();
+                return 0;
+            }
 
-        Optional<String> resultado = dialog.showAndWait();
-        if (resultado.isPresent()) {
+            // 5) Parsear selección
             String elegido = resultado.get();
-            int num = Integer.parseInt(elegido.split(":")[0]);
+            num = Integer.parseInt(elegido.split(":")[0]);
+
+            // 6) Si elige 0 sin haber seleccionado motivos → alerta y repite
+            if (num == 0 && gestor.getMotivosYComentarios().isEmpty()) {
+                Alert alerta = new Alert(AlertType.ERROR,
+                        "Debes seleccionar al menos un motivo antes de terminar.",
+                        ButtonType.OK);
+                alerta.setHeaderText("Selección incompleta");
+
+                DialogPane paneAl = alerta.getDialogPane();
+                paneAl.setStyle("-fx-background-color: #e7c6a6; -fx-font-size: 14px; -fx-padding: 20;");
+
+                //Cambiar el color del boton Ok
+                Button okBtn = (Button) paneAl.lookupButton(ButtonType.OK);
+                okBtn.setStyle("-fx-background-color: #8ee580; -fx-font-weight: bold;");
+
+                alerta.showAndWait();
+                continue;  // vuelve a mostrar el diálogo
+            }
+
+            // 7) Si es motivo válido, delegar al gestor y salir
             if (num != 0) {
                 gestor.tomarMotivoTipoFueraServicio(num);
             }
-            return num;
-        } else {
-            return 0;
-        }
+            break;
+
+        } while (true);
+
+        return num;
     }
 
     /**
