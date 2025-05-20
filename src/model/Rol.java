@@ -27,12 +27,12 @@ public class Rol {
     }
 
     // Dentro de Rol.java
-
+    /*
     @Override
     public String toString() {
         return "Rol{" +
                 "nombre='" + nombre + '\'' +
                 ", descripcion='" + descripcionRol + '\'' +
                 '}';
-    }
+    }*/
 }

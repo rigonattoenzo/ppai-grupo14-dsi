@@ -91,26 +91,20 @@ public class PantallaInspeccion {
         List<Map<String,Object>> ordenes = gestor.getOrdenesFiltradasConDatos();
         this.ordenesActuales = ordenes;
 
-        // Limpio todo antes de volcar las órdenes
+        // Limpiar todo antes de volcar las órdenes
         root.getChildren().clear();
 
-        /*Para provar la alternativa A1, se debe cambiar en RepositorioDatos.java y desasignar las ordenes
-        de inspeccion del emp1, y asignarlas a emp2 o cualquiera. En teoria seria mas facil asignar otro usuario,
-        pero no se como (UPS!). En fin, en teoria funciona. Modifique el codigo en GestorCierreInspeccion.java
-        y comente la linea en la que lo hice.
-        */
-
-        //verifico
+        // Verificar
         if (ordenes.isEmpty()) {
-            //Caso: no hay ordenes realizadas -- verificar bien lo del boton
-            //boton cancelar en teoria
+            // Caso: no hay ordenes realizadas
             Label mensaje = new Label("No tiene ordenes de inspeccion realizadas!");
             Button btnCancelar = new Button("Cancelar cierre");
             btnCancelar.setStyle("-fx-font-size: 15px; -fx-font-weight: bold; -fx-background-color: #c70039;");
             btnCancelar.setOnAction(e -> cancelarCasoUso());
+
             root.getChildren().addAll(mensaje, btnCancelar);
         } else {
-            //Caso: hay ordenes realizadas, todo ok
+            // Caso: hay ordenes realizadas, todo ok
             root.getChildren().add(new Label("Órdenes Completamente Realizadas del Empleado:"));
             for (Map<String, Object> datosOrden : ordenes) {
                 root.getChildren().add(new Label(gestor.asString(datosOrden)));
@@ -123,14 +117,11 @@ public class PantallaInspeccion {
      * Muestra un botón por cada orden y espera al click
      */
     public void pedirSelecOrdenInspeccion(List<Map<String,Object>> ordenes) {
-        // 1) Muestro la lista de órdenes
-        // mostrarOrdCompRealizadas();
-
-        // 2) Añado un separador o un título para los botones
+        // 1) Añado un separador o un título para los botones
         root.setStyle("-fx-background-color: #e7c6a6;");
         root.getChildren().add(new Label("Seleccione una orden de inspección:"));
 
-        // 3) Por cada orden, un botón de selección
+        // 2) Por cada orden, un botón de selección
         for (Map<String,Object> o : ordenes) {
             String nro = String.valueOf(o.get("nroDeOrden"));
             String sismo = String.valueOf(o.get("idSismografo"));
@@ -140,7 +131,7 @@ public class PantallaInspeccion {
             root.getChildren().add(btn);
         }
 
-        // 4) Botón de cancelar
+        // 3) Botón de cancelar
         Button btnCancelar = new Button("Cancelar cierre");
         btnCancelar.setStyle("-fx-font-size: 15px; -fx-font-weight: bold; -fx-background-color: #c70039;");
         btnCancelar.setOnAction(e -> cancelarCasoUso());
@@ -238,8 +229,7 @@ public class PantallaInspeccion {
                 .rangeClosed(0, descripcionesMotivos.size())
                 .mapToObj(i -> i == 0
                         ? "0: Terminar selección"
-                        : String.format("%d: %s", i, descripcionesMotivos.get(i - 1))
-                )
+                        : String.format("%d: %s", i, descripcionesMotivos.get(i - 1)))
                 .toList();
 
         // 2) Preparo el texto de resumen de lo ya seleccionado
@@ -251,21 +241,21 @@ public class PantallaInspeccion {
             resumen = "(aún no hay motivos seleccionados)";
         }
 
-        // 3) Construyo el diálogo con el resumen en el header
+        // 3) Construir el diálogo con el resumen en el header
         ChoiceDialog<String> dialog = new ChoiceDialog<>(opciones.get(0), opciones);
         dialog.setTitle("Seleccionar motivo");
         dialog.setHeaderText("YA SELECCIONADOS:\n" + resumen);
         dialog.setContentText("Seleccione el número del motivo (0 para terminar):");
 
-        //Para poder cambiar el color de la ventana
+        // Para poder cambiar el color de la ventana
         DialogPane pane = dialog.getDialogPane();
         pane.setStyle("-fx-padding: 20; -fx-background-color: #e7c6a6;");
 
-        //Cambio el color del boton ok
+        // Cambiar el color del boton ok
         Button okButton = (Button) pane.lookupButton(ButtonType.OK);
         okButton.setStyle("-fx-background-color: #8ee580; -fx-font-weight: bold;");
 
-        //Cambio el color/estilo del boton cancelar
+        // Cambiar el color/estilo del boton cancelar
         Button cancelButton = (Button) pane.lookupButton(ButtonType.CANCEL);
         cancelButton.setStyle("-fx-background-color: #d95555; -fx-font-weight: bold; -fx-text-fill: white;");
 
@@ -300,19 +290,19 @@ public class PantallaInspeccion {
         dialog.setTitle("Comentario de motivo");
         dialog.setHeaderText("Ingrese un comentario para el motivo seleccionado:");
 
-        //Para cambiar el color de fondo de la ventana
+        // Para cambiar el color de fondo de la ventana
         DialogPane dialogPane = dialog.getDialogPane();
         dialogPane.setStyle("-fx-padding: 20; -fx-background-color: #e7c6a6;");
 
-        //Cambio el color del boton ok
+        // Cambiar el color del boton ok
         Button okButton = (Button) dialogPane.lookupButton(ButtonType.OK);
         okButton.setStyle("-fx-background-color: #8ee580; -fx-font-weight: bold;");
 
-        //Cambio el color/estilo del boton cancelar
+        // Cambiar el color/estilo del boton cancelar
         Button cancelButton = (Button) dialogPane.lookupButton(ButtonType.CANCEL);
         cancelButton.setStyle("-fx-background-color: #d95555; -fx-font-weight: bold; -fx-text-fill: white;");
 
-        //Cambiar el estilo de la caja de texto
+        // Cambiar el estilo de la caja de texto
         TextField textField = dialog.getEditor();
         textField.setStyle("-fx-control-inner-background: #fae4cd;; -fx-font-style: italic;");
 
@@ -339,15 +329,15 @@ public class PantallaInspeccion {
         btnSi.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-background-color: #8ee580;");
         btnSi.setOnAction(e -> tomarConfirmacionCierreOrden("SI"));
 
-        // 4) Botón 'CANCELAR' (opcional: vuelve al menú o fin)
+        // 4) Botón 'CANCELAR'
         Button btnCancelar = new Button("CANCELAR");
         btnCancelar.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-background-color: #d95555; -fx-text-fill: white;");
         btnCancelar.setOnAction(e -> {
-            // Por ejemplo, volvemos al inicio del CU:
+            // Vuelve al inicio del CU
             opcionCerrarOrdenDeInspeccion();
         });
 
-        // 5) Agrego botones al layout
+        // 5) Agregar botones al layout
         VBox contenedorBotones = new VBox(10, btnSi, btnCancelar);
         root.getChildren().add(contenedorBotones);
     }

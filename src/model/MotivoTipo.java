@@ -10,16 +10,15 @@ public class MotivoTipo {
         this.descripcion = descripcion;
     }
 
-    //getter
+    // Getter
     public String getDescripcion() {
         return descripcion;
     }
+
     public void setDescripcion(String descripcion) {
         this.descripcion = descripcion;
     }
 }
-
-    // Dentro de MotivoTipo.java
 
    /* @Override
    public String toString() {

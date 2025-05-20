@@ -27,8 +27,6 @@ public class CambioDeEstado {
         return this.fechaHoraFin != null;
     }
 
-    // getters y seters
-
     public void crearMotivoFueraServicio(Map<MotivoTipo, String> motivosYComentarios){
         for (Map.Entry<MotivoTipo, String> motv : motivosYComentarios.entrySet()) {
             MotivoTipo tipo = motv.getKey();
@@ -38,6 +36,8 @@ public class CambioDeEstado {
             this.motivos.add(motivo);
         }
     }
+
+    // Getters y Seters
 
     public void setEmpleado(Empleado empleado) {
         this.empleado = empleado;
@@ -55,7 +55,7 @@ public class CambioDeEstado {
         return empleado;
     }
 
-   public List<MotivoFueraDeServicio> getMotivosFueraServicio() {
+    public List<MotivoFueraDeServicio> getMotivosFueraServicio() {
         return this.motivos;
     }
 
@@ -68,7 +68,6 @@ public class CambioDeEstado {
     public LocalDateTime getFechaHoraFin() {
         return fechaHoraFin;
     }
-
 
     // Método toString para facilitar impresión
     /*@Override

@@ -24,7 +24,7 @@ public class Empleado {
         this.rol = rol;
     }
 
-    //metodos vista estatica
+    // Métodos vista estatica
     public boolean esResponsableReparacion() {
         return rol != null && rol.esResponsableReparacion();
     }
@@ -33,7 +33,7 @@ public class Empleado {
         return mail;
     }
 
-    //getters
+    // Getters
     public String getNombreCompleto() {
         return nombre + " " + apellido;
     }
@@ -61,8 +61,8 @@ public class Empleado {
     }
 
     // Método toString para mejor visualización
-    @Override
+    /*@Override
     public String toString() {
         return "Empleado: " + nombre + " " + apellido + ", Tel: " + telefono + ", Mail: " + mail + ", Rol: " + rol.getNombreRol();
-    }
+    } */
 }

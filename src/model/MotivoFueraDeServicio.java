@@ -16,7 +16,7 @@ public class MotivoFueraDeServicio {
         this.tipo = tipo;
     }
 
-    //getters y setters
+    // Getters
     public String getComentario() {
         return comentario;
     }

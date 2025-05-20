@@ -24,7 +24,7 @@ public class RepositorioDatos {
 
     static {
         // Empleados y usuario
-        Empleado emp1 = new Empleado("Pepe", "López", "0001", "pepe@mail.com", new Rol("RI", "Responsable Inspección"));
+        Empleado emp1 = new Empleado("Pepe", "Gonzales", "0001", "pepe@mail.com", new Rol("RI", "Responsable Inspección"));
         usuario1 = new Usuario("pepe123", "pass", emp1);  // asignación
 
         Empleado emp2 = new Empleado("Otro", "Empleado", "0002", "otro@mail.com", new Rol("RI", "Responsable Inspección"));

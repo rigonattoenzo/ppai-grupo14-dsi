@@ -18,19 +18,16 @@ public class GestorCierreInspeccion {
     // Pantalla
     private PantallaInspeccion pantalla;
 
-    // Atributos --> Seguro faltan más
-    // Atributos locales
+    // Atributos
     private List<OrdenDeInspeccion> ordenesDeInspeccion;
     private String observacionCierreOrden;
-    // private List<String> descripciones new ArrayList<>();
     private Map<MotivoTipo, String> motivosYComentarios = new HashMap<>();
     private List<MotivoTipo> punteroMotivos = new ArrayList<>();
     private MotivoTipo ultimoMotivoSeleccionado = null;
-
     private String confirmacionCierreOrden;
     private LocalDateTime fechaHoraActual = LocalDateTime.now();
-    private String mailResponsable;
-    private String correoAEnviar;
+    // private String mailResponsable;
+    // private String correoAEnviar;
     private List<Map<String, Object>> ordenesFiltradasConDatos;
     private Map<String,Object> ordenSeleccionada;
 
@@ -42,9 +39,10 @@ public class GestorCierreInspeccion {
     private Estado estadoFueraDeServicio;
 
     // Atributos referenciales de los boundary auxiliares
-    // private InterfazNotificacionMail interfazMail;
-    // private MonitorCCRS monitorCCRS;
+    private InterfazNotificacionMail interfazMail;
+    private MonitorCCRS monitorCCRS;
 
+    // Getters y métodos extra del gestor
     public Map<String,Object> getOrdenSeleccionada(){
         return this.ordenSeleccionada;
     }
@@ -65,17 +63,6 @@ public class GestorCierreInspeccion {
         );
     }
 
-    public Map<MotivoTipo,String> getMotivosYComentarios() {
-        return motivosYComentarios;
-    }
-
-    // Métodos
-    public GestorCierreInspeccion(PantallaInspeccion pantalla) {
-        this.pantalla = pantalla;
-        this.empleadoLogueado = Sesion.getInstancia().getUsuario().getEmpleado();
-        this.ordenesDeInspeccion = RepositorioDatos.obtenerOrdenes();
-    } // Constructor
-
     public void setOrdenesDeInspeccion(List<OrdenDeInspeccion> ordenes) {
         this.ordenesDeInspeccion = ordenes;
     }
@@ -84,6 +71,17 @@ public class GestorCierreInspeccion {
         return ordenesFiltradasConDatos;
     }
 
+    public Map<MotivoTipo,String> getMotivosYComentarios() {
+        return motivosYComentarios;
+    }
+
+    public GestorCierreInspeccion(PantallaInspeccion pantalla) {
+        this.pantalla = pantalla;
+        this.empleadoLogueado = Sesion.getInstancia().getUsuario().getEmpleado();
+        this.ordenesDeInspeccion = RepositorioDatos.obtenerOrdenes();
+    } // Constructor
+
+    // Métodos del Caso de Uso 37
     //PASO 1
     public void iniciarCierreOrdenInspeccion() {
         obtenerEmpleadoLogueado();
@@ -95,7 +93,6 @@ public class GestorCierreInspeccion {
         this.empleadoLogueado = Sesion.getInstancia().getUsuario().getRiLogueado();
 
         // System.out.println(this.empleadoLogueado);
-
         buscarOrdenesDeInspeccionDeRI();
     }
 
@@ -116,8 +113,6 @@ public class GestorCierreInspeccion {
         // Guardar las órdenes filtradas con datos
         this.ordenesFiltradasConDatos = ordenesFiltradas; // crea esta variable en la clase
 
-        //AGREGUE ESTA VALIDACION PARA LA ALTERNATIVA 1. FUE LA UNICA FORMA QUE PUDE HACERLO
-        // EL CHAT ME DECIA CUALQUIER HUEVADA!
         if (ordenesFiltradas.isEmpty()) {
             pantalla.mostrarOrdCompRealizadas();
         } else {
@@ -137,7 +132,7 @@ public class GestorCierreInspeccion {
         ordenesFiltradasConDatos.sort(new Comparator<Map<String, Object>>() {
             @Override
             public int compare(Map<String, Object> o1, Map<String, Object> o2) {
-                // Suponiendo que las fechas son Date
+                // Si las fechas son LocalDateTime
                 LocalDateTime fecha1 = (LocalDateTime) o1.get("fechaFinalizacion");
                 LocalDateTime fecha2 = (LocalDateTime) o2.get("fechaFinalizacion");
 
@@ -187,7 +182,7 @@ public class GestorCierreInspeccion {
     }
 
 
-    public void pedirSelecMotivosFueraServicio() { // falta la validación
+    public void pedirSelecMotivosFueraServicio() {
         int motivoNum = -1;
 
         while (motivoNum != 0) {
@@ -249,7 +244,6 @@ public class GestorCierreInspeccion {
 
         buscarEstadoCerrado();
         buscarFueraServicio();
-
         cerrarOrdenInspeccion();
     }
 
@@ -266,8 +260,8 @@ public class GestorCierreInspeccion {
         }
 
         if (estadoCerrado != null) {
-            this.estadoCerrado = estadoCerrado; // guarda en un atributo si lo tenés declarado
-            // pantalla.mostrarEstadoCerrado(estadoCerrado); // muestra en pantalla
+            this.estadoCerrado = estadoCerrado;
+            // pantalla.mostrarEstadoCerrado(estadoCerrado);
         }  else {
             pantalla.mostrarMensaje("No se encontró el estado Cerrado");
         }
@@ -293,7 +287,7 @@ public class GestorCierreInspeccion {
         }
         if (estadoFueraDeServicio != null) {
             this.estadoFueraDeServicio = estadoFueraDeServicio;
-            // pantalla.mostrarEstadoFueraDeServicio(estadoFueraDeServicio); // muestra en pantalla
+            // pantalla.mostrarEstadoFueraDeServicio(estadoFueraDeServicio);
         } else {
             pantalla.mostrarMensaje("No se encontró el estado Fuera de Servicio");
         }

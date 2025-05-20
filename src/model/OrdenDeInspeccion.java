@@ -69,7 +69,7 @@ public class OrdenDeInspeccion {
         return observacionCierreOrden;
     }
 
-    //setters
+    // Setters
     public void setEstado(Estado estado) {
         this.estadoActual = estado;
     }
@@ -86,7 +86,7 @@ public class OrdenDeInspeccion {
         this.estacion.ponerSismografoFueraServicio(estado, motivosYComentarios);
     }
 
-    //metodos extra
+    // Métodos extra
     public boolean sosDeEmpleado(Empleado empleado) {
         return this.empleado.equals(empleado);
     }

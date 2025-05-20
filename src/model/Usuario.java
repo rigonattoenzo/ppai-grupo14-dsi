@@ -35,13 +35,13 @@ public class Usuario {
     }
 
     // Método para validar contraseña
-    public boolean esContrasenaValida(String contrasena) {
+    /*public boolean esContrasenaValida(String contrasena) {
         return this.contrasena.equals(contrasena);
-    }
+    } */
 
     // Método toString para facilitar la depuración
-    @Override
+    /*@Override
     public String toString() {
         return "Usuario: " + nombreUsuario + ", Empleado: " + empleado.getNombreCompleto();
-    }
+    } */
 }

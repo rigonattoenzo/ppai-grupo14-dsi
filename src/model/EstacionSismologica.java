@@ -71,7 +71,7 @@ public class EstacionSismologica {
         return nroCertificacionAdquisicion;
     }
 
-    //setters
+    // Setters
     // Setter para cambiar el sismógrafo asociado
     public void setSismografo(Sismografo sismografo) {
         this.sismografo = sismografo;
@@ -86,6 +86,7 @@ public class EstacionSismologica {
         this.sismografo.fueraServicio(estado, motivosYComentarios);
     }
 
+    /*
     // toString para impresión
     @Override
     public String toString() {
@@ -96,5 +97,5 @@ public class EstacionSismologica {
                 ", lon=" + longitud +
                 ", sismografo=" + (sismografo != null ? sismografo.getIdentificadorSismografo() : "N/A") +
                 '}';
-    }
+    } */
 }

@@ -28,17 +28,13 @@ public class Sismografo {
         this.estacion = estacion;
     }
 
-    //getters
+    // Getters
     public String getIdentificadorSismografo() {
         return identificadorSismografo;
     }
 
     public List<CambioDeEstado> getCambiosDeEstado() {
         return cambiosDeEstado;
-    }
-
-    public void setCambiosDeEstado(List<CambioDeEstado> cambiosDeEstado) {
-        this.cambiosDeEstado = cambiosDeEstado;
     }
 
     public EstacionSismologica getEstacion() {
@@ -55,12 +51,12 @@ public class Sismografo {
         return nroSerie;
     }
 
-    //setters
-    // Setter para estacion, en caso de que el sismografo cambie de estación
+    // Setter para la estación
     public void setEstacion(EstacionSismologica estacion) {
         this.estacion = estacion;
     }
 
+    // Métodos extra
     public void fueraServicio(Estado estado, Map<MotivoTipo, String> motivosYComentarios){
         CambioDeEstado actual = null;
         for (CambioDeEstado cambio : cambiosDeEstado) {
@@ -77,13 +73,12 @@ public class Sismografo {
         ejecutarCambioDeEstado(estado, motivosYComentarios);
     }
 
+    public void setCambiosDeEstado(List<CambioDeEstado> cambiosDeEstado) {
+        this.cambiosDeEstado = cambiosDeEstado;
+    }
+
     public void ejecutarCambioDeEstado(Estado estado, Map<MotivoTipo, String> motivosYComentarios){
         CambioDeEstado nuevo = new CambioDeEstado(estado, LocalDateTime.now());
         nuevo.crearMotivoFueraServicio(motivosYComentarios);
-    }
-
-    //metodos extra
-    public void agregarCambioDeEstado(CambioDeEstado cambio) {
-        cambiosDeEstado.add(cambio);
     }
 }

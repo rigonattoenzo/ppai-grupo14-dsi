@@ -12,7 +12,7 @@ public class Estado {
         this.ambito = ambito;
     }
 
-    //getters y setters
+    // Getters y Setters
     public String getNombreEstado() {
         return nombreEstado;
     }
@@ -42,13 +42,12 @@ public class Estado {
         return "Fuera De Servicio".equalsIgnoreCase(nombreEstado);
     }
 
-    // Dentro de Estado.java
-
+    /*
     @Override
     public String toString() {
         return "Estado{" +
                 "ambito='" + ambito + '\'' +
                 ", nombreEstado='" + nombreEstado + '\'' +
                 '}';
-    }
+    } */
 }
