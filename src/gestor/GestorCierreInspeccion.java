@@ -55,7 +55,7 @@ public class GestorCierreInspeccion {
 
     public String asString(Map<String, Object> datosOrden) {
         String nro = String.valueOf(datosOrden.get("nroDeOrden"));
-        String estacion = String.valueOf(datosOrden.get("nombreEstacion"));
+        String estacion = String.valueOf(datosOrden.get("nombreEstacionSismologica"));
         String idSismografo = String.valueOf(datosOrden.get("idSismografo"));
         String fechaFin = String.valueOf(datosOrden.get("fechaFinalizacion"));
 

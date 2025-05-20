@@ -15,7 +15,8 @@ public class MainFX extends Application {
     @Override
     public void start(Stage primaryStage) {
         // Crear label
-        Label labelBienvenida = new Label("Bienvenido al sistema");
+        String nombreRI = Sesion.getInstancia().getUsuario().perfilLogueado();
+        Label labelBienvenida = new Label("Bienvenido al sistema " + nombreRI + "!");
         Button btnCerrarOrden = new Button("Generar Cierre Orden de Inspección");
 
         // Layout vertical
@@ -31,6 +32,10 @@ public class MainFX extends Application {
         });
 
         root.getChildren().addAll(labelBienvenida, btnCerrarOrden);
+
+        Button btnCancelar = new Button("Cancelar cierre");
+        btnCancelar.setOnAction(e -> pantalla.cancelarCasoUso());
+        root.getChildren().add(btnCancelar);
 
         // Escena
         Scene scene = new Scene(root, 400, 400);

@@ -12,6 +12,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.ChoiceDialog;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.control.Label;
+import javafx.stage.Stage;
 
 // import de utilidades de Java
 import java.util.Map;
@@ -41,9 +42,7 @@ public class PantallaInspeccion {
 
     // Métodos de la pantalla
     // Constructor
-    public PantallaInspeccion() {
-        // Inicializar todos los atributos, para la interfaz gráfica
-    }
+    public PantallaInspeccion() {}
 
     /** setter para inyectar el VBox desde MainFX */
     public void setRoot(VBox root) {
@@ -52,6 +51,22 @@ public class PantallaInspeccion {
 
     public GestorCierreInspeccion getGestor() {
         return gestor;
+    }
+
+    public void cancelarCasoUso() {
+        // 1) Limpiar todo
+        root.getChildren().clear();
+
+        // 2) Mensaje de cancelación
+        root.getChildren().add(new Label("Cierre de orden cancelada..."));
+
+        // 3) Botón para cerrar la ventana
+        Button btnCerrar = new Button("Cerrar");
+        btnCerrar.setOnAction(e -> {
+            Stage stage = (Stage) root.getScene().getWindow();
+            stage.close();
+        });
+        root.getChildren().add(btnCerrar);
     }
 
     // Métodos del caso de uso 37
@@ -69,9 +84,12 @@ public class PantallaInspeccion {
 
     //PASO 2
     public void mostrarOrdCompRealizadas() {
+        // Limpio todo antes de volcar las órdenes
+        root.getChildren().clear();
+
         root.getChildren().add(new Label("Órdenes Completamente Realizadas del Empleado:"));
         for (Map<String, Object> datosOrden : gestor.getOrdenesFiltradasConDatos()) {
-            root.getChildren().add(new Label(gestor.asString(datosOrden))); // USO DE LA FUNCIÓN NUEVA
+            root.getChildren().add(new Label(gestor.asString(datosOrden)));
         }
     }
 
@@ -79,23 +97,25 @@ public class PantallaInspeccion {
      * Muestra un botón por cada orden y espera al click
      */
     public void pedirSelecOrdenInspeccion(List<Map<String,Object>> ordenes) {
-        this.ordenesActuales = ordenes;
+        // 1) Muestro la lista de órdenes
+        // mostrarOrdCompRealizadas();
 
-        // Limpio pantalla y muestro un título
-        root.getChildren().clear();
+        // 2) Añado un separador o un título para los botones
         root.getChildren().add(new Label("Seleccione una orden de inspección:"));
 
-        // Por cada orden, creo un botón con su número
+        // 3) Por cada orden, un botón de selección
         for (Map<String,Object> o : ordenes) {
             String nro = String.valueOf(o.get("nroDeOrden"));
             String sismo = String.valueOf(o.get("idSismografo"));
             Button btn = new Button("Orden #" + nro + " (" + sismo + ")");
-            btn.setOnAction(evt -> {
-                // Cuando clickeen, delego al gestor y continuo el flujo
-                gestor.tomarOrdenInspeccionSelec(o);
-            });
+            btn.setOnAction(evt -> gestor.tomarOrdenInspeccionSelec(o));
             root.getChildren().add(btn);
         }
+
+        // 4) Botón de cancelar
+        Button btnCancelar = new Button("Cancelar cierre");
+        btnCancelar.setOnAction(e -> cancelarCasoUso());
+        root.getChildren().add(btnCancelar);
     }
 
     //PASO 3
@@ -107,6 +127,8 @@ public class PantallaInspeccion {
     public void pedirObservacionCierreOrden() {
         // Limpio la UI
         root.getChildren().clear();
+        root.setSpacing(15);
+        root.setStyle("-fx-padding: 20; -fx-background-color: #f4f4f4;");
 
         // Mensaje de instrucción
         root.getChildren().add(new Label(
@@ -125,6 +147,10 @@ public class PantallaInspeccion {
 
         // Agrego todo al layout
         root.getChildren().addAll(campoObservacion, btnEnviarObservacion);
+
+        Button btnCancelar = new Button("Cancelar cierre");
+        btnCancelar.setOnAction(e -> cancelarCasoUso());
+        root.getChildren().add(btnCancelar);
     }
 
     //PASO 5
@@ -148,6 +174,10 @@ public class PantallaInspeccion {
             String texto = String.format("%d. %s", i + 1, descrip.get(i));
             root.getChildren().add(new Label(texto));
         }
+
+        Button btnCancelar = new Button("Cancelar cierre");
+        btnCancelar.setOnAction(e -> cancelarCasoUso());
+        root.getChildren().add(btnCancelar);
     }
 
     /**
@@ -219,6 +249,7 @@ public class PantallaInspeccion {
         dialog.setTitle("Comentario de motivo");
         dialog.setHeaderText("Ingrese un comentario para el motivo seleccionado:");
         Optional<String> resultado = dialog.showAndWait();
+
         resultado.ifPresent(comentario -> gestor.tomarComentario(comentario));
     }
 
@@ -250,10 +281,11 @@ public class PantallaInspeccion {
         root.getChildren().add(contenedorBotones);
     }
 
+
     /**
      * Muestra en la misma ventana un resumen de los motivos y comentarios
      * que el usuario ya ha seleccionado en el gestor, y un botón para confirmar.
-     */
+     *//*
     public void mostrarResumenMotivosSeleccionados() {
         // 1) Limpiar todo lo anterior
         root.getChildren().clear();
@@ -276,7 +308,7 @@ public class PantallaInspeccion {
             gestor.tomarConfirmacionCierreOrden("SI");
         });
         root.getChildren().add(btnConfirmar);
-    }
+    }*/
 
 
     //PASO 9 (último de PantallaInspección)
@@ -286,7 +318,7 @@ public class PantallaInspeccion {
 
         // 2) Limpiar la pantalla y mostrar mensaje de éxito
         root.getChildren().clear();
-        root.getChildren().add(new Label("✅ La orden de inspección ha sido cerrada exitosamente."));
+        root.getChildren().add(new Label("La orden de inspección ha sido cerrada exitosamente."));
 
         // 3) Mostrar detalles de la orden
         Map<String,Object> datos = gestor.getOrdenSeleccionada();
@@ -298,21 +330,13 @@ public class PantallaInspeccion {
         // Fecha de cierre fue seteada en el gestor, la obtenemos:
         String fechaCierre = gestor.getFechaHoraActual().format(fmt);
         root.getChildren().add(new Label("Fecha de cierre: " + fechaCierre));
-    }
 
-    /*public void mostrarEstadoCerrado(Estado estado) {
-        System.out.println("¡Estado 'CERRADO' encontrado!");
-        System.out.println("Nombre: " + estado.getNombreEstado());
-        System.out.println("Entidad: " + "OrdenDeInspeccion");
+        // 4) Botón para cerrar la ventana
+        Button btnContinuar = new Button("Continuar");
+        btnContinuar.setOnAction(e -> {
+            Stage stage = (Stage) root.getScene().getWindow();
+            stage.close();
+        });
+        root.getChildren().add(btnContinuar);
     }
-
-    public void mostrarEstadoFueraDeServicio(Estado estado) {
-        System.out.println("¡Estado 'FUERA DE SERVICIO' encontrado!");
-        System.out.println("Nombre: " + estado.getNombreEstado());
-        System.out.println("Entidad: " + "EstacionSismologica");
-    }
-
-    public void mostrarErrorEstadoNoEncontrado(String nombreEstado) {
-        System.out.println("Error: No se encontró el estado '" + nombreEstado + "'.");
-    }*/
 }
