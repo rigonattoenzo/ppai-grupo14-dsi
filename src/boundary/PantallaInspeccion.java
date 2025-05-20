@@ -13,6 +13,8 @@ import javafx.scene.control.ChoiceDialog;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.control.Label;
 import javafx.stage.Stage;
+import javafx.scene.control.DialogPane;
+import javafx.scene.control.ButtonType;
 
 // import de utilidades de Java
 import java.util.Map;
@@ -62,6 +64,7 @@ public class PantallaInspeccion {
 
         // 3) Botón para cerrar la ventana
         Button btnCerrar = new Button("Cerrar");
+        btnCerrar.setStyle("-fx-font-size: 15px; -fx-font-weight: bold; -fx-background-color: #c70039;");
         btnCerrar.setOnAction(e -> {
             Stage stage = (Stage) root.getScene().getWindow();
             stage.close();
@@ -101,6 +104,7 @@ public class PantallaInspeccion {
         // mostrarOrdCompRealizadas();
 
         // 2) Añado un separador o un título para los botones
+        root.setStyle("-fx-background-color: #e7c6a6;");
         root.getChildren().add(new Label("Seleccione una orden de inspección:"));
 
         // 3) Por cada orden, un botón de selección
@@ -108,12 +112,14 @@ public class PantallaInspeccion {
             String nro = String.valueOf(o.get("nroDeOrden"));
             String sismo = String.valueOf(o.get("idSismografo"));
             Button btn = new Button("Orden #" + nro + " (" + sismo + ")");
+            btn.setStyle("-fx-font-size: 14px; -fx-font-style: italic; -fx-background-color: #b27e4d;");
             btn.setOnAction(evt -> gestor.tomarOrdenInspeccionSelec(o));
             root.getChildren().add(btn);
         }
 
         // 4) Botón de cancelar
         Button btnCancelar = new Button("Cancelar cierre");
+        btnCancelar.setStyle("-fx-font-size: 15px; -fx-font-weight: bold; -fx-background-color: #c70039;");
         btnCancelar.setOnAction(e -> cancelarCasoUso());
         root.getChildren().add(btnCancelar);
     }
@@ -128,7 +134,7 @@ public class PantallaInspeccion {
         // Limpio la UI
         root.getChildren().clear();
         root.setSpacing(15);
-        root.setStyle("-fx-padding: 20; -fx-background-color: #f4f4f4;");
+        root.setStyle("-fx-padding: 20; -fx-background-color: #e7c6a6;");
 
         // Mensaje de instrucción
         root.getChildren().add(new Label(
@@ -138,10 +144,11 @@ public class PantallaInspeccion {
         // Campo de texto
         campoObservacion = new TextField();
         campoObservacion.setPromptText("Escriba su observación aquí...");
+        campoObservacion.setStyle("-fx-background-color: #fae4cd; -fx-font-style: italic;");
 
         // Botón de enviar
         btnEnviarObservacion = new Button("Enviar Observación");
-        btnEnviarObservacion.setStyle("-fx-font-size: 14px; -fx-background-color: #b27e4d;");
+        btnEnviarObservacion.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-background-color: #b27e4d;");
 
         btnEnviarObservacion.setOnAction(evt -> {
             tomarObservacionCierreOrden(campoObservacion.getText());
@@ -151,6 +158,7 @@ public class PantallaInspeccion {
         root.getChildren().addAll(campoObservacion, btnEnviarObservacion);
 
         Button btnCancelar = new Button("Cancelar cierre");
+        btnCancelar.setStyle("-fx-font-size: 15px; -fx-font-weight: bold; -fx-background-color: #c70039;");
         btnCancelar.setOnAction(e -> cancelarCasoUso());
         root.getChildren().add(btnCancelar);
     }
@@ -178,6 +186,7 @@ public class PantallaInspeccion {
         }
 
         Button btnCancelar = new Button("Cancelar cierre");
+        btnCancelar.setStyle("-fx-font-size: 15px; -fx-font-weight: bold; -fx-background-color: #c70039;");
         btnCancelar.setOnAction(e -> cancelarCasoUso());
         root.getChildren().add(btnCancelar);
     }
@@ -225,6 +234,23 @@ public class PantallaInspeccion {
         dialog.setHeaderText("YA SELECCIONADOS:\n" + resumen);
         dialog.setContentText("Seleccione el número del motivo (0 para terminar):");
 
+        //Para poder cambiar el color de la ventana
+        DialogPane pane = dialog.getDialogPane();
+        pane.setStyle("-fx-padding: 20; -fx-background-color: #e7c6a6;");
+
+        //Cambio el color del boton ok
+        Button okButton = (Button) pane.lookupButton(ButtonType.OK);
+        okButton.setStyle("-fx-background-color: #8ee580; -fx-font-weight: bold;");
+
+        //Cambio el color/estilo del boton cancelar
+        Button cancelButton = (Button) pane.lookupButton(ButtonType.CANCEL);
+        cancelButton.setStyle("-fx-background-color: #d95555; -fx-font-weight: bold; -fx-text-fill: white;");
+
+        // Buscar el ComboBox dentro del DialogPane y cambiarle el fondo
+        pane.lookupAll(".combo-box").forEach(node -> {
+            node.setStyle("-fx-background-color: #fae4cd;");
+        });
+
         Optional<String> resultado = dialog.showAndWait();
         if (resultado.isPresent()) {
             String elegido = resultado.get();
@@ -250,6 +276,23 @@ public class PantallaInspeccion {
         TextInputDialog dialog = new TextInputDialog();
         dialog.setTitle("Comentario de motivo");
         dialog.setHeaderText("Ingrese un comentario para el motivo seleccionado:");
+
+        //Para cambiar el color de fondo de la ventana
+        DialogPane dialogPane = dialog.getDialogPane();
+        dialogPane.setStyle("-fx-padding: 20; -fx-background-color: #e7c6a6;");
+
+        //Cambio el color del boton ok
+        Button okButton = (Button) dialogPane.lookupButton(ButtonType.OK);
+        okButton.setStyle("-fx-background-color: #8ee580; -fx-font-weight: bold;");
+
+        //Cambio el color/estilo del boton cancelar
+        Button cancelButton = (Button) dialogPane.lookupButton(ButtonType.CANCEL);
+        cancelButton.setStyle("-fx-background-color: #d95555; -fx-font-weight: bold; -fx-text-fill: white;");
+
+        //Cambiar el estilo de la caja de texto
+        TextField textField = dialog.getEditor();
+        textField.setStyle("-fx-control-inner-background: #fae4cd;; -fx-font-style: italic;");
+
         Optional<String> resultado = dialog.showAndWait();
 
         resultado.ifPresent(comentario -> gestor.tomarComentario(comentario));
@@ -263,6 +306,7 @@ public class PantallaInspeccion {
     public void pedirConfirmacionCierreOrden() {
         // 1) Limpio la pantalla
         root.getChildren().clear();
+        root.setStyle("-fx-padding: 20; -fx-background-color: #e7c6a6;");
 
         // 2) Mensaje de confirmación
         root.getChildren().add(new Label("¿Cerrar Orden de Inspección?"));
@@ -274,7 +318,7 @@ public class PantallaInspeccion {
 
         // 4) Botón 'CANCELAR' (opcional: vuelve al menú o fin)
         Button btnCancelar = new Button("CANCELAR");
-        btnCancelar.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-background-color: #d95555;");
+        btnCancelar.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-background-color: #d95555; -fx-text-fill: white;");
         btnCancelar.setOnAction(e -> {
             // Por ejemplo, volvemos al inicio del CU:
             opcionCerrarOrdenDeInspeccion();
@@ -337,6 +381,7 @@ public class PantallaInspeccion {
 
         // 4) Botón para cerrar la ventana
         Button btnContinuar = new Button("Continuar");
+        btnContinuar.setStyle("-fx-font-size: 15px; -fx-font-weight: bold; -fx-background-color: #7c9e3f;");
         btnContinuar.setOnAction(e -> {
             Stage stage = (Stage) root.getScene().getWindow();
             stage.close();

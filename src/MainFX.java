@@ -25,7 +25,7 @@ public class MainFX extends Application {
         btnCerrarOrden.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-background-color: #b27e4d;");
 
         // Layout vertical
-        VBox root = new VBox(10); // separación vertical
+        VBox root = new VBox(20); // separación vertical
 
         root.setAlignment(Pos.CENTER);
         root.setPadding(new Insets(20));
@@ -43,11 +43,12 @@ public class MainFX extends Application {
         root.getChildren().addAll(labelBienvenida, btnCerrarOrden);
 
         Button btnCancelar = new Button("Cancelar cierre");
+        btnCancelar.setStyle("-fx-font-size: 15px; -fx-font-weight: bold; -fx-background-color: #c70039;");
         btnCancelar.setOnAction(e -> pantalla.cancelarCasoUso());
         root.getChildren().add(btnCancelar);
 
         // Escena
-        Scene scene = new Scene(root, 400, 400);
+        Scene scene = new Scene(root, 500, 400);
 
         primaryStage.setTitle("Menú Principal - Gestión de Inspecciones");
         primaryStage.setScene(scene);
