@@ -90,6 +90,7 @@ public class PantallaInspeccion {
             String nro = String.valueOf(o.get("nroDeOrden"));
             String sismo = String.valueOf(o.get("idSismografo"));
             Button btn = new Button("Orden #" + nro + " (" + sismo + ")");
+            btn.setStyle("-fx-font-size: 14px; -fx-background-color: #b27e4d;");
             btn.setOnAction(evt -> {
                 // Cuando clickeen, delego al gestor y continuo el flujo
                 gestor.tomarOrdenInspeccionSelec(o);
@@ -108,6 +109,7 @@ public class PantallaInspeccion {
         // Limpio la UI
         root.getChildren().clear();
 
+
         // Mensaje de instrucción
         root.getChildren().add(new Label(
                 "Ingrese una observación de cierre a la orden de inspección seleccionada:"
@@ -119,12 +121,14 @@ public class PantallaInspeccion {
 
         // Botón de enviar
         btnEnviarObservacion = new Button("Enviar Observación");
+        btnEnviarObservacion.setStyle("-fx-font-size: 14px; -fx-background-color: #b27e4d;");
+
         btnEnviarObservacion.setOnAction(evt -> {
             tomarObservacionCierreOrden(campoObservacion.getText());
         });
 
         // Agrego todo al layout
-        root.getChildren().addAll(campoObservacion, btnEnviarObservacion);
+         root.getChildren().addAll(campoObservacion, btnEnviarObservacion);
     }
 
     //PASO 5
@@ -236,10 +240,12 @@ public class PantallaInspeccion {
 
         // 3) Botón 'SI'
         Button btnSi = new Button("SI");
+        btnSi.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-background-color: #8ee580;");
         btnSi.setOnAction(e -> tomarConfirmacionCierreOrden("SI"));
 
         // 4) Botón 'CANCELAR' (opcional: vuelve al menú o fin)
         Button btnCancelar = new Button("CANCELAR");
+        btnCancelar.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-background-color: #d95555;");
         btnCancelar.setOnAction(e -> {
             // Por ejemplo, volvemos al inicio del CU:
             opcionCerrarOrdenDeInspeccion();
@@ -271,6 +277,7 @@ public class PantallaInspeccion {
 
         // 4) Botón para confirmar el cierre
         Button btnConfirmar = new Button("Confirmar Cierre de Orden");
+        btnConfirmar.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-background-color: #b27e4d;");
         btnConfirmar.setOnAction(e -> {
             // Llamar al método de gestor que cierra la orden
             gestor.tomarConfirmacionCierreOrden("SI");
