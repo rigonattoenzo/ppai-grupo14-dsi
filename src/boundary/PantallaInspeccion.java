@@ -87,14 +87,37 @@ public class PantallaInspeccion {
 
     //PASO 2
     public void mostrarOrdCompRealizadas() {
+        //Obtener los datos
+        List<Map<String,Object>> ordenes = gestor.getOrdenesFiltradasConDatos();
+        this.ordenesActuales = ordenes;
+
         // Limpio todo antes de volcar las órdenes
         root.getChildren().clear();
 
-        root.getChildren().add(new Label("Órdenes Completamente Realizadas del Empleado:"));
-        for (Map<String, Object> datosOrden : gestor.getOrdenesFiltradasConDatos()) {
-            root.getChildren().add(new Label(gestor.asString(datosOrden)));
+        /*Para provar la alternativa A1, se debe cambiar en RepositorioDatos.java y desasignar las ordenes
+        de inspeccion del emp1, y asignarlas a emp2 o cualquiera. En teoria seria mas facil asignar otro usuario,
+        pero no se como (UPS!). En fin, en teoria funciona. Modifique el codigo en GestorCierreInspeccion.java
+        y comente la linea en la que lo hice.
+        */
+
+        //verifico
+        if (ordenes.isEmpty()) {
+            //Caso: no hay ordenes realizadas -- verificar bien lo del boton
+            //boton cancelar en teoria
+            Label mensaje = new Label("No tiene ordenes de inspeccion realizadas!");
+            Button btnCancelar = new Button("Cancelar cierre");
+            btnCancelar.setStyle("-fx-font-size: 15px; -fx-font-weight: bold; -fx-background-color: #c70039;");
+            btnCancelar.setOnAction(e -> cancelarCasoUso());
+            root.getChildren().addAll(mensaje, btnCancelar);
+        } else {
+            //Caso: hay ordenes realizadas, todo ok
+            root.getChildren().add(new Label("Órdenes Completamente Realizadas del Empleado:"));
+            for (Map<String, Object> datosOrden : ordenes) {
+                root.getChildren().add(new Label(gestor.asString(datosOrden)));
+            }
         }
-    }
+    };
+
 
     /**
      * Muestra un botón por cada orden y espera al click

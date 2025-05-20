@@ -116,10 +116,16 @@ public class GestorCierreInspeccion {
         // Guardar las órdenes filtradas con datos
         this.ordenesFiltradasConDatos = ordenesFiltradas; // crea esta variable en la clase
 
-        ordenarPorFechaDeFinalizacion();
-        pantalla.mostrarOrdCompRealizadas();
-        pedirSelecOrdenInspeccion();
-        // System.out.println("Órdenes válidas encontradas: " + ordenesFiltradas.size());
+        //AGREGUE ESTA VALIDACION PARA LA ALTERNATIVA 1. FUE LA UNICA FORMA QUE PUDE HACERLO
+        // EL CHAT ME DECIA CUALQUIER HUEVADA!
+        if (ordenesFiltradas.isEmpty()) {
+            pantalla.mostrarOrdCompRealizadas();
+        } else {
+            ordenarPorFechaDeFinalizacion();
+            pantalla.mostrarOrdCompRealizadas();
+            pedirSelecOrdenInspeccion();
+            // System.out.println("Órdenes válidas encontradas: " + ordenesFiltradas.size());
+        }
     }
 
     public void ordenarPorFechaDeFinalizacion() {
