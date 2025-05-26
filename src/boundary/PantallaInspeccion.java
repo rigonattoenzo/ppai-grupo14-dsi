@@ -15,6 +15,19 @@ import javafx.scene.control.Label;
 import javafx.stage.Stage;
 import javafx.scene.control.DialogPane;
 import javafx.scene.control.ButtonType;
+import javafx.event.ActionEvent;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Dialog;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.ButtonBar;
+import javafx.scene.control.Button;
+import javafx.scene.control.Alert;
+import javafx.event.ActionEvent;
+import javafx.geometry.Insets;
+import javafx.scene.control.Alert.AlertType;
+import java.util.concurrent.atomic.AtomicBoolean;
+
 
 // import de utilidades de Java
 import java.util.Map;
@@ -34,7 +47,7 @@ public class PantallaInspeccion {
 
     // Atributos de la pantalla
     private VBox root;
-    private List<Map<String,Object>> ordenesActuales;
+    private List<Map<String, Object>> ordenesActuales;
     // Para la entrada de texto
     private TextField campoObservacion;
     // Botón para confirmar la observación
@@ -44,9 +57,12 @@ public class PantallaInspeccion {
 
     // Métodos de la pantalla
     // Constructor
-    public PantallaInspeccion() {}
+    public PantallaInspeccion() {
+    }
 
-    /** setter para inyectar el VBox desde MainFX */
+    /**
+     * setter para inyectar el VBox desde MainFX
+     */
     public void setRoot(VBox root) {
         this.root = root;
     }
@@ -88,7 +104,7 @@ public class PantallaInspeccion {
     //PASO 2
     public void mostrarOrdCompRealizadas() {
         //Obtener los datos
-        List<Map<String,Object>> ordenes = gestor.getOrdenesFiltradasConDatos();
+        List<Map<String, Object>> ordenes = gestor.getOrdenesFiltradasConDatos();
         this.ordenesActuales = ordenes;
 
         // Limpiar todo antes de volcar las órdenes
@@ -110,19 +126,21 @@ public class PantallaInspeccion {
                 root.getChildren().add(new Label(gestor.asString(datosOrden)));
             }
         }
-    };
+    }
+
+    ;
 
 
     /**
      * Muestra un botón por cada orden y espera al click
      */
-    public void pedirSelecOrdenInspeccion(List<Map<String,Object>> ordenes) {
+    public void pedirSelecOrdenInspeccion(List<Map<String, Object>> ordenes) {
         // 1) Añado un separador o un título para los botones
         root.setStyle("-fx-background-color: #e7c6a6;");
         root.getChildren().add(new Label("Seleccione una orden de inspección:"));
 
         // 2) Por cada orden, un botón de selección
-        for (Map<String,Object> o : ordenes) {
+        for (Map<String, Object> o : ordenes) {
             String nro = String.valueOf(o.get("nroDeOrden"));
             String sismo = String.valueOf(o.get("idSismografo"));
             Button btn = new Button("Orden #" + nro + " (" + sismo + ")");
@@ -139,7 +157,7 @@ public class PantallaInspeccion {
     }
 
     //PASO 3
-    public void tomarOrdenInspeccionSelec(Map<String,Object> ordenSeleccionada) {
+    public void tomarOrdenInspeccionSelec(Map<String, Object> ordenSeleccionada) {
         gestor.tomarOrdenInspeccionSelec(ordenSeleccionada);
     }
 
@@ -223,59 +241,193 @@ public class PantallaInspeccion {
     }
 
     //PASO 7
+/* FUNCIONA PERO LE FALTA EL BOTON DE CANCELAR (FUNCIONA LA VERIFICACION DE QUE
+    TENGA AL MENOS UN MOTIVO)
     public int tomarMotivoTipoFueraServicio() {
-        // 1) Genero la lista de opciones numeradas
-        List<String> opciones = IntStream
-                .rangeClosed(0, descripcionesMotivos.size())
-                .mapToObj(i -> i == 0
-                        ? "0: Terminar selección"
-                        : String.format("%d: %s", i, descripcionesMotivos.get(i - 1)))
-                .toList();
+        int num = -1;
 
-        // 2) Preparo el texto de resumen de lo ya seleccionado
-        Map<MotivoTipo,String> seleccionados = gestor.getMotivosYComentarios();
-        String resumen = seleccionados.entrySet().stream()
-                .map(e -> "- " + e.getKey().getDescripcion() + ": " + e.getValue())
-                .collect(Collectors.joining("\n"));
-        if (resumen.isEmpty()) {
-            resumen = "(aún no hay motivos seleccionados)";
-        }
+        do {
+            // 1) Genero la lista de opciones numeradas
+            List<String> opciones = IntStream
+                    .rangeClosed(0, descripcionesMotivos.size())
+                    .mapToObj(i -> i == 0
+                            ? "0: Terminar selección"
+                            : String.format("%d: %s", i, descripcionesMotivos.get(i - 1)))
+                    .toList();
 
-        // 3) Construir el diálogo con el resumen en el header
-        ChoiceDialog<String> dialog = new ChoiceDialog<>(opciones.get(0), opciones);
-        dialog.setTitle("Seleccionar motivo");
-        dialog.setHeaderText("YA SELECCIONADOS:\n" + resumen);
-        dialog.setContentText("Seleccione el número del motivo (0 para terminar):");
+            // 2) Preparo el texto de resumen de lo ya seleccionado
+            Map<MotivoTipo,String> seleccionados = gestor.getMotivosYComentarios();
+            String resumen = seleccionados.entrySet().stream()
+                    .map(e -> "- " + e.getKey().getDescripcion() + ": " + e.getValue())
+                    .collect(Collectors.joining("\n"));
+            if (resumen.isEmpty()) {
+                resumen = "(aún no hay motivos seleccionados)";
+            }
 
-        // Para poder cambiar el color de la ventana
-        DialogPane pane = dialog.getDialogPane();
-        pane.setStyle("-fx-padding: 20; -fx-background-color: #e7c6a6;");
+            // 3) Construir el diálogo
+            ChoiceDialog<String> dialog = new ChoiceDialog<>(opciones.get(0), opciones);
+            dialog.setTitle("Seleccionar motivo");
+            dialog.setHeaderText("YA SELECCIONADOS:\n" + resumen);
+            dialog.setContentText("Seleccione el número del motivo (0 para terminar):");
 
-        // Cambiar el color del boton ok
-        Button okButton = (Button) pane.lookupButton(ButtonType.OK);
-        okButton.setStyle("-fx-background-color: #8ee580; -fx-font-weight: bold;");
+            // (estilos...)
+            DialogPane pane = dialog.getDialogPane();
+            pane.setStyle("-fx-padding: 20; -fx-background-color: #e7c6a6;");
+            Button okButton = (Button) pane.lookupButton(ButtonType.OK);
+            okButton.setStyle("-fx-background-color: #8ee580; -fx-font-weight: bold;");
+            Button cancelButton = (Button) pane.lookupButton(ButtonType.CANCEL);
+            cancelButton.setStyle("-fx-background-color: #d95555; -fx-font-weight: bold; -fx-text-fill: white;");
+            pane.lookupAll(".combo-box").forEach(node -> node.setStyle("-fx-background-color: #fae4cd;"));
 
-        // Cambiar el color/estilo del boton cancelar
-        Button cancelButton = (Button) pane.lookupButton(ButtonType.CANCEL);
-        cancelButton.setStyle("-fx-background-color: #d95555; -fx-font-weight: bold; -fx-text-fill: white;");
+            Optional<String> resultado = dialog.showAndWait();
 
-        // Buscar el ComboBox dentro del DialogPane y cambiarle el fondo
-        pane.lookupAll(".combo-box").forEach(node -> {
-            node.setStyle("-fx-background-color: #fae4cd;");
-        });
+            // 4) Si el usuario cierra el diálogo, volver al inicio del CU
+            if (resultado.isEmpty()) {
+                // reiniciamos todo el caso de uso
+                opcionCerrarOrdenDeInspeccion();
+                return 0;
+            }
 
-        Optional<String> resultado = dialog.showAndWait();
-        if (resultado.isPresent()) {
+            // 5) Parsear selección
             String elegido = resultado.get();
-            int num = Integer.parseInt(elegido.split(":")[0]);
+            num = Integer.parseInt(elegido.split(":")[0]);
+
+            // 6) Si elige 0 sin haber seleccionado motivos → alerta y repite
+            if (num == 0 && gestor.getMotivosYComentarios().isEmpty()) {
+                Alert alerta = new Alert(AlertType.ERROR,
+                        "Debes seleccionar al menos un motivo antes de terminar.",
+                        ButtonType.OK);
+                alerta.setHeaderText("Selección incompleta");
+
+                DialogPane paneAl = alerta.getDialogPane();
+                paneAl.setStyle("-fx-background-color: #e7c6a6; -fx-font-size: 14px; -fx-padding: 20;");
+
+                //Cambiar el color del boton Ok
+                Button okBtn = (Button) paneAl.lookupButton(ButtonType.OK);
+                okBtn.setStyle("-fx-background-color: #8ee580; -fx-font-weight: bold;");
+
+                alerta.showAndWait();
+                continue;  // vuelve a mostrar el diálogo
+            }
+
+            // 7) Si es motivo válido, delegar al gestor y salir
             if (num != 0) {
                 gestor.tomarMotivoTipoFueraServicio(num);
             }
-            return num;
-        } else {
-            return 0;
-        }
+            break;
+
+        } while (true);
+
+        return num;
     }
+*/
+
+    //PASO 7
+    public int tomarMotivoTipoFueraServicio() {
+        int num = -1;
+
+        do {
+            List<String> opciones = IntStream
+                    .rangeClosed(0, descripcionesMotivos.size())
+                    .mapToObj(i -> i == 0
+                            ? "0: Terminar selección"
+                            : String.format("%d: %s", i, descripcionesMotivos.get(i - 1)))
+                    .toList();
+
+            Map<MotivoTipo, String> seleccionados = gestor.getMotivosYComentarios();
+            String resumen = seleccionados.entrySet().stream()
+                    .map(e -> "- " + e.getKey().getDescripcion() + ": " + e.getValue())
+                    .collect(Collectors.joining("\n"));
+            if (resumen.isEmpty()) {
+                resumen = "(aún no hay motivos seleccionados)";
+            }
+
+            Dialog<String> dialog = new Dialog<>();
+            dialog.setTitle("Seleccionar motivo");
+            dialog.setHeaderText("YA SELECCIONADOS:\n" + resumen);
+
+            DialogPane pane = dialog.getDialogPane();
+            pane.setStyle("-fx-padding: 20; -fx-background-color: #e7c6a6;");
+
+            // Botones personalizados
+            ButtonType okButtonType = new ButtonType("Aceptar", ButtonBar.ButtonData.OK_DONE);
+            ButtonType cancelButtonType = new ButtonType("Cancelar", ButtonBar.ButtonData.CANCEL_CLOSE);
+            pane.getButtonTypes().addAll(okButtonType, cancelButtonType);
+
+            ComboBox<String> comboBox = new ComboBox<>();
+            comboBox.getItems().addAll(opciones);
+            comboBox.getSelectionModel().selectFirst();
+            comboBox.setStyle("-fx-background-color: #fae4cd;");
+            pane.setContent(comboBox);
+
+            Button okButton = (Button) pane.lookupButton(okButtonType);
+            okButton.setStyle("-fx-background-color: #8ee580; -fx-font-weight: bold;");
+            Button cancelButton = (Button) pane.lookupButton(cancelButtonType);
+            cancelButton.setStyle("-fx-background-color: #d95555; -fx-font-weight: bold; -fx-text-fill: white;");
+
+            AtomicBoolean fueCancelado = new AtomicBoolean(false);
+
+            // Acción personalizada para el botón cancelar
+            cancelButton.addEventFilter(ActionEvent.ACTION, event -> {
+                //System.out.print("se cancelaaaa\n");
+                fueCancelado.set(true);
+                event.consume(); // detiene el cierre automático del diálogo
+                dialog.setResult(null); //  deja el resultado en null
+                dialog.close(); // cierra manualmente
+            });
+
+
+            dialog.setResultConverter(button -> {
+                if (button == okButtonType) {
+                    //System.out.print("Dice que toco ok\n");
+                    return comboBox.getValue();
+                }
+                return null;
+            });
+
+            Optional<String> resultado = dialog.showAndWait();
+
+            if (resultado.isEmpty()) {
+                if (fueCancelado.get()) {
+                    cancelarCasoUso();// el usuario apretó "Cancelar"
+                    //System.out.print("Supuestamente ya se cancelo\n");
+                    return -1;
+
+                } else {
+                    opcionCerrarOrdenDeInspeccion();// cerró con la X
+                }
+                return 0;
+            }
+            //System.out.print("SALIO DEL IF Y VUELVE A LA VENTANA!!!!!!!");
+
+            String elegido = resultado.get();
+            num = Integer.parseInt(elegido.split(":")[0]);
+
+            if (num == 0 && gestor.getMotivosYComentarios().isEmpty()) {
+                Alert alerta = new Alert(Alert.AlertType.ERROR,
+                        "Debes seleccionar al menos un motivo antes de terminar.",
+                        ButtonType.OK);
+                alerta.setHeaderText("Selección incompleta");
+
+                DialogPane paneAl = alerta.getDialogPane();
+                paneAl.setStyle("-fx-background-color: #e7c6a6; -fx-font-size: 14px; -fx-padding: 20;");
+                Button okBtn = (Button) paneAl.lookupButton(ButtonType.OK);
+                okBtn.setStyle("-fx-background-color: #8ee580; -fx-font-weight: bold;");
+
+                alerta.showAndWait();
+                continue;
+            }
+
+            if (num != 0) {
+                gestor.tomarMotivoTipoFueraServicio(num);
+            }
+
+            break;
+        } while (true);
+
+        return num;
+    }
+
 
     /**
      * Muestra un TextInputDialog para ingresar el comentario;
