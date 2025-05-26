@@ -183,28 +183,36 @@ public class GestorCierreInspeccion {
 
 
     public void pedirSelecMotivosFueraServicio() {
-        int motivoNum = -1;
+            int motivoNum = -1;
 
-        while (motivoNum != 0) {
-            motivoNum = pantalla.pedirSelecMotivoTipo();
+            while (motivoNum != 0) {
+                motivoNum = pantalla.tomarMotivoTipoFueraServicio();
 
-            // si no es 0, pedir comentario y guardar
-            if (motivoNum != 0) {
-                if (!motivosYComentarios.containsKey(this.punteroMotivos.get(motivoNum - 1))) {
-                    pantalla.pedirComentario();
-                } else {
-                    pantalla.mostrarMensaje("Error! ese motivo ya fue seleccionado...");
+                if (motivoNum == -1) {
+                    // el usuario canceló
+                    return; // salir del método y no seguir con el flujo
                 }
-            } else {
-                pantalla.mostrarMensaje("Selección de motivos finalizada.");
-            }
-        }
 
-        pedirConfirmacionCierreOrden();
-    }
+                if (motivoNum != 0) {
+                    if (!motivosYComentarios.containsKey(this.punteroMotivos.get(motivoNum - 1))) {
+                        pantalla.pedirComentario();
+                    } else {
+                        pantalla.mostrarMensaje("Error! ese motivo ya fue seleccionado...");
+                    }
+                } else {
+                    pantalla.mostrarMensaje("Selección de motivos finalizada.");
+                }
+            }
+            pedirConfirmacionCierreOrden(); // < no se debería ejecutar si hubo cancelación
+        }
 
     //PASO 7
     public void tomarMotivoTipoFueraServicio(int motivoNum) {
+        if (motivoNum <= 0 || motivoNum > punteroMotivos.size()) {
+            // Motivo inválido o cancelación: no hacer nada, o lanzar excepción controlada si querés.
+            System.out.println("Motivo inválido o cancelación recibida: " + motivoNum);
+            return;
+        }
         MotivoTipo motivoSelecc = this.punteroMotivos.get(motivoNum - 1);
         this.ultimoMotivoSeleccionado = motivoSelecc;
     }
