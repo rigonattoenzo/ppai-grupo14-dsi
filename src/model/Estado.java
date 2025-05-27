@@ -7,12 +7,13 @@ public class Estado {
     private String ambito;
     private String nombreEstado;
 
+    // Constructor -> Equivalente al new()
     public Estado(String nombreEstado, String ambito) {
         this.nombreEstado = nombreEstado;
         this.ambito = ambito;
     }
 
-    // Getters y Setters
+    // Métodos extra (no se utilizan, pero los implementamos por si acaso)
     public String getNombreEstado() {
         return nombreEstado;
     }
@@ -21,7 +22,7 @@ public class Estado {
         return ambito;
     }
 
-    // Metodos en el diagrama de secuencia
+    // Métodos de la realización de caso de uso
     public boolean esCompletamenteRealizada() {
         return "Completamente Realizada".equalsIgnoreCase(nombreEstado);
     }

@@ -7,26 +7,26 @@ public class Rol {
     private String nombre;
     private String descripcionRol;
 
+    // Constructor
     public Rol(String nombre, String descripcionRol) {
         this.nombre = nombre;
         this.descripcionRol = descripcionRol;
     }
 
-    //getters
+    // Métodos de la realización de caso de uso
     public String getNombreRol() {
         return nombre;
     }
 
-    public String getDescripcionRol() {
-        return descripcionRol;
-    }
-
-    //metodos
     public boolean esResponsableReparacion() {
         return nombre.equalsIgnoreCase("RR");
     }
 
-    // Dentro de Rol.java
+    // Métodos extra (no se utilizan, pero los implementamos por si acaso)
+    public String getDescripcionRol() {
+        return descripcionRol;
+    }
+
     /*
     @Override
     public String toString() {

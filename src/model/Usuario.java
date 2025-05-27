@@ -5,22 +5,28 @@ package model;
  */
 public class Usuario {
     private String nombreUsuario;
-    private String contrasena;
+    private String contraseña;
 
     // Asociación
     private Empleado empleado;  // Cada usuario corresponde a un empleado
 
-    public Usuario(String nombreUsuario, String contrasena, Empleado empleado) {
+    // Constructor
+    public Usuario(String nombreUsuario, String contraseña, Empleado empleado) {
         this.nombreUsuario = nombreUsuario;
-        this.contrasena = contrasena;
+        this.contraseña = contraseña;
         this.empleado = empleado;
-    } // Constructor
+    }
 
-    //getters
+    // Métodos de la realización de caso de uso
     public Empleado getRiLogueado() {
         return getEmpleado();
     }
 
+    public boolean esContrasenaValida(String contrasena) {
+        return this.contraseña.equals(contrasena);
+    }
+
+    // Métodos extra (no se utilizan, pero los implementamos por si acaso)
     public String getNombreUsuario() {
         return nombreUsuario;
     }
@@ -29,15 +35,9 @@ public class Usuario {
         return empleado;
     }
 
-    //metodos extra
     public String perfilLogueado() {
         return empleado.getNombreCompleto();
     }
-
-    // Método para validar contraseña
-    /*public boolean esContrasenaValida(String contrasena) {
-        return this.contrasena.equals(contrasena);
-    } */
 
     // Método toString para facilitar la depuración
     /*@Override

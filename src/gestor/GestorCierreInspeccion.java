@@ -22,12 +22,12 @@ public class GestorCierreInspeccion {
     private List<OrdenDeInspeccion> ordenesDeInspeccion;
     private String observacionCierreOrden;
     private Map<MotivoTipo, String> motivosYComentarios = new HashMap<>();
-    private List<MotivoTipo> punteroMotivos = new ArrayList<>();
+    private List<MotivoTipo> punterosMotivos = new ArrayList<>();
     private MotivoTipo ultimoMotivoSeleccionado = null;
     private String confirmacionCierreOrden;
     private LocalDateTime fechaHoraActual = LocalDateTime.now();
-    // private String mailResponsable;
-    // private String correoAEnviar;
+    private String mailResponsable;
+    private String correoAEnviar;
     private List<Map<String, Object>> ordenesFiltradasConDatos;
     private Map<String,Object> ordenSeleccionada;
 
@@ -48,7 +48,7 @@ public class GestorCierreInspeccion {
     }
 
     public int getPunteroMotivoSize() {
-        return this.punteroMotivos.size();
+        return this.punterosMotivos.size();
     }
 
     public String asString(Map<String, Object> datosOrden) {
@@ -71,25 +71,24 @@ public class GestorCierreInspeccion {
         return ordenesFiltradasConDatos;
     }
 
-    public Map<MotivoTipo,String> getMotivosYComentarios() {
-        return motivosYComentarios;
-    }
-
     public GestorCierreInspeccion(PantallaInspeccion pantalla) {
         this.pantalla = pantalla;
         this.empleadoLogueado = Sesion.getInstancia().getUsuario().getEmpleado();
         this.ordenesDeInspeccion = RepositorioDatos.obtenerOrdenes();
     } // Constructor
 
+    public void setFechaHoraActual() {
+        this.fechaHoraActual = LocalDateTime.now();
+    }
+
     // Métodos del Caso de Uso 37
-    //PASO 1
+    // PASO 1
     public void iniciarCierreOrdenInspeccion() {
         obtenerEmpleadoLogueado();
     }
 
-    //PASO 2
+    // PASO 2
     public void obtenerEmpleadoLogueado() {
-        // Ver de justificar este método agregándolo en el diagrama de secuencia (el getInstancia())
         this.empleadoLogueado = Sesion.getInstancia().getUsuario().getRiLogueado();
 
         // System.out.println(this.empleadoLogueado);
@@ -119,7 +118,6 @@ public class GestorCierreInspeccion {
             ordenarPorFechaDeFinalizacion();
             pantalla.mostrarOrdCompRealizadas();
             pedirSelecOrdenInspeccion();
-            // System.out.println("Órdenes válidas encontradas: " + ordenesFiltradas.size());
         }
     }
 
@@ -143,8 +141,6 @@ public class GestorCierreInspeccion {
                 return fecha1.compareTo(fecha2);
             }
         });
-
-        // System.out.println("Órdenes ordenadas por fecha de finalización.");
     }
 
     public void pedirSelecOrdenInspeccion() {
@@ -170,17 +166,16 @@ public class GestorCierreInspeccion {
 
     //PASO 6
     public void buscarTiposMotivosFueraServicio() {
-        this.punteroMotivos = RepositorioDatos.getMotivos();  // obtiene todos los MotivoTipo
+        this.punterosMotivos = RepositorioDatos.getMotivos();  // obtiene todos los MotivoTipo
         List<String> descMotivos = new ArrayList<>();        // lista para guardar solo las descripciones
 
-        for (MotivoTipo motivo : this.punteroMotivos) {
+        for (MotivoTipo motivo : this.punterosMotivos) {
             descMotivos.add(motivo.getDescripcion());        // extrae y agrega cada descripción
         }
 
         pantalla.mostrarMotivosTipoFueraServicio(descMotivos);
         pedirSelecMotivosFueraServicio();
     }
-
 
     public void pedirSelecMotivosFueraServicio() {
             int motivoNum = -1;
@@ -194,7 +189,8 @@ public class GestorCierreInspeccion {
                 }
 
                 if (motivoNum != 0) {
-                    if (!motivosYComentarios.containsKey(this.punteroMotivos.get(motivoNum - 1))) {
+                    if (!motivosYComentarios.containsKey(this.punterosMotivos.get(motivoNum - 1))) {
+                        // Llama a la pantalla para pedir el comentario
                         pantalla.pedirComentario();
                     } else {
                         pantalla.mostrarMensaje("Error! ese motivo ya fue seleccionado...");
@@ -208,15 +204,18 @@ public class GestorCierreInspeccion {
 
     //PASO 7
     public void tomarMotivoTipoFueraServicio(int motivoNum) {
-        if (motivoNum <= 0 || motivoNum > punteroMotivos.size()) {
+        if (motivoNum <= 0 || motivoNum > punterosMotivos.size()) {
             // Motivo inválido o cancelación: no hacer nada, o lanzar excepción controlada si querés.
-            System.out.println("Motivo inválido o cancelación recibida: " + motivoNum);
+            pantalla.mostrarMensaje("Motivo inválido o cancelación recibida: " + motivoNum);
             return;
         }
-        MotivoTipo motivoSelecc = this.punteroMotivos.get(motivoNum - 1);
+        MotivoTipo motivoSelecc = this.punterosMotivos.get(motivoNum - 1);
         this.ultimoMotivoSeleccionado = motivoSelecc;
     }
 
+    public Map<MotivoTipo,String> getMotivosYComentarios() {
+        return motivosYComentarios;
+    }
 
     public void tomarComentario(String comentario) {
         motivosYComentarios.put(this.ultimoMotivoSeleccionado, comentario);
@@ -261,7 +260,7 @@ public class GestorCierreInspeccion {
         Estado estadoCerrado = null;
 
         for (Estado estado : estados) {
-            if ("CERRADO".equalsIgnoreCase(estado.getNombreEstado())) {
+            if ("CERRADO".equalsIgnoreCase(estado.getNombreEstado()) && estado.sosAmbitoOrdenDeInspeccion()) {
                 estadoCerrado = estado;
                 break;
             }
@@ -275,10 +274,6 @@ public class GestorCierreInspeccion {
         }
     }
 
-    public void setFechaHoraActual() {
-        this.fechaHoraActual = LocalDateTime.now();
-    }
-
     public LocalDateTime getFechaHoraActual() {
         return this.fechaHoraActual;
     }
@@ -288,7 +283,7 @@ public class GestorCierreInspeccion {
         Estado estadoFueraDeServicio = null;
 
         for (Estado estado : estados) {
-            if ("FUERA DE SERVICIO".equalsIgnoreCase(estado.getNombreEstado())) {
+            if ("FUERA DE SERVICIO".equalsIgnoreCase(estado.getNombreEstado()) && estado.sosFueraDeServicio()) {
                 estadoFueraDeServicio = estado;
                 break;
             }
@@ -306,7 +301,7 @@ public class GestorCierreInspeccion {
         String nroSeleccionado = String.valueOf(this.ordenSeleccionada.get("nroDeOrden"));
 
         for (OrdenDeInspeccion orden : this.ordenesDeInspeccion) {
-            String nroOrden = String.valueOf(orden.getNumeroOrden());
+            String nroOrden = String.valueOf(orden.getNroDeOrden());
 
             if (nroOrden.equals(nroSeleccionado)) {
                 ordenEncontrada = orden;
@@ -359,6 +354,8 @@ public class GestorCierreInspeccion {
         finCU();
     }
 
+    // Este método no se incluyó en el diagrama de secuencia ya que no lo solicitaba la consigna
+    // Se encarga de generar el mensaje que se mostrará por pantalla para los monitores y los mails
     public String generarMensajeNotificacion() {
         // Obtener la identificación del sismógrafo
         String identificacionSismografo = "";

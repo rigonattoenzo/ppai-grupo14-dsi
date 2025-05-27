@@ -14,10 +14,11 @@ public class Sismografo {
     private LocalDateTime fechaAdquisicion;
 
     // Asociaciones
-    private EstacionSismologica estacion;            // Estación donde está instalado
+    private EstacionSismologica estacionSismologica;        // Estación donde está instalado
     private List<CambioDeEstado> cambiosDeEstado = new ArrayList<>();
-    private CambioDeEstado cambioEstado; // Historial de cambios
+    private CambioDeEstado cambioEstado;                    // Historial de cambios
 
+    // Constructor -> Equivalente al new()
     public Sismografo(String identificador,
                       String nroSerie,
                       LocalDateTime fechaAdquisicion,
@@ -25,39 +26,15 @@ public class Sismografo {
         this.identificadorSismografo = identificador;
         this.nroSerie = nroSerie;
         this.fechaAdquisicion = fechaAdquisicion;
-        this.estacion = estacion;
+        this.estacionSismologica = estacion;
     }
 
-    // Getters
+    // Métodos de la realización de caso de uso
     public String getIdentificadorSismografo() {
         return identificadorSismografo;
     }
 
-    public List<CambioDeEstado> getCambiosDeEstado() {
-        return cambiosDeEstado;
-    }
-
-    public EstacionSismologica getEstacion() {
-        return estacion;
-    }
-
-    // Getter para fechaAdquisicion
-    public LocalDateTime getFechaAdquisicion() {
-        return fechaAdquisicion;
-    }
-
-    // Getter para nroSerie
-    public String getNroSerie() {
-        return nroSerie;
-    }
-
-    // Setter para la estación
-    public void setEstacion(EstacionSismologica estacion) {
-        this.estacion = estacion;
-    }
-
-    // Métodos extra
-    public void fueraServicio(Estado estado, Map<MotivoTipo, String> motivosYComentarios){
+    public void fueraDeServicio(Estado estado, Map<MotivoTipo, String> motivosYComentarios){
         CambioDeEstado actual = null;
         for (CambioDeEstado cambio : cambiosDeEstado) {
             if (cambio.esEstadoActual()) {
@@ -73,12 +50,35 @@ public class Sismografo {
         ejecutarCambioDeEstado(estado, motivosYComentarios);
     }
 
-    public void setCambiosDeEstado(List<CambioDeEstado> cambiosDeEstado) {
-        this.cambiosDeEstado = cambiosDeEstado;
-    }
-
     public void ejecutarCambioDeEstado(Estado estado, Map<MotivoTipo, String> motivosYComentarios){
         CambioDeEstado nuevo = new CambioDeEstado(estado, LocalDateTime.now());
         nuevo.crearMotivoFueraServicio(motivosYComentarios);
+    }
+
+    // agregarCambioEstado está de más
+
+    // Métodos extra (no se utilizan, pero los implementamos por si acaso)
+    public List<CambioDeEstado> getCambiosDeEstado() {
+        return cambiosDeEstado;
+    }
+
+    public EstacionSismologica getEstacion() {
+        return estacionSismologica;
+    }
+
+    public LocalDateTime getFechaAdquisicion() {
+        return fechaAdquisicion;
+    }
+
+    public String getNroSerie() {
+        return nroSerie;
+    }
+
+    public void setEstacion(EstacionSismologica estacion) {
+        this.estacionSismologica = estacion;
+    }
+
+    public void setCambiosDeEstado(List<CambioDeEstado> cambiosDeEstado) {
+        this.cambiosDeEstado = cambiosDeEstado;
     }
 }
