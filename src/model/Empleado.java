@@ -12,6 +12,7 @@ public class Empleado {
     // Asociación
     private Rol rol;   // Rol que desempeña el empleado
 
+    // Constructor
     public Empleado(String nombre,
                     String apellido,
                     String telefono,
@@ -24,7 +25,7 @@ public class Empleado {
         this.rol = rol;
     }
 
-    // Métodos vista estatica
+    // Métodos de la realización de caso de uso
     public boolean esResponsableReparacion() {
         return rol != null && rol.esResponsableReparacion();
     }
@@ -33,16 +34,15 @@ public class Empleado {
         return mail;
     }
 
-    // Getters
     public String getNombreCompleto() {
         return nombre + " " + apellido;
     }
 
+    // Métodos extra (no se utilizan, pero los implementamos por si acaso)
     public Rol getRol() {
         return rol;
     }
 
-    // Getters individuales (nombre, apellido, telefono)
     public String getNombre() {
         return nombre;
     }
@@ -55,7 +55,6 @@ public class Empleado {
         return telefono;
     }
 
-    // Setter para rol
     public void setRol(Rol rol) {
         this.rol = rol;
     }

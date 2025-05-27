@@ -9,19 +9,20 @@ public class MotivoFueraDeServicio {
     private String comentario;
 
     // Asociación
-    private MotivoTipo tipo;
+    private MotivoTipo motivoTipo;
 
-    public MotivoFueraDeServicio(String comentario, MotivoTipo tipo) {
+    // Constructor -> Equivalente al new()
+    public MotivoFueraDeServicio(String comentario, MotivoTipo motivoTipo) {
         this.comentario = comentario;
-        this.tipo = tipo;
+        this.motivoTipo = motivoTipo;
     }
 
-    // Getters
+    // Métodos extra (no se utilizan, pero los implementamos por si acaso)
     public String getComentario() {
         return comentario;
     }
 
     public MotivoTipo getTipo() {
-        return tipo;
+        return motivoTipo;
     }
 }

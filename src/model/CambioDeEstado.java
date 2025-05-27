@@ -17,12 +17,13 @@ public class CambioDeEstado {
     private Empleado empleado;                       // Quién realizó el cambio
     private List<MotivoFueraDeServicio> motivos = new ArrayList<>();       // Motivo si aplica
 
-    public CambioDeEstado(Estado estado,
-                          LocalDateTime inicio) {
+    // Constructor -> Equivalente al new()
+    public CambioDeEstado(Estado estado, LocalDateTime inicio) {
         this.estado = estado;
         this.fechaHoraInicio = inicio;
     }
 
+    // Métodos de la realización de caso de uso
     public boolean esEstadoActual() {
         return this.fechaHoraFin != null;
     }
@@ -37,14 +38,13 @@ public class CambioDeEstado {
         }
     }
 
-    // Getters y Seters
-
-    public void setEmpleado(Empleado empleado) {
-        this.empleado = empleado;
-    }
-
     public void setFechaHoraFin(LocalDateTime fechaHoraFin) {
         this.fechaHoraFin = fechaHoraFin;
+    }
+
+    // Métodos extra (no se utilizan, pero los implementamos por si acaso)
+    public void setEmpleado(Empleado empleado) {
+        this.empleado = empleado;
     }
 
     public Estado getEstado() {
@@ -59,12 +59,10 @@ public class CambioDeEstado {
         return this.motivos;
     }
 
-    // Getter para fechaHoraInicio
     public LocalDateTime getFechaHoraInicio() {
         return fechaHoraInicio;
     }
 
-    // Getter para fechaHoraFin
     public LocalDateTime getFechaHoraFin() {
         return fechaHoraFin;
     }

@@ -17,9 +17,10 @@ public class EstacionSismologica {
     private String nombre;
     private String nroCertificacionAdquisicion;
 
-    // Asociación
+    // Asociación // ***
     private Sismografo sismografo;
 
+    // Constructor
     public EstacionSismologica(String codigoEstacion,
                                String documentoCertificacionAdq,
                                LocalDateTime fechaSolicitudCertificacion,
@@ -38,7 +39,7 @@ public class EstacionSismologica {
         this.sismografo = sismografo;
     }
 
-    //getters y setters
+    // Métodos de la realización de caso de uso
     public String getCodigoEstacion() {
         return codigoEstacion;
     }
@@ -47,6 +48,15 @@ public class EstacionSismologica {
         return nombre;
     }
 
+    public String obtenerIdentificadorSismografo() {
+        return sismografo.getIdentificadorSismografo();
+    }
+
+    public void ponerSismografoFueraServicio(Estado estado, Map<MotivoTipo, String> motivosYComentarios){
+        this.sismografo.fueraDeServicio(estado, motivosYComentarios);
+    }
+
+    // Métodos extra (no se utilizan, pero los implementamos por si acaso)
     public Sismografo getSismografo() {
         return sismografo;
     }
@@ -71,19 +81,8 @@ public class EstacionSismologica {
         return nroCertificacionAdquisicion;
     }
 
-    // Setters
-    // Setter para cambiar el sismógrafo asociado
     public void setSismografo(Sismografo sismografo) {
         this.sismografo = sismografo;
-    }
-
-    // Metodos del caso de uso
-    public String obtenerIdentificadorSismografo() {
-        return sismografo.getIdentificadorSismografo();
-    }
-
-    public void ponerSismografoFueraServicio(Estado estado, Map<MotivoTipo, String> motivosYComentarios){
-        this.sismografo.fueraServicio(estado, motivosYComentarios);
     }
 
     /*

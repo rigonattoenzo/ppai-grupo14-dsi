@@ -15,12 +15,13 @@ public class OrdenDeInspeccion {
     private LocalDateTime fechaHoraFinalizacion;
     private LocalDateTime fechaHoraCierre;
     private String observacionCierreOrden;
-    private Estado estadoActual;
 
     // Asociaciones
-    private Empleado empleado;                // RI responsable
-    private EstacionSismologica estacion;     // Estación relacionada
+    private Empleado empleado;                  // RI responsable
+    private EstacionSismologica estacion;       // Estación relacionada
+    private Estado estado;                // Estado
 
+    // Constructor
     public OrdenDeInspeccion(int numeroOrden,
                              LocalDateTime inicio,
                              LocalDateTime finalizacion,
@@ -33,30 +34,15 @@ public class OrdenDeInspeccion {
         this.estacion = estacion;
     }
 
-    //geters
-    public int getNumeroOrden() {
+    // Métodos de la realización de caso de uso
+    public int getNroDeOrden() {
         return numeroOrden;
-    }
-
-    // Getters de las asociaciones
-    public Empleado getEmpleado() {
-        return empleado;
-    }
-
-    public EstacionSismologica getEstacion() {
-        return estacion;
-    }
-
-    // Getter para fechaHoraCierre
-    public LocalDateTime getFechaHoraCierre() {
-        return fechaHoraCierre;
     }
 
     public LocalDateTime getFechaFinalizacion() {
         return fechaHoraFinalizacion;
     }
 
-    // Este llama a la estación para pedir su nombre
     public String getNombreEstacionSismologica() {
         return estacion.getNombre();
     }
@@ -65,48 +51,58 @@ public class OrdenDeInspeccion {
         return estacion.obtenerIdentificadorSismografo();
     }
 
-    public String getObservacionCierreOrden() {
-        return observacionCierreOrden;
-    }
-
-    // Setters
-    public void setEstado(Estado estado) {
-        this.estadoActual = estado;
+    public LocalDateTime getFechaHoraCierre() {
+        return fechaHoraCierre;
     }
 
     public void setFechaHoraCierre(LocalDateTime fechaHoraCierre) {
         this.fechaHoraCierre = fechaHoraCierre;
     }
 
-    public void setObservacionCierreOrden(String observacionCierreOrden) {
-        this.observacionCierreOrden = observacionCierreOrden;
+    public void setEstado(Estado estado) {
+        this.estado = estado;
     }
 
     public void ponerSismografoFueraServicio(Estado estado, Map<MotivoTipo, String> motivosYComentarios){
         this.estacion.ponerSismografoFueraServicio(estado, motivosYComentarios);
     }
 
-    // Métodos extra
     public boolean sosDeEmpleado(Empleado empleado) {
         return this.empleado.equals(empleado);
     }
 
     public boolean sosCompletamenteRealizada() {
-        return estadoActual.esCompletamenteRealizada();
-    }
-    
-     public void cerrar(Estado estadoCerrado) {
-        this.setFechaHoraCierre(LocalDateTime.now());
-        this.setEstado(estadoCerrado);
+        return estado.esCompletamenteRealizada();
     }
 
-    // Método principal para que el gestor llame y obtenga los datos
     public Map<String, Object> obtenerDatosOI() {
         Map<String, Object> datos = new HashMap<>();
-        datos.put("nroDeOrden", getNumeroOrden());
+        datos.put("nroDeOrden", getNroDeOrden());
         datos.put("fechaFinalizacion", getFechaFinalizacion());
         datos.put("nombreEstacionSismologica", getNombreEstacionSismologica());
         datos.put("idSismografo", getIdSismografo());
         return datos;
+    }
+
+    public void cerrar(Estado estadoCerrado) {
+        this.setFechaHoraCierre(LocalDateTime.now());
+        this.setEstado(estadoCerrado);
+    }
+
+    // Métodos extra (no se utilizan, pero los implementamos por si acaso)
+    public Empleado getEmpleado() {
+        return empleado;
+    }
+
+    public EstacionSismologica getEstacion() {
+        return estacion;
+    }
+
+    public String getObservacionCierreOrden() {
+        return observacionCierreOrden;
+    }
+
+    public void setObservacionCierreOrden(String observacionCierreOrden) {
+        this.observacionCierreOrden = observacionCierreOrden;
     }
 }

@@ -6,11 +6,12 @@ package model;
 public class MotivoTipo {
     private String descripcion;
 
+    // Constructor
     public MotivoTipo(String descripcion) {
         this.descripcion = descripcion;
     }
 
-    // Getter
+    // Métodos de la realización de caso de uso
     public String getDescripcion() {
         return descripcion;
     }
@@ -20,6 +21,7 @@ public class MotivoTipo {
     }
 }
 
+    // Métodos extra (no se utilizan, pero los implementamos por si acaso)
    /* @Override
    public String toString() {
         return "MotivoTipo{" +
