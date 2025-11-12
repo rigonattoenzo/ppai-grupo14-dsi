@@ -17,7 +17,7 @@ public class EstacionSismologica {
     private String nombre;
     private String nroCertificacionAdquisicion;
 
-    // Asociación // ***
+    // Asociación
     private Sismografo sismografo;
 
     // Constructor

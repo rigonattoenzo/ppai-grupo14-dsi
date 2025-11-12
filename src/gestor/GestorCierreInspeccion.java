@@ -30,6 +30,7 @@ public class GestorCierreInspeccion {
     private String correoAEnviar;
     private List<Map<String, Object>> ordenesFiltradasConDatos;
     private Map<String,Object> ordenSeleccionada;
+    private OrdenDeInspeccion ordenEncontrada;
 
     // Atributos referenciales o punteros
     private Empleado empleadoLogueado;
@@ -91,7 +92,6 @@ public class GestorCierreInspeccion {
     public void obtenerEmpleadoLogueado() {
         this.empleadoLogueado = Sesion.getInstancia().getUsuario().getRiLogueado();
 
-        // System.out.println(this.empleadoLogueado);
         buscarOrdenesDeInspeccionDeRI();
     }
 
@@ -249,12 +249,13 @@ public class GestorCierreInspeccion {
             pantalla.mostrarMensaje("ERROR! El motivo se debe seleccionar obligatoriamente");
         }
 
-        buscarEstadoCerrado();
-        buscarFueraServicio();
+        // buscarEstadoCerrado() y buscarFueraServicio() se eliminan en el rediseño
+        buscarEstadoCerrado(); // comentar
+        buscarFueraServicio(); // comentar
         cerrarOrdenInspeccion();
     }
 
-    //PASO 11
+    // PASO 11
     public void buscarEstadoCerrado() {
         List<Estado> estados = RepositorioDatos.getEstados(); // obtiene todos los estados
         Estado estadoCerrado = null;
@@ -278,6 +279,7 @@ public class GestorCierreInspeccion {
         return this.fechaHoraActual;
     }
 
+    // Se elimina en el rediseño del patrón state
     public void buscarFueraServicio() {
         List<Estado> estados = RepositorioDatos.getEstados(); // obtiene todos los estados
         Estado estadoFueraDeServicio = null;
@@ -297,24 +299,27 @@ public class GestorCierreInspeccion {
     }
 
     public void cerrarOrdenInspeccion() {
-        OrdenDeInspeccion ordenEncontrada = null;
         String nroSeleccionado = String.valueOf(this.ordenSeleccionada.get("nroDeOrden"));
 
         for (OrdenDeInspeccion orden : this.ordenesDeInspeccion) {
             String nroOrden = String.valueOf(orden.getNroDeOrden());
 
             if (nroOrden.equals(nroSeleccionado)) {
-                ordenEncontrada = orden;
+                this.ordenEncontrada = orden;
                 break;
             }
         }
         ordenEncontrada.cerrar(this.estadoCerrado);
-        ponerSismografoFueraServicio(ordenEncontrada);
+        ponerSismografoFueraServicio();
     }
 
-    //PASO 12
-    public void ponerSismografoFueraServicio(OrdenDeInspeccion ordenEncontrada) {
-        ordenEncontrada.ponerSismografoFueraServicio(this.estadoFueraDeServicio, this.motivosYComentarios);
+
+    // ACÁ SE APLICA EL REDISEÑO UTILIZANDO EL PATRÓN STATE
+    // PASO 12 -> Método de Enganche con el análisis
+    public void ponerSismografoFueraServicio() {
+        this.fechaHoraActual = getFechaHoraActual();
+        // ordenEncontrada es la orden fuera de inspección seleccionada por el usuario
+        (this.ordenEncontrada).ponerSismografoFueraServicio(this.estadoFueraDeServicio, this.motivosYComentarios);
         buscarResponsableReparacion();
     }
 
