@@ -22,13 +22,13 @@ public class EstacionSismologica {
 
     // Constructor
     public EstacionSismologica(String codigoEstacion,
-                               String documentoCertificacionAdq,
-                               LocalDateTime fechaSolicitudCertificacion,
-                               double latitud,
-                               double longitud,
-                               String nombre,
-                               String nroCertificacionAdquisicion,
-                               Sismografo sismografo) {
+            String documentoCertificacionAdq,
+            LocalDateTime fechaSolicitudCertificacion,
+            double latitud,
+            double longitud,
+            String nombre,
+            String nroCertificacionAdquisicion,
+            Sismografo sismografo) {
         this.codigoEstacion = codigoEstacion;
         this.documentoCertificacionAdq = documentoCertificacionAdq;
         this.fechaSolicitudCertificacion = fechaSolicitudCertificacion;
@@ -40,6 +40,26 @@ public class EstacionSismologica {
     }
 
     // Métodos de la realización de caso de uso
+    /**
+     * Pone el sismografo fuera de servicio con motivos.
+     * Parámetros ajustados para el patrón State:
+     * - fechaActual: fecha/hora del cambio
+     * - motivos: matriz de [descripcion, comentario]
+     */
+    public void fueraDeServicio(LocalDateTime fechaActual,
+            List<Map<String, Object>> motivos) {
+        // System.out.println("EstacionSismologica: Llamando a
+        // sismografo.fueraDeServicio()");
+        this.sismografo.fueraDeServicio(fechaActual, motivos);
+    }
+
+    /*
+     * public void ponerSismografoFueraServicio(Estado estado, Map<MotivoTipo,
+     * String> motivosYComentarios){
+     * this.sismografo.fueraDeServicio(estado, motivosYComentarios);
+     * }
+     */
+
     public String getCodigoEstacion() {
         return codigoEstacion;
     }
@@ -50,10 +70,6 @@ public class EstacionSismologica {
 
     public String obtenerIdentificadorSismografo() {
         return sismografo.getIdentificadorSismografo();
-    }
-
-    public void ponerSismografoFueraServicio(Estado estado, Map<MotivoTipo, String> motivosYComentarios){
-        this.sismografo.fueraDeServicio(estado, motivosYComentarios);
     }
 
     // Métodos extra (no se utilizan, pero los implementamos por si acaso)
@@ -86,15 +102,18 @@ public class EstacionSismologica {
     }
 
     /*
-    // toString para impresión
-    @Override
-    public String toString() {
-        return "EstacionSismologica{" +
-                "codigo='" + codigoEstacion + '\'' +
-                ", nombre='" + nombre + '\'' +
-                ", lat=" + latitud +
-                ", lon=" + longitud +
-                ", sismografo=" + (sismografo != null ? sismografo.getIdentificadorSismografo() : "N/A") +
-                '}';
-    } */
+     * // toString para impresión
+     * 
+     * @Override
+     * public String toString() {
+     * return "EstacionSismologica{" +
+     * "codigo='" + codigoEstacion + '\'' +
+     * ", nombre='" + nombre + '\'' +
+     * ", lat=" + latitud +
+     * ", lon=" + longitud +
+     * ", sismografo=" + (sismografo != null ?
+     * sismografo.getIdentificadorSismografo() : "N/A") +
+     * '}';
+     * }
+     */
 }

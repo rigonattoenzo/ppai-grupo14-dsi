@@ -1,10 +1,11 @@
 package model;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
+import model.estados.Estado;
+import model.estados.PendienteDeRealizacion;
 
 /**
  * Representa una Orden de Inspección.
@@ -17,24 +18,59 @@ public class OrdenDeInspeccion {
     private String observacionCierreOrden;
 
     // Asociaciones
-    private Empleado empleado;                  // RI responsable
-    private EstacionSismologica estacion;       // Estación relacionada
-    private Estado estado;                // Estado
+    private Empleado empleado; // RI responsable
+    private EstacionSismologica estacion; // Estación relacionada
+    private Estado estadoActual; // Estado
 
     // Constructor
     public OrdenDeInspeccion(int numeroOrden,
-                             LocalDateTime inicio,
-                             LocalDateTime finalizacion,
-                             Empleado empleado,
-                             EstacionSismologica estacion) {
+            LocalDateTime inicio,
+            LocalDateTime finalizacion,
+            Empleado empleado,
+            EstacionSismologica estacion) {
         this.numeroOrden = numeroOrden;
         this.fechaHoraInicio = inicio;
         this.fechaHoraFinalizacion = finalizacion;
         this.empleado = empleado;
         this.estacion = estacion;
+        this.estadoActual = new PendienteDeRealizacion(); // Estado inicial
     }
 
-    // Métodos de la realización de caso de uso
+    // ==================== MÉTODOS DE DELEGACIÓN AL ESTADO ====================
+    /**
+     * Registra la primera actividad (transición a Parcialmente Realizada).
+     */
+    public void registrarPrimera() {
+        this.estadoActual.registrarPrimera(this);
+    }
+
+    /**
+     * Completa todas las actividades (transición a Completamente Realizada).
+     */
+    public void completarTodas() {
+        this.estadoActual.completarTodas(this);
+    }
+
+    /**
+     * Cierra la orden (transición a Cerrada).
+     */
+    public void cerrarOrden(LocalDateTime fechaCierre, String observacion) {
+        this.estadoActual.cerrar(this, fechaCierre, observacion);
+    }
+
+    /**
+     * Pone el sismografo de la estación fuera de servicio.
+     * Parámetros:
+     * - fechaActual: fecha/hora del cambio de estado
+     * - motivos: List<Map<String, Object>> estructura flexible
+     * Ejemplo: [{"tipo": "Avería", "comentario": "Vibración excesiva"}]
+     */
+    public void ponerSismografoFueraServicio(LocalDateTime fechaActual,
+            List<Map<String, Object>> motivos) {
+        this.estacion.fueraDeServicio(fechaActual, motivos);
+    }
+    
+    // ==================== GETTERS Y SETTERS ====================
     public int getNroDeOrden() {
         return numeroOrden;
     }
@@ -59,12 +95,12 @@ public class OrdenDeInspeccion {
         this.fechaHoraCierre = fechaHoraCierre;
     }
 
-    public void setEstado(Estado estado) {
-        this.estado = estado;
+    public void setEstadoActual(Estado nuevoEstado) {
+        this.estadoActual = nuevoEstado;
     }
 
-    public void ponerSismografoFueraServicio(Estado estado, Map<MotivoTipo, String> motivosYComentarios){
-        this.estacion.ponerSismografoFueraServicio(estado, motivosYComentarios);
+    public void setObservacionCierreOrden(String observacionCierreOrden) {
+        this.observacionCierreOrden = observacionCierreOrden;
     }
 
     public boolean sosDeEmpleado(Empleado empleado) {
@@ -72,7 +108,7 @@ public class OrdenDeInspeccion {
     }
 
     public boolean sosCompletamenteRealizada() {
-        return estado.esCompletamenteRealizada();
+        return estadoActual.esCompletamenteRealizada();
     }
 
     public Map<String, Object> obtenerDatosOI() {
@@ -86,23 +122,6 @@ public class OrdenDeInspeccion {
 
     public void cerrar(Estado estadoCerrado) {
         this.setFechaHoraCierre(LocalDateTime.now());
-        this.setEstado(estadoCerrado);
-    }
-
-    // Métodos extra (no se utilizan, pero los implementamos por si acaso)
-    public Empleado getEmpleado() {
-        return empleado;
-    }
-
-    public EstacionSismologica getEstacion() {
-        return estacion;
-    }
-
-    public String getObservacionCierreOrden() {
-        return observacionCierreOrden;
-    }
-
-    public void setObservacionCierreOrden(String observacionCierreOrden) {
-        this.observacionCierreOrden = observacionCierreOrden;
+        this.setEstadoActual(estadoCerrado);
     }
 }

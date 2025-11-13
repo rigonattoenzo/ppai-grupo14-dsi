@@ -1,238 +1,487 @@
 package boundary;
 
-// Import del gestor y los modelos
 import gestor.GestorCierreInspeccion;
 import model.*;
 
-// Import de los botones y etiquetas
 import javafx.scene.layout.VBox;
-import javafx.scene.control.Label;
-import javafx.scene.control.Button;
-import javafx.scene.control.TextField;
-import javafx.scene.control.ChoiceDialog;
-import javafx.scene.control.TextInputDialog;
-import javafx.scene.control.Label;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.Region;
+import javafx.scene.control.*;
 import javafx.stage.Stage;
-import javafx.scene.control.DialogPane;
-import javafx.scene.control.ButtonType;
-import javafx.event.ActionEvent;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Dialog;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.ButtonBar;
-import javafx.scene.control.Button;
-import javafx.scene.control.Alert;
 import javafx.event.ActionEvent;
 import javafx.geometry.Insets;
-import javafx.scene.control.Alert.AlertType;
-import java.util.concurrent.atomic.AtomicBoolean;
+import javafx.geometry.Pos;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
+import javafx.scene.paint.Color;
 
-// import de utilidades de Java
 import java.util.Map;
 import java.util.List;
-import java.util.Scanner;
-import java.util.stream.Collectors;
 import java.util.Optional;
 import java.util.stream.IntStream;
+import java.util.stream.Collectors;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.time.format.DateTimeFormatter;
 
+/**
+ * Pantalla para el Caso de Uso 37: Cierre de Orden de Inspección
+ * 
+ * PRINCIPIOS DE DISEÑO APLICADOS:
+ * - Nielsen #1: Visibilidad del estado (progress bar, títulos claros)
+ * - Nielsen #3: Libertad y control (botón cancelar siempre visible)
+ * - Nielsen #4: Consistencia (colores, fuentes, espaciado)
+ * - Nielsen #5: Prevención de errores (validaciones antes de avanzar)
+ * - Nielsen #8: Diseño minimalista (sin elementos innecesarios)
+ * - Shneiderman: Coherencia visual, realimentación inmediata
+ */
 public class PantallaInspeccion {
-    // Gestor
+    
+    // ========== GESTOR ==========
     private GestorCierreInspeccion gestor;
-    // Atributos de la pantalla
+    
+    // ========== COMPONENTES UI ==========
     private VBox root;
+    private BorderPane mainLayout;
+    private ProgressBar progressBar;
+    private Label labelEstado;
+    
+    // ========== DATOS ==========
     private List<Map<String, Object>> ordenesActuales;
-    // Para la entrada de texto
-    private TextField campoObservacion;
-    // Botón para confirmar la observación
-    private Button btnEnviarObservacion;
-    // lista de descripciones proveniente de mostrarMotivosTipoFueraServicio(...)
     private List<String> descripcionesMotivos;
+    private TextField campoObservacion;
+    
+    // ========== PALETA DE COLORES ==========
+    // Colores consistentes en toda la aplicación (Nielsen #4)
+    private static final String COLOR_FONDO = "#f5f1ed";
+    private static final String COLOR_PRIMARIO = "#8b6f47";
+    private static final String COLOR_SECUNDARIO = "#d4a574";
+    private static final String COLOR_EXITO = "#7cb342";
+    private static final String COLOR_PELIGRO = "#e53935";
+    private static final String COLOR_ADVERTENCIA = "#fb8c00";
+    private static final String COLOR_INFO = "#1976d2";
+    
+    // ========== FUENTES ==========
+    private static final Font FUENTE_TITULO = Font.font("Segoe UI", FontWeight.BOLD, 18);
+    private static final Font FUENTE_SUBTITULO = Font.font("Segoe UI", FontWeight.BOLD, 14);
+    private static final Font FUENTE_NORMAL = Font.font("Segoe UI", 12);
+    private static final Font FUENTE_PEQUEÑA = Font.font("Segoe UI", 10);
 
-    // Métodos de la pantalla
-    // Constructor
+    // ==================== CONSTRUCTOR ====================
+    
     public PantallaInspeccion() {}
 
-    // Setter para inyectar el VBox desde MainFX
     public void setRoot(VBox root) {
         this.root = root;
     }
 
-    // Getter para obtener el gestor
-    /*public GestorCierreInspeccion getGestor() {
-        return gestor;
-    }*/
-
-    // Método utilizado para cancelar el caso de uso
-    public void cancelarCasoUso() {
-        // 1) Limpiar todo
+    // ==================== MÉTODOS AUXILIARES DE DISEÑO ====================
+    
+    /**
+     * Crea el layout principal con header (progreso + estado) y contenido
+     */
+    private void inicializarLayout(int pasoActual, int totalPasos) {
         root.getChildren().clear();
-
-        // 2) Mensaje de cancelación
-        root.getChildren().add(new Label("Cierre de orden cancelada..."));
-
-        // 3) Botón para cerrar la ventana
-        Button btnCerrar = new Button("Cerrar");
-        btnCerrar.setStyle("-fx-font-size: 15px; -fx-font-weight: bold; -fx-background-color: #c70039;");
-        btnCerrar.setOnAction(e -> {
-            Stage stage = (Stage) root.getScene().getWindow();
-            stage.close();
-        });
-        root.getChildren().add(btnCerrar);
+        root.setStyle("-fx-background-color: " + COLOR_FONDO);
+        root.setSpacing(0);
+        root.setPadding(Insets.EMPTY);
+        
+        // Header con progreso
+        VBox header = crearHeader(pasoActual, totalPasos);
+        root.getChildren().add(header);
+        
+        // Contenido principal
+        VBox contenido = new VBox(20);
+        contenido.setPadding(new Insets(30));
+        contenido.setStyle("-fx-background-color: " + COLOR_FONDO);
+        
+        root.getChildren().add(contenido);
+    }
+    
+    /**
+     * Crea el header con barra de progreso y título
+     * Nielsen #1: Visibilidad del estado del sistema
+     */
+    private VBox crearHeader(int pasoActual, int totalPasos) {
+        VBox header = new VBox(10);
+        header.setPadding(new Insets(20));
+        header.setStyle("-fx-background-color: " + COLOR_PRIMARIO);
+        
+        // Título de la aplicación
+        Label titulo = new Label("Cierre de Orden de Inspección");
+        titulo.setFont(FUENTE_TITULO);
+        titulo.setTextFill(Color.WHITE);
+        
+        // Estado actual (Nielsen #1)
+        labelEstado = new Label("Paso " + pasoActual + " de " + totalPasos);
+        labelEstado.setFont(FUENTE_PEQUEÑA);
+        labelEstado.setTextFill(Color.web("#d4a574"));
+        
+        // Barra de progreso (Nielsen #1)
+        progressBar = new ProgressBar((double) pasoActual / totalPasos);
+        progressBar.setPrefWidth(Double.MAX_VALUE);
+        progressBar.setStyle("-fx-accent: " + COLOR_EXITO);
+        
+        header.getChildren().addAll(titulo, progressBar, labelEstado);
+        return header;
+    }
+    
+    /**
+     * Crea un panel de contenido estándar
+     */
+    private VBox crearPanelContenido() {
+        VBox panel = new VBox(15);
+        panel.setStyle("-fx-border-color: " + COLOR_SECUNDARIO + "; -fx-border-width: 1; -fx-border-radius: 5;");
+        panel.setPadding(new Insets(20));
+        panel.setStyle(panel.getStyle() + "; -fx-background-color: white;");
+        return panel;
+    }
+    
+    /**
+     * Crea un botón primario (acción principal)
+     */
+    private Button crearBotonPrimario(String texto) {
+        Button btn = new Button(texto);
+        btn.setStyle(
+            "-fx-background-color: " + COLOR_PRIMARIO + ";" +
+            "-fx-text-fill: white;" +
+            "-fx-font-size: 13px;" +
+            "-fx-font-weight: bold;" +
+            "-fx-padding: 10 30;" +
+            "-fx-border-radius: 5;" +
+            "-fx-cursor: hand"
+        );
+        btn.setPrefWidth(250);
+        return btn;
+    }
+    
+    /**
+     * Crea un botón secundario (acciones alternativas)
+     */
+    private Button crearBotonSecundario(String texto) {
+        Button btn = new Button(texto);
+        btn.setStyle(
+            "-fx-background-color: " + COLOR_SECUNDARIO + ";" +
+            "-fx-text-fill: white;" +
+            "-fx-font-size: 12px;" +
+            "-fx-padding: 8 20;" +
+            "-fx-border-radius: 3;" +
+            "-fx-cursor: hand"
+        );
+        btn.setPrefWidth(150);
+        return btn;
+    }
+    
+    /**
+     * Crea un botón de cancelación (Nielsen #3: libertad y control)
+     */
+    private Button crearBotonCancelar() {
+        Button btn = new Button("✕ Cancelar");
+        btn.setStyle(
+            "-fx-background-color: " + COLOR_PELIGRO + ";" +
+            "-fx-text-fill: white;" +
+            "-fx-font-size: 12px;" +
+            "-fx-padding: 8 20;" +
+            "-fx-border-radius: 3;" +
+            "-fx-cursor: hand"
+        );
+        btn.setOnAction(e -> cancelarCasoUso());
+        return btn;
+    }
+    
+    /**
+     * Crea un Label con información
+     */
+    private Label crearLabel(String texto, Font fuente, Color color) {
+        Label lbl = new Label(texto);
+        lbl.setFont(fuente);
+        lbl.setTextFill(color);
+        lbl.setWrapText(true);
+        return lbl;
+    }
+    
+    /**
+     * Crea un HBox con botones alineados (Nielsen #4: consistencia)
+     */
+    private HBox crearBarraBotones(Button... botones) {
+        HBox barra = new HBox(15);
+        barra.setAlignment(Pos.CENTER);
+        barra.setPadding(new Insets(20, 0, 0, 0));
+        for (Button btn : botones) {
+            barra.getChildren().add(btn);
+        }
+        return barra;
     }
 
-    // Métodos del caso de uso 37
-    // PASO 1
+    // ==================== MÉTODOS DEL CASO DE USO ====================
+
+    /**
+     * PASO 1: Iniciar el cierre
+     */
     public void opcionCerrarOrdenDeInspeccion() {
-        // Limpiamos la UI y lanzamos el CU
         root.getChildren().clear();
         habilitarVentana();
     }
 
     public void habilitarVentana() {
-        this.gestor = new GestorCierreInspeccion(this); // Se crea el gestor
-        gestor.iniciarCierreOrdenInspeccion();          // comienza el flujo del caso de uso
+        this.gestor = new GestorCierreInspeccion(this);
+        gestor.iniciarCierreOrdenInspeccion();
     }
 
-    //PASO 2
+    /**
+     * PASO 2: Mostrar órdenes completamente realizadas
+     * Nielsen #8: Minimalista - solo muestra lo necesario
+     * Nielsen #1: Visibilidad - estado claro
+     */
     public void mostrarOrdCompRealizadas() {
-        //Obtener los datos
         List<Map<String, Object>> ordenes = gestor.getOrdenesFiltradasConDatos();
         this.ordenesActuales = ordenes;
 
-        // Limpiar todo antes de volcar las órdenes
-        root.getChildren().clear();
-
-        // Verificar
+        inicializarLayout(2, 9);
+        
+        VBox contenido = (VBox) root.getChildren().get(1);
+        
         if (ordenes.isEmpty()) {
-            // Caso: no hay ordenes realizadas
-            Label mensaje = new Label("No tiene ordenes de inspeccion realizadas!");
-            Button btnCancelar = new Button("Cancelar cierre");
-            btnCancelar.setStyle("-fx-font-size: 15px; -fx-font-weight: bold; -fx-background-color: #c70039;");
-            btnCancelar.setOnAction(e -> cancelarCasoUso());
-
-            root.getChildren().addAll(mensaje, btnCancelar);
+            // Caso: Sin órdenes (Flujo alternativo A1)
+            VBox panel = crearPanelContenido();
+            panel.setStyle(panel.getStyle() + "; -fx-border-color: " + COLOR_PELIGRO);
+            
+            Label icono = new Label("⚠");
+            icono.setFont(new Font(40));
+            
+            Label titulo = crearLabel(
+                "No hay órdenes para procesar",
+                FUENTE_SUBTITULO,
+                Color.web(COLOR_PELIGRO)
+            );
+            
+            Label descripcion = crearLabel(
+                "Actualmente no posee órdenes de inspección en estado Completamente Realizada. " +
+                "Por favor, verifique el estado de sus órdenes.",
+                FUENTE_NORMAL,
+                Color.web("#666")
+            );
+            
+            panel.getChildren().addAll(icono, titulo, descripcion);
+            contenido.getChildren().add(panel);
+            
+            Button btnCancelar = crearBotonCancelar();
+            contenido.getChildren().add(btnCancelar);
+            
         } else {
-            // Caso: hay ordenes realizadas, todo ok
-            root.getChildren().add(new Label("Órdenes Completamente Realizadas del Empleado:"));
-            for (Map<String, Object> datosOrden : ordenes) {
-                root.getChildren().add(new Label(gestor.asString(datosOrden)));
+            // Caso: Órdenes disponibles
+            Label titulo = crearLabel(
+                "Seleccione una orden de inspección",
+                FUENTE_SUBTITULO,
+                Color.web(COLOR_PRIMARIO)
+            );
+            contenido.getChildren().add(titulo);
+            
+            Label descripcion = crearLabel(
+                "Se muestran las órdenes completamente realizadas ordenadas por fecha de finalización.",
+                FUENTE_PEQUEÑA,
+                Color.web("#999")
+            );
+            contenido.getChildren().add(descripcion);
+            
+            // Separador visual
+            Separator sep = new Separator();
+            contenido.getChildren().add(sep);
+            
+            // Mostrar órdenes como botones
+            for (Map<String, Object> o : ordenes) {
+                Button btnOrden = crearBotonOrden(o);
+                contenido.getChildren().add(btnOrden);
             }
+            
+            // Barra de botones (Nielsen #3)
+            Button btnCancelar = crearBotonCancelar();
+            contenido.getChildren().add(crearBarraBotones(btnCancelar));
         }
-    };
-
-
+    }
+    
     /**
-     * Muestra un botón por cada orden y espera al click
+     * Crea un botón para cada orden de inspección
+     * Nielsen #6: Reconocer antes que recordar
      */
-    public void pedirSelecOrdenInspeccion(List<Map<String, Object>> ordenes) {
-        // 1) Añado un separador o un título para los botones
-        root.setStyle("-fx-background-color: #e7c6a6;");
-        root.getChildren().add(new Label("Seleccione una orden de inspección:"));
-
-        // 2) Por cada orden, un botón de selección
-        for (Map<String, Object> o : ordenes) {
-            String nro = String.valueOf(o.get("nroDeOrden"));
-            String sismo = String.valueOf(o.get("idSismografo"));
-            Button btn = new Button("Orden #" + nro + " (" + sismo + ")");
-            btn.setStyle("-fx-font-size: 14px; -fx-font-style: italic; -fx-background-color: #b27e4d;");
-            btn.setOnAction(evt -> tomarOrdenInspeccionSelec(o));
-            root.getChildren().add(btn);
-        }
-
-        // 3) Botón de cancelar
-        Button btnCancelar = new Button("Cancelar cierre");
-        btnCancelar.setStyle("-fx-font-size: 15px; -fx-font-weight: bold; -fx-background-color: #c70039;");
-        btnCancelar.setOnAction(e -> cancelarCasoUso());
-        root.getChildren().add(btnCancelar);
+    private Button crearBotonOrden(Map<String, Object> orden) {
+        String nro = String.valueOf(orden.get("nroDeOrden"));
+        String estacion = String.valueOf(orden.get("nombreEstacionSismologica"));
+        String sismo = String.valueOf(orden.get("idSismografo"));
+        
+        VBox contenidoBoton = new VBox(5);
+        contenidoBoton.setPadding(new Insets(12));
+        
+        Label lblOrden = new Label("Orden #" + nro);
+        lblOrden.setFont(FUENTE_SUBTITULO);
+        lblOrden.setTextFill(Color.web(COLOR_PRIMARIO));
+        
+        Label lblEstacion = new Label("📍 Estación: " + estacion);
+        lblEstacion.setFont(FUENTE_NORMAL);
+        
+        Label lblSismo = new Label("📡 Sismógrafo: " + sismo);
+        lblSismo.setFont(FUENTE_NORMAL);
+        
+        contenidoBoton.getChildren().addAll(lblOrden, lblEstacion, lblSismo);
+        
+        Button btn = new Button();
+        btn.setGraphic(contenidoBoton);
+        btn.setStyle(
+            "-fx-background-color: white;" +
+            "-fx-border-color: " + COLOR_SECUNDARIO + ";" +
+            "-fx-border-width: 1;" +
+            "-fx-padding: 10;" +
+            "-fx-text-alignment: left;" +
+            "-fx-cursor: hand"
+        );
+        btn.setPrefWidth(Double.MAX_VALUE);
+        btn.setPrefHeight(80);
+        
+        btn.setOnAction(evt -> tomarOrdenInspeccionSelec(orden));
+        
+        return btn;
     }
 
-    //PASO 3
+    /**
+     * PASO 3: Tomar orden seleccionada
+     */
     public void tomarOrdenInspeccionSelec(Map<String, Object> ordenSeleccionada) {
         gestor.tomarOrdenInspeccionSelec(ordenSeleccionada);
     }
 
-    //PASO 4
+    /**
+     * PASO 4-5: Pedir observación de cierre
+     * Nielsen #7: Flexibilidad y eficiencia
+     * Nielsen #8: Minimalista
+     */
     public void pedirObservacionCierreOrden() {
-        // Limpio la UI
-        root.getChildren().clear();
-        root.setSpacing(15);
-        root.setStyle("-fx-padding: 20; -fx-background-color: #e7c6a6;");
-
-        // Mensaje de instrucción
-        root.getChildren().add(new Label(
-                "Ingrese una observación de cierre a la orden de inspección seleccionada:"
-        ));
-
-        // Campo de texto
-        campoObservacion = new TextField();
-        campoObservacion.setPromptText("Escriba su observación aquí...");
-        campoObservacion.setStyle("-fx-background-color: #fae4cd; -fx-font-style: italic;");
-
-        // Botón de enviar
-        btnEnviarObservacion = new Button("Enviar Observación");
-        btnEnviarObservacion.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-background-color: #b27e4d;");
-
-        btnEnviarObservacion.setOnAction(evt -> {
-            tomarObservacionCierreOrden(campoObservacion.getText());
+        inicializarLayout(3, 9);
+        
+        VBox contenido = (VBox) root.getChildren().get(1);
+        
+        // Panel principal
+        VBox panel = crearPanelContenido();
+        
+        Label titulo = crearLabel(
+            "Observación de cierre",
+            FUENTE_SUBTITULO,
+            Color.web(COLOR_PRIMARIO)
+        );
+        
+        Label descripcion = crearLabel(
+            "Ingrese una observación sobre el cierre de esta orden de inspección. " +
+            "Este campo es obligatorio.",
+            FUENTE_PEQUEÑA,
+            Color.web("#666")
+        );
+        
+        // Campo de texto mejorado
+        TextArea campoObservacion = new TextArea();
+        campoObservacion.setPromptText("Escriba sus observaciones aquí...");
+        campoObservacion.setWrapText(true);
+        campoObservacion.setPrefRowCount(5);
+        campoObservacion.setStyle(
+            "-fx-control-inner-background: #fafafa;" +
+            "-fx-padding: 10;" +
+            "-fx-font-size: 12px;" +
+            "-fx-border-color: " + COLOR_SECUNDARIO
+        );
+        
+        // TextArea es mejor para observaciones largas
+        TextArea areaObservacion = new TextArea();
+        areaObservacion.setPromptText("Escriba sus observaciones aquí...");
+        areaObservacion.setWrapText(true);
+        areaObservacion.setPrefRowCount(5);
+        areaObservacion.setStyle(
+            "-fx-control-inner-background: #fafafa;" +
+            "-fx-padding: 10;" +
+            "-fx-font-size: 12px;" +
+            "-fx-border-color: " + COLOR_SECUNDARIO
+        );
+        
+        panel.getChildren().addAll(titulo, descripcion, areaObservacion);
+        contenido.getChildren().add(panel);
+        
+        // Botones
+        Button btnEnviar = crearBotonPrimario("Continuar");
+        btnEnviar.setOnAction(evt -> {
+            if (areaObservacion.getText().trim().isEmpty()) {
+                mostrarError("La observación es obligatoria", "Por favor, ingrese una observación antes de continuar.");
+                return;
+            }
+            tomarObservacionCierreOrden(areaObservacion.getText());
         });
-
-        // Agrego todo al layout
-        root.getChildren().addAll(campoObservacion, btnEnviarObservacion);
-
-        Button btnCancelar = new Button("Cancelar cierre");
-        btnCancelar.setStyle("-fx-font-size: 15px; -fx-font-weight: bold; -fx-background-color: #c70039;");
-        btnCancelar.setOnAction(e -> cancelarCasoUso());
-        root.getChildren().add(btnCancelar);
+        
+        Button btnCancelar = crearBotonCancelar();
+        
+        contenido.getChildren().add(crearBarraBotones(btnEnviar, btnCancelar));
     }
 
-    //PASO 5
-    public void tomarObservacionCierreOrden(String observacionCierre) {
-        // Delego al gestor
-        gestor.tomarObservacionCierreOrden(observacionCierre);
+    /**
+     * PASO 5: Tomar observación
+     */
+    public void tomarObservacionCierreOrden(String observacion) {
+        gestor.tomarObservacionCierreOrden(observacion);
     }
 
-    //PASO 6
-    public void mostrarMotivosTipoFueraServicio(List<String> descrip) {
-        this.descripcionesMotivos = descrip;
+    /**
+     * PASO 6: Mostrar motivos para fuera de servicio
+     */
+    public void mostrarMotivosTipoFueraServicio(List<String> descripciones) {
+        this.descripcionesMotivos = descripciones;
 
-        // 1) Limpio lo que había
-        root.getChildren().clear();
-
-        // 2) Título
-        root.getChildren().add(new Label("Motivos Fuera de Servicio:"));
-
-        // 3) Cada motivo como Label numerado
-        for (int i = 0; i < descrip.size(); i++) {
-            String texto = String.format("%d. %s", i + 1, descrip.get(i));
-            root.getChildren().add(new Label(texto));
+        inicializarLayout(4, 9);
+        
+        VBox contenido = (VBox) root.getChildren().get(1);
+        
+        VBox panel = crearPanelContenido();
+        
+        Label titulo = crearLabel(
+            "Motivos de Fuera de Servicio",
+            FUENTE_SUBTITULO,
+            Color.web(COLOR_PRIMARIO)
+        );
+        
+        Label descripcion = crearLabel(
+            "Seleccione uno o varios motivos por los cuales el sismógrafo se pone fuera de servicio. " +
+            "Para cada motivo debe ingresar un comentario.",
+            FUENTE_PEQUEÑA,
+            Color.web("#666")
+        );
+        
+        panel.getChildren().addAll(titulo, descripcion);
+        
+        // Separador
+        Separator sep = new Separator();
+        panel.getChildren().add(sep);
+        
+        // Lista de motivos con numeración
+        for (int i = 0; i < descripciones.size(); i++) {
+            Label lblMotivo = new Label((i + 1) + ". " + descripciones.get(i));
+            lblMotivo.setFont(FUENTE_NORMAL);
+            lblMotivo.setTextFill(Color.web("#333"));
+            panel.getChildren().add(lblMotivo);
         }
-
-        Button btnCancelar = new Button("Cancelar cierre");
-        btnCancelar.setStyle("-fx-font-size: 15px; -fx-font-weight: bold; -fx-background-color: #c70039;");
-        btnCancelar.setOnAction(e -> cancelarCasoUso());
-        root.getChildren().add(btnCancelar);
+        
+        contenido.getChildren().add(panel);
+        
+        // Botón para continuar
+        Button btnSeleccionar = crearBotonPrimario("Seleccionar motivos");
+        btnSeleccionar.setOnAction(e -> pedirSelecMotivosFueraServicio());
+        
+        Button btnCancelar = crearBotonCancelar();
+        
+        contenido.getChildren().add(crearBarraBotones(btnSeleccionar, btnCancelar));
     }
 
     /**
-     * Reemplaza el println por un Label en la UI.
+     * PASO 7: Pedir selección de motivos
+     * Nielsen #5: Prevención de errores
      */
-    public void mostrarMensaje(String mensaje) {
-        root.getChildren().add(new Label(mensaje));
+    public void pedirSelecMotivosFueraServicio() {
+        int motivoNum = tomarMotivoTipoFueraServicio();
     }
 
-    /**
-     * Muestra un ChoiceDialog con las descripciones numeradas,
-     * bloquea hasta que el usuario elija una opción (o cierre).
-     * Devuelve el número elegido (0 para terminar).
-     */
-    public int pedirSelecMotivoTipo() {
-        int numMotivo = tomarMotivoTipoFueraServicio();
-        return numMotivo;
-    }
-
-    //PASO 7
     public int tomarMotivoTipoFueraServicio() {
         int num = -1;
 
@@ -240,56 +489,71 @@ public class PantallaInspeccion {
             List<String> opciones = IntStream
                     .rangeClosed(0, descripcionesMotivos.size())
                     .mapToObj(i -> i == 0
-                            ? "0: Terminar selección"
+                            ? "0: Finalizar selección"
                             : String.format("%d: %s", i, descripcionesMotivos.get(i - 1)))
                     .toList();
 
             Map<MotivoTipo, String> seleccionados = gestor.getMotivosYComentarios();
             String resumen = seleccionados.entrySet().stream()
-                    .map(e -> "- " + e.getKey().getDescripcion() + ": " + e.getValue())
+                    .map(e -> "✓ " + e.getKey().getDescripcion() + ": \"" + e.getValue() + "\"")
                     .collect(Collectors.joining("\n"));
             if (resumen.isEmpty()) {
                 resumen = "(aún no hay motivos seleccionados)";
             }
 
             Dialog<String> dialog = new Dialog<>();
-            dialog.setTitle("Seleccionar motivo");
-            dialog.setHeaderText("YA SELECCIONADOS:\n" + resumen);
+            dialog.setTitle("Seleccionar Motivo");
+            dialog.setHeaderText("MOTIVOS SELECCIONADOS:\n" + resumen);
 
             DialogPane pane = dialog.getDialogPane();
-            pane.setStyle("-fx-padding: 20; -fx-background-color: #e7c6a6;");
+            pane.setStyle(
+                "-fx-padding: 20;" +
+                "-fx-background-color: " + COLOR_FONDO + ";" +
+                "-fx-font-size: 12px"
+            );
 
-            // Botones personalizados
+            // Botones
             ButtonType okButtonType = new ButtonType("Aceptar", ButtonBar.ButtonData.OK_DONE);
             ButtonType cancelButtonType = new ButtonType("Cancelar", ButtonBar.ButtonData.CANCEL_CLOSE);
             pane.getButtonTypes().addAll(okButtonType, cancelButtonType);
 
+            // ComboBox para seleccionar
             ComboBox<String> comboBox = new ComboBox<>();
             comboBox.getItems().addAll(opciones);
             comboBox.getSelectionModel().selectFirst();
-            comboBox.setStyle("-fx-background-color: #fae4cd;");
+            comboBox.setStyle(
+                "-fx-background-color: white;" +
+                "-fx-border-color: " + COLOR_SECUNDARIO + ";" +
+                "-fx-padding: 8"
+            );
+            comboBox.setPrefWidth(400);
             pane.setContent(comboBox);
 
+            // Estilo botones
             Button okButton = (Button) pane.lookupButton(okButtonType);
-            okButton.setStyle("-fx-background-color: #8ee580; -fx-font-weight: bold;");
+            okButton.setStyle(
+                "-fx-background-color: " + COLOR_EXITO + ";" +
+                "-fx-text-fill: white;" +
+                "-fx-font-weight: bold"
+            );
             Button cancelButton = (Button) pane.lookupButton(cancelButtonType);
-            cancelButton.setStyle("-fx-background-color: #d95555; -fx-font-weight: bold; -fx-text-fill: white;");
+            cancelButton.setStyle(
+                "-fx-background-color: " + COLOR_PELIGRO + ";" +
+                "-fx-text-fill: white;" +
+                "-fx-font-weight: bold"
+            );
 
             AtomicBoolean fueCancelado = new AtomicBoolean(false);
 
-            // Acción personalizada para el botón cancelar
             cancelButton.addEventFilter(ActionEvent.ACTION, event -> {
-                //System.out.print("se cancelaaaa\n");
                 fueCancelado.set(true);
-                event.consume(); // detiene el cierre automático del diálogo
-                dialog.setResult(null); //  deja el resultado en null
-                dialog.close(); // cierra manualmente
+                event.consume();
+                dialog.setResult(null);
+                dialog.close();
             });
-
 
             dialog.setResultConverter(button -> {
                 if (button == okButtonType) {
-                    //System.out.print("Dice que toco ok\n");
                     return comboBox.getValue();
                 }
                 return null;
@@ -299,11 +563,10 @@ public class PantallaInspeccion {
 
             if (resultado.isEmpty()) {
                 if (fueCancelado.get()) {
-                    cancelarCasoUso();// el usuario apretó "Cancelar"
+                    cancelarCasoUso();
                     return -1;
-
                 } else {
-                    opcionCerrarOrdenDeInspeccion();// cerró con la X
+                    opcionCerrarOrdenDeInspeccion();
                 }
                 return 0;
             }
@@ -312,22 +575,16 @@ public class PantallaInspeccion {
             num = Integer.parseInt(elegido.split(":")[0]);
 
             if (num == 0 && gestor.getMotivosYComentarios().isEmpty()) {
-                Alert alerta = new Alert(Alert.AlertType.ERROR,
-                        "Debes seleccionar al menos un motivo antes de terminar.",
-                        ButtonType.OK);
-                alerta.setHeaderText("Selección incompleta");
-
-                DialogPane paneAl = alerta.getDialogPane();
-                paneAl.setStyle("-fx-background-color: #e7c6a6; -fx-font-size: 14px; -fx-padding: 20;");
-                Button okBtn = (Button) paneAl.lookupButton(ButtonType.OK);
-                okBtn.setStyle("-fx-background-color: #8ee580; -fx-font-weight: bold;");
-
-                alerta.showAndWait();
+                mostrarError(
+                    "Selección incompleta",
+                    "Debe seleccionar al menos un motivo antes de finalizar."
+                );
                 continue;
             }
 
             if (num != 0) {
                 gestor.tomarMotivoTipoFueraServicio(num);
+                pedirComentario();
             }
 
             break;
@@ -336,10 +593,8 @@ public class PantallaInspeccion {
         return num;
     }
 
-
     /**
-     * Muestra un TextInputDialog para ingresar el comentario;
-     * bloquea hasta que el usuario confirme.
+     * PASO 7b: Pedir comentario para el motivo
      */
     public void pedirComentario() {
         tomarComentario();
@@ -347,88 +602,240 @@ public class PantallaInspeccion {
 
     public void tomarComentario() {
         TextInputDialog dialog = new TextInputDialog();
-        dialog.setTitle("Comentario de motivo");
+        dialog.setTitle("Comentario del Motivo");
         dialog.setHeaderText("Ingrese un comentario para el motivo seleccionado:");
 
-        // Para cambiar el color de fondo de la ventana
         DialogPane dialogPane = dialog.getDialogPane();
-        dialogPane.setStyle("-fx-padding: 20; -fx-background-color: #e7c6a6;");
+        dialogPane.setStyle(
+            "-fx-padding: 20;" +
+            "-fx-background-color: " + COLOR_FONDO
+        );
 
-        // Cambiar el color del boton ok
         Button okButton = (Button) dialogPane.lookupButton(ButtonType.OK);
-        okButton.setStyle("-fx-background-color: #8ee580; -fx-font-weight: bold;");
+        okButton.setStyle(
+            "-fx-background-color: " + COLOR_EXITO + ";" +
+            "-fx-text-fill: white;" +
+            "-fx-font-weight: bold"
+        );
 
-        // Cambiar el color/estilo del boton cancelar
         Button cancelButton = (Button) dialogPane.lookupButton(ButtonType.CANCEL);
-        cancelButton.setStyle("-fx-background-color: #d95555; -fx-font-weight: bold; -fx-text-fill: white;");
+        cancelButton.setStyle(
+            "-fx-background-color: " + COLOR_PELIGRO + ";" +
+            "-fx-text-fill: white;" +
+            "-fx-font-weight: bold"
+        );
 
-        // Cambiar el estilo de la caja de texto
         TextField textField = dialog.getEditor();
-        textField.setStyle("-fx-control-inner-background: #fae4cd;; -fx-font-style: italic;");
+        textField.setStyle(
+            "-fx-control-inner-background: white;" +
+            "-fx-border-color: " + COLOR_SECUNDARIO + ";" +
+            "-fx-padding: 8;" +
+            "-fx-font-size: 12px"
+        );
 
         Optional<String> resultado = dialog.showAndWait();
-
         resultado.ifPresent(comentario -> gestor.tomarComentario(comentario));
     }
 
-    //PASO 8
     /**
-     * Muestra una pregunta en pantalla y dos botones: 'SI' y 'CANCELAR'.
-     * Al hacer clic en 'SI' llama a tomarConfirmacionCierreOrden("SI").
+     * PASO 8: Pedir confirmación
+     * Nielsen #1: Visibilidad
+     * Nielsen #3: Libertad y control
      */
     public void pedirConfirmacionCierreOrden() {
-        // 1) Limpio la pantalla
-        root.getChildren().clear();
-        root.setStyle("-fx-padding: 20; -fx-background-color: #e7c6a6;");
-
-        // 2) Mensaje de confirmación
-        root.getChildren().add(new Label("¿Cerrar Orden de Inspección?"));
-
-        // 3) Botón 'SI'
-        Button btnSi = new Button("SI");
-        btnSi.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-background-color: #8ee580;");
-        btnSi.setOnAction(e -> tomarConfirmacionCierreOrden("SI"));
-
-        // 4) Botón 'CANCELAR'
-        Button btnCancelar = new Button("CANCELAR");
-        btnCancelar.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-background-color: #d95555; -fx-text-fill: white;");
-        btnCancelar.setOnAction(e -> {
-            // Vuelve al inicio del CU
-            opcionCerrarOrdenDeInspeccion();
-        });
-
-        // 5) Agregar botones al layout
-        VBox contenedorBotones = new VBox(10, btnSi, btnCancelar);
-        root.getChildren().add(contenedorBotones);
+        inicializarLayout(8, 9);
+        
+        VBox contenido = (VBox) root.getChildren().get(1);
+        
+        VBox panel = crearPanelContenido();
+        panel.setStyle(panel.getStyle() + "; -fx-border-color: " + COLOR_ADVERTENCIA);
+        
+        Label icono = new Label("⚠");
+        icono.setFont(new Font(30));
+        
+        Label titulo = crearLabel(
+            "Confirmar cierre de orden",
+            FUENTE_SUBTITULO,
+            Color.web(COLOR_PRIMARIO)
+        );
+        
+        Label descripcion = crearLabel(
+            "¿Está seguro de que desea cerrar esta orden de inspección? " +
+            "Esta acción pondrá el sismógrafo fuera de servicio.",
+            FUENTE_NORMAL,
+            Color.web("#666")
+        );
+        
+        panel.getChildren().addAll(icono, titulo, descripcion);
+        contenido.getChildren().add(panel);
+        
+        // Botones
+        Button btnConfirmar = crearBotonPrimario("✓ Confirmar cierre");
+        btnConfirmar.setStyle(
+            btnConfirmar.getStyle() +
+            "; -fx-background-color: " + COLOR_EXITO
+        );
+        btnConfirmar.setOnAction(e -> tomarConfirmacionCierreOrden("SI"));
+        
+        Button btnCancelar = crearBotonCancelar();
+        
+        contenido.getChildren().add(crearBarraBotones(btnConfirmar, btnCancelar));
     }
 
-    //PASO 9 (último de PantallaInspección)
+    /**
+     * PASO 9: Tomar confirmación
+     */
     public void tomarConfirmacionCierreOrden(String confirmacionCierre) {
-        // 1) Llamada original al gestor para que haga el cierre
         gestor.tomarConfirmacionCierreOrden(confirmacionCierre);
 
-        // 2) Limpiar la pantalla y mostrar mensaje de éxito
-        root.getChildren().clear();
-        root.getChildren().add(new Label("La orden de inspección ha sido cerrada exitosamente."));
-
-        // 3) Mostrar detalles de la orden
-        Map<String,Object> datos = gestor.getOrdenSeleccionada();
+        inicializarLayout(9, 9);
+        
+        VBox contenido = (VBox) root.getChildren().get(1);
+        
+        VBox panel = crearPanelContenido();
+        panel.setStyle(panel.getStyle() + "; -fx-border-color: " + COLOR_EXITO);
+        
+        Label icono = new Label("✓");
+        icono.setFont(new Font(50));
+        icono.setTextFill(Color.web(COLOR_EXITO));
+        
+        Label titulo = crearLabel(
+            "¡Cierre completado exitosamente!",
+            FUENTE_SUBTITULO,
+            Color.web(COLOR_EXITO)
+        );
+        
+        // ✅ AGREGAR ESTA VALIDACIÓN:
+        Map<String, Object> datos = gestor.getOrdenSeleccionada();
+        if (datos == null) {
+            Label error = crearLabel(
+                "Error al recuperar los datos de la orden",
+                FUENTE_NORMAL,
+                Color.web(COLOR_PELIGRO)
+            );
+            panel.getChildren().addAll(icono, titulo, error);
+            contenido.getChildren().add(panel);
+            
+            Button btnCerrar = crearBotonPrimario("Cerrar");
+            btnCerrar.setOnAction(e -> {
+                Stage stage = (Stage) root.getScene().getWindow();
+                stage.close();
+            });
+            contenido.getChildren().add(crearBarraBotones(btnCerrar));
+            return;  // ✅ SALIR AQUÍ
+        }
+        
         DateTimeFormatter fmt = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
-
-        root.getChildren().add(new Label("Número de orden: "  + datos.get("nroDeOrden")));
-        root.getChildren().add(new Label("Estación: "        + datos.get("nombreEstacionSismologica")));
-        root.getChildren().add(new Label("Sismógrafo: "      + datos.get("idSismografo")));
-        // Fecha de cierre fue seteada en el gestor, la obtenemos:
         String fechaCierre = gestor.getFechaHoraActual().format(fmt);
-        root.getChildren().add(new Label("Fecha de cierre: " + fechaCierre));
-
-        // 4) Botón para cerrar la ventana
-        Button btnContinuar = new Button("Continuar");
-        btnContinuar.setStyle("-fx-font-size: 15px; -fx-font-weight: bold; -fx-background-color: #7c9e3f;");
+        
+        VBox resumen = new VBox(10);
+        resumen.setPadding(new Insets(15));
+        resumen.setStyle("-fx-border-color: #eee; -fx-border-width: 1; -fx-background-color: #fafafa");
+        
+        // ✅ AHORA datos NO ES NULL, así que es seguro usar:
+        resumen.getChildren().addAll(
+            crearLabel("📋 Orden #" + datos.get("nroDeOrden"), FUENTE_NORMAL, Color.web(COLOR_PRIMARIO)),
+            crearLabel("📍 Estación: " + datos.get("nombreEstacionSismologica"), FUENTE_NORMAL, Color.web("#333")),
+            crearLabel("📡 Sismógrafo: " + datos.get("idSismografo"), FUENTE_NORMAL, Color.web("#333")),
+            crearLabel("🕐 Cierre: " + fechaCierre, FUENTE_NORMAL, Color.web("#333"))
+        );
+        
+        panel.getChildren().addAll(icono, titulo, resumen);
+        contenido.getChildren().add(panel);
+        
+        // Botón de cierre
+        Button btnContinuar = crearBotonPrimario("Cerrar");
         btnContinuar.setOnAction(e -> {
             Stage stage = (Stage) root.getScene().getWindow();
             stage.close();
         });
-        root.getChildren().add(btnContinuar);
+        
+        contenido.getChildren().add(crearBarraBotones(btnContinuar));
+    }
+
+    // ==================== MÉTODOS AUXILIARES ====================
+
+    /**
+     * Muestra un mensaje de error
+     * Nielsen #9: Ayuda a reconocer errores
+     */
+    public void mostrarError(String titulo, String mensaje) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle(titulo);
+        alert.setHeaderText(titulo);
+        alert.setContentText(mensaje);
+        
+        DialogPane pane = alert.getDialogPane();
+        pane.setStyle(
+            "-fx-background-color: " + COLOR_FONDO + ";" +
+            "-fx-padding: 20"
+        );
+        
+        Button okButton = (Button) pane.lookupButton(ButtonType.OK);
+        okButton.setStyle(
+            "-fx-background-color: " + COLOR_EXITO + ";" +
+            "-fx-text-fill: white;" +
+            "-fx-font-weight: bold"
+        );
+        
+        alert.showAndWait();
+    }
+
+    /**
+     * Muestra un mensaje informativo
+     */
+    public void mostrarMensaje(String mensaje) {
+        VBox contenido = (VBox) root.getChildren().get(1);
+        Label lbl = crearLabel(mensaje, FUENTE_PEQUEÑA, Color.web("#666"));
+        contenido.getChildren().add(lbl);
+    }
+
+    /**
+     * Cancela el caso de uso completamente
+     * Nielsen #3: Libertad y control
+     */
+    public void cancelarCasoUso() {
+        root.getChildren().clear();
+        root.setSpacing(20);
+        root.setPadding(new Insets(40));
+        root.setAlignment(Pos.CENTER);
+        root.setStyle("-fx-background-color: " + COLOR_FONDO);
+
+        VBox panel = new VBox(20);
+        panel.setAlignment(Pos.CENTER);
+        panel.setStyle(
+            "-fx-border-color: " + COLOR_ADVERTENCIA + ";" +
+            "-fx-border-width: 2;" +
+            "-fx-border-radius: 5;" +
+            "-fx-background-color: white;" +
+            "-fx-padding: 30"
+        );
+
+        Label icono = new Label("⚠");
+        icono.setFont(new Font(40));
+        icono.setTextFill(Color.web(COLOR_ADVERTENCIA));
+
+        Label titulo = crearLabel(
+            "Cierre cancelado",
+            FUENTE_SUBTITULO,
+            Color.web(COLOR_ADVERTENCIA)
+        );
+
+        Label descripcion = crearLabel(
+            "La operación de cierre ha sido cancelada. " +
+            "No se realizaron cambios en el sistema.",
+            FUENTE_NORMAL,
+            Color.web("#666")
+        );
+
+        panel.getChildren().addAll(icono, titulo, descripcion);
+        root.getChildren().add(panel);
+
+        Button btnCerrar = crearBotonPrimario("Cerrar ventana");
+        btnCerrar.setOnAction(e -> {
+            Stage stage = (Stage) root.getScene().getWindow();
+            stage.close();
+        });
+        root.getChildren().add(btnCerrar);
     }
 }
