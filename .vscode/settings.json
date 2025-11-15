@@ -1,7 +1,20 @@
 {
-  "java.project.sourcePaths": ["src"],
-  "java.project.outputPath": "out",
+  "java.project.sourcePaths": [
+    "src"
+  ],
+  "java.project.outputPath": "target/classes",
   "java.import.gradle.enabled": false,
   "java.import.maven.enabled": true,
-  "java.configuration.updateBuildConfiguration": "automatic"
+  "java.configuration.updateBuildConfiguration": "automatic",
+  // Agregar configuración de Hibernate
+  "files.exclude": {
+    "**/target": true,
+    "**/.classpath": true,
+    "**/.project": true
+  },
+  "editor.formatOnSave": true,
+  "[java]": {
+    "editor.defaultFormatter": "redhat.java",
+    "editor.formatOnSaveMode": "file"
+  }
 }
