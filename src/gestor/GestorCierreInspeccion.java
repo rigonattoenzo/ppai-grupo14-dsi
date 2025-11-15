@@ -81,8 +81,20 @@ public class GestorCierreInspeccion {
         this.fechaHoraActual = LocalDateTime.now();
     }
 
+    public LocalDateTime getFechaHoraActual() {
+        return this.fechaHoraActual;
+    }
+
     public Map<MotivoTipo, String> getMotivosYComentarios() {
         return motivosYComentarios;
+    }
+
+    public MotivoTipo getUltimoMotivoSeleccionado() {
+        return this.ultimoMotivoSeleccionado;
+    }
+
+    public void agregarMotivoAlGestor(MotivoTipo motivo, String comentario) {
+        this.motivosYComentarios.put(motivo, comentario);
     }
 
     // Para imprimir los datos de la orden desde el Map
@@ -97,11 +109,6 @@ public class GestorCierreInspeccion {
                 nro, estacion, idSismografo, fechaFin
         );
     }
-
-    public LocalDateTime getFechaHoraActual() {
-        return this.fechaHoraActual;
-    }
-
     // ==================== SECCIÓN FLUJO DEL CASO DE USO 37 ====================
     /**
      * PASO 1: El RI selecciona la opción "Cerrar Orden de Inspección"
@@ -151,16 +158,17 @@ public class GestorCierreInspeccion {
             pedirSelecOrdenInspeccion();
          */
         if (ordenesFiltradas.isEmpty()) {
-            pantalla.mostrarOrdCompRealizadas();
+            pantalla.mostrarOrdCompRealizadas(this.ordenesFiltradasConDatos);
         } else {
             ordenarPorFechaDeFinalizacion();
-            pantalla.mostrarOrdCompRealizadas();
-            // pedirSelecOrdenInspeccion();
+            pantalla.mostrarOrdCompRealizadas(this.ordenesFiltradasConDatos);
+            pedirSelecOrdenInspeccion();
         }
     }
 
     public void ordenarPorFechaDeFinalizacion() {
         if (ordenesFiltradasConDatos == null || ordenesFiltradasConDatos.isEmpty()) {
+            // Revisar método ❗❗❗❗❗❗❗❗❗
             pantalla.mostrarMensaje("No hay órdenes para ordenar");
             return;
         }
@@ -182,10 +190,10 @@ public class GestorCierreInspeccion {
         });
     }
 
-    /* 
+    // REVISAR FLUJO ❗❗❗❗❗❗❗❗❗❗❗❗❗❗ (pantalla.pedirSelecc() -> gestor.pedirSelecc())
     public void pedirSelecOrdenInspeccion() {
         pantalla.pedirSelecOrdenInspeccion(this.ordenesFiltradasConDatos);
-    }*/
+    }
 
     /**
      * PASO 3: El RI selecciona una orden de inspección
@@ -225,54 +233,32 @@ public class GestorCierreInspeccion {
             descMotivos.add(motivo.getDescripcion());        
         }
 
-        pantalla.mostrarMotivosTipoFueraServicio(descMotivos);
-        pedirSelecMotivosFueraServicio();
+        pantalla.mostrarMotivosTipoFueraServicio(descMotivos, this.punterosMotivos);
     }
 
-    public void pedirSelecMotivosFueraServicio() {
-            int motivoNum = -1;
-
-            while (motivoNum != 0) {
-                motivoNum = pantalla.tomarMotivoTipoFueraServicio();
-
-                // Flujo alternativo A7: El actor cancela el CU
-                if (motivoNum == -1) {
-                    // pantalla.mostrarMensaje("A7: Operación cancelada por el usuario");
-                    return; // salir del método y no seguir con el flujo del CU
-                }
-
-                if (motivoNum != 0) {
-                    if (!motivosYComentarios.containsKey(this.punterosMotivos.get(motivoNum - 1))) {
-                        // Llama a la pantalla para pedir el comentario
-                        pantalla.pedirComentario();
-                    } else {
-                        pantalla.mostrarMensaje("Error! ese motivo ya fue seleccionado...");
-                    }
-                } else {
-                    pantalla.mostrarMensaje("Selección de motivos finalizada.");
-                }
-            }
-            pedirConfirmacionCierreOrden(); // No se debería ejecutar si hubo cancelación
-        }
+    /* 
+    private void pedirSelecMotivosFueraServicio() {
+        // Primera iteración del loop: pedir primer motivo
+        pantalla.pedirSelecMotivoTipo();
+    }*/
 
     /**
      * PASO 7: El RI selecciona uno o varios motivos con comentarios
      */
     public void tomarMotivoTipoFueraServicio(int motivoNum) {
         if (motivoNum <= 0 || motivoNum > punterosMotivos.size()) {
-            pantalla.mostrarMensaje("Motivo inválido o cancelación recibida: " + motivoNum);
+            // Fin de selección
             return;
         }
+        
         this.ultimoMotivoSeleccionado = this.punterosMotivos.get(motivoNum - 1);
-    }
+    } 
 
     public void tomarComentario(String comentario) {
-        motivosYComentarios.put(this.ultimoMotivoSeleccionado, comentario);
-        /*
-         *  if (this.ultimoMotivoSeleccionado != null) {
-                motivosYComentarios.put(this.ultimoMotivoSeleccionado, comentario);
-            }
-         */
+        if (this.ultimoMotivoSeleccionado != null) {
+            this.motivosYComentarios.put(this.ultimoMotivoSeleccionado, comentario);
+            this.ultimoMotivoSeleccionado = null;
+        }
     }
 
     /**
@@ -282,65 +268,51 @@ public class GestorCierreInspeccion {
         pantalla.pedirConfirmacionCierreOrden();
     }
 
+    // ========== PATRÓN STATE - MÉTODO DE ENGANCHE ==========
     /**
      * PASO 9: El RI confirma el cierre
      */
+    // ❗❗❗❗❗❗❗❗ Ver de cambiar confirmacionCierreOrden por un int
     public void tomarConfirmacionCierreOrden(String confirmacionCierre) {
         this.confirmacionCierreOrden = confirmacionCierre;
-        validarExistenciaObservacion();
+        
+        // PASO 10: Sistema valida datos
+        if (!validarExistenciaObservacion()) {
+            return;
+        }
+        
+        if (!validarExistenciaMotivoSeleccionado()) {
+            return;
+        }
+
+        // Validaciones exitosas: proceder con cierre
+        cerrarOrdenInspeccion();
+        
+        // Se eliminan en el rediseño: buscarFueraServicio() y buscarEstadoCerrado()
+        // buscarEstadoCerrado();
+        // buscarFueraServicio();
     }
 
     /**
      * PASO 10: Sistema valida que exista observación y motivos
      */
-    public void validarExistenciaObservacion() {
-        if (observacionCierreOrden != null && !observacionCierreOrden.trim().isEmpty()) {
-            pantalla.mostrarMensaje("Observacion validada exitosamente!");
-        } else {
-            pantalla.mostrarMensaje("ERROR! La observacion de cierre es obligatoria para ingresar!!");
-            // return;  // Detener el flujo si no hay observación ❗❗❗❗❗❗❗❗❗❗❗❗
-        };
-        validarExistenciaMotivoSeleccionado();
-    }
-
-    /*
-     *public void validarExistenciaObservacion() {
+    private boolean validarExistenciaObservacion() {
         if (observacionCierreOrden == null || observacionCierreOrden.trim().isEmpty()) {
-            pantalla.mostrarMensaje("ERROR: La observación de cierre es obligatoria");
-            return;
+            pantalla.mostrarError("Validación Fallida", "Debe ingresar una observación de cierre");
+            return false;
         }
-        
-        pantalla.mostrarMensaje("✓ Observación validada");
-        validarExistenciaMotivoSeleccionado();
-      }
-     */
-
-    public void validarExistenciaMotivoSeleccionado() {
-        /*
-         * // Flujo alternativo A3: Datos faltantes
-        if (motivosYComentarios == null || motivosYComentarios.isEmpty()) {
-            pantalla.mostrarMensaje("A3: ERROR - Al menos un motivo debe estar seleccionado");
-            return;
-        }
-
-        pantalla.mostrarMensaje("✓ Motivos validados");
-         */
-        
-        if (this.motivosYComentarios != null && !motivosYComentarios.isEmpty()) {
-            pantalla.mostrarMensaje("Motivo Seleccionado validado exitosamente!");
-        } else {
-            pantalla.mostrarMensaje("ERROR! El motivo se debe seleccionar obligatoriamente");
-            // return;  // Detener el flujo si no hay motivos ❗❗❗❗❗❗❗❗❗❗❗❗❗❗
-        }
-
-        // buscarFueraServicio() y buscarEstadoCerrado se eliminan en el rediseño
-        // buscarEstadoCerrado();
-        // buscarFueraServicio();
-        // PASO 11: PUNTO DE ENGANCHE CON EL PATRÓN STATE
-        cerrarOrdenInspeccion();
+        return true;
     }
 
-    // ========== PATRÓN STATE - PUNTO DE ENGANCHE ==========
+    public boolean validarExistenciaMotivoSeleccionado() {
+        // Flujo alternativo A3: Datos faltantes
+        if (this.motivosYComentarios == null || motivosYComentarios.isEmpty()) {
+            pantalla.mostrarError("Validación Fallida", "Debe seleccionar al menos un motivo");
+            return false;
+        }
+        return true;
+    }
+
     /**
      * PASO 11: Sistema actualiza orden a cerrada y sismografo a fuera de servicio
      * 
@@ -405,11 +377,9 @@ public class GestorCierreInspeccion {
         this.fechaHoraActual = LocalDateTime.now();
 
         // Cerrar la orden (CompletamenteRealizada → Cerrada)
-        // System.out.println("11a. Cerrando orden de inspección #" + ordenEncontrada.getNroDeOrden());
         ordenEncontrada.cerrarOrden(this.fechaHoraActual, this.observacionCierreOrden);
 
         // Poner sismografo fuera de servicio
-        // System.out.println("11b. Poniendo sismografo fuera de servicio");
         ponerSismografoFueraServicio();
     }
 
@@ -417,8 +387,6 @@ public class GestorCierreInspeccion {
      * PASO 12: Poner sismografo fuera de servicio con motivos
      */
     public void ponerSismografoFueraServicio() {
-        System.out.println("12. Ejecutando transición de sismografo");
-
         // Convertir Map<MotivoTipo, String> a List<Map<String, Object>>
         List<Map<String, Object>> listaMotivos = convertirMotivoMapALista();
 
@@ -471,7 +439,7 @@ public class GestorCierreInspeccion {
 
     // Envía correos a responsables y publica en monitores
     public void enviarCorreoYPublicar(List<String> mails) {
-        // System.out.println("   Enviando notificaciones por mail y monitores");
+        System.out.println("Enviando notificaciones por mail y monitores");
         String mensaje = generarMensajeNotificacion();
 
         // Flujo alternativo A4: Solo mail
@@ -502,8 +470,10 @@ public class GestorCierreInspeccion {
         }
     }
 
-    // Genera el mensaje de notificación (Observación 2)
-    // Incluye: identificación del sismografo, estado, fecha/hora, motivos y comentarios
+    /**
+     * Observación 2: La notificación debe incluir identificación del sismografo,
+     * nombre del estado, fecha/hora, motivos y comentarios
+     */
     public String generarMensajeNotificacion() {
         // Obtener ID del sismografo
         String idSismografo = "";
@@ -549,6 +519,9 @@ public class GestorCierreInspeccion {
         return mensaje.toString();
     }
 
+    /**
+     * FIN CU: Caso de uso completado exitosamente
+     */
     public void finCU() {
         pantalla.mostrarMensaje("Caso de uso ejecutado exitosamente!");
         limpiarDatos();
