@@ -25,6 +25,7 @@ C:\Users\Educacion\Documents\Facu\ppai-grupo14-dsi\src\main\java\model\estados\R
 C:\Users\Educacion\Documents\Facu\ppai-grupo14-dsi\src\main\java\datos\persistence\DatabaseInitializer.java
 C:\Users\Educacion\Documents\Facu\ppai-grupo14-dsi\src\main\java\model\estados\PendienteDeRealizacion.java
 C:\Users\Educacion\Documents\Facu\ppai-grupo14-dsi\src\main\java\model\Rol.java
+C:\Users\Educacion\Documents\Facu\ppai-grupo14-dsi\src\main\java\datos\persistence\DataSeeder.java
 C:\Users\Educacion\Documents\Facu\ppai-grupo14-dsi\src\main\java\datos\repositories\JpaUsuarioRepository.java
 C:\Users\Educacion\Documents\Facu\ppai-grupo14-dsi\src\main\java\model\estados\ParcialmenteRealizada.java
 C:\Users\Educacion\Documents\Facu\ppai-grupo14-dsi\src\main\java\model\estados\HabilitadoParaConstruccion.java
@@ -35,6 +36,7 @@ C:\Users\Educacion\Documents\Facu\ppai-grupo14-dsi\src\main\java\model\MotivoFue
 C:\Users\Educacion\Documents\Facu\ppai-grupo14-dsi\src\main\java\datos\RepositorioDatos.java
 C:\Users\Educacion\Documents\Facu\ppai-grupo14-dsi\src\main\java\gestor\GestorCierreInspeccion.java
 C:\Users\Educacion\Documents\Facu\ppai-grupo14-dsi\src\main\java\model\MotivoTipo.java
+C:\Users\Educacion\Documents\Facu\ppai-grupo14-dsi\src\main\java\boundary\MonitorManager.java
 C:\Users\Educacion\Documents\Facu\ppai-grupo14-dsi\src\main\java\model\estados\Estado.java
 C:\Users\Educacion\Documents\Facu\ppai-grupo14-dsi\src\main\java\model\estados\FueraServicio.java
 C:\Users\Educacion\Documents\Facu\ppai-grupo14-dsi\src\main\java\model\estados\EnInstalacion.java

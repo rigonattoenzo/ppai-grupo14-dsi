@@ -40,11 +40,6 @@ public class Usuario {
         return this.contrasena.equals(contrasena);
     }
 
-    // Métodos extra (no se utilizan, pero los implementamos por si acaso)
-    public String getNombreUsuario() {
-        return nombreUsuario;
-    }
-
     public Empleado getEmpleado() {
         return empleado;
     }

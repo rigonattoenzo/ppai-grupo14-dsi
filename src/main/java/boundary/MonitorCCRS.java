@@ -1,18 +1,20 @@
 package boundary;
 
 public class MonitorCCRS {
-    private String mensaje;
+    private String id;
+    private String nombre;
 
-    private static MonitorCCRS instancia;
-
-    private MonitorCCRS() {
+    public MonitorCCRS(String id, String nombre) {
+        this.id = id;
+        this.nombre = nombre;
     }
 
-    public static MonitorCCRS getInstancia() {
-        if (instancia == null) {
-            instancia = new MonitorCCRS();
-        }
-        return instancia;
+    public String getId() {
+        return id;
+    }
+
+    public String getNombre() {
+        return nombre;
     }
 
     public void publicarNotificacion(String mensaje) {

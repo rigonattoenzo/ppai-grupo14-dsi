@@ -13,7 +13,7 @@ public class MotivoFueraDeServicio {
     @Column(name = "comentario", columnDefinition = "TEXT")
     private String comentario;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "motivo_id", nullable = true)
     private MotivoTipo motivoTipo;
 

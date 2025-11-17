@@ -11,11 +11,11 @@ public class Rol {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(name = "codigo", unique = true, nullable = false, length = 50)
+    @Column(name = "nombre", unique = true, nullable = false, length = 50)
     private String nombre;
 
     @Column(name = "descripcion", length = 255)
-    private String descripcionRol;
+    private String descripcion;
 
     // Constructor
     public Rol() {
@@ -23,7 +23,7 @@ public class Rol {
 
     public Rol(String nombre, String descripcionRol) {
         this.nombre = nombre;
-        this.descripcionRol = descripcionRol;
+        this.descripcion = descripcionRol;
     }
 
     // Métodos de la realización de caso de uso
@@ -37,7 +37,7 @@ public class Rol {
 
     // Métodos extra (no se utilizan, pero los implementamos por si acaso)
     public String getDescripcionRol() {
-        return descripcionRol;
+        return descripcion;
     }
 
     /*

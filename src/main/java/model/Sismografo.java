@@ -30,8 +30,7 @@ public class Sismografo {
     private LocalDateTime fechaAdquisicion;
 
     // Estación donde está instalado
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "estacion_id")
+    @OneToOne(mappedBy = "sismografo", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private EstacionSismologica estacionSismologica;
 
     // Historial de cambios de estado

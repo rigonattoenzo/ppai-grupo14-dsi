@@ -93,12 +93,17 @@ public class OrdenDeInspeccion {
      * Cierra la orden (transición a Cerrada).
      */
     public void cerrarOrden(LocalDateTime fechaCierre, String observacion) {
-        System.out.println(">>> OrdenDeInspeccion.cerrarOrden - nro: " + this.numeroOrden + " - estadoAntes: "
-                + this.getEstadoActual());
         this.estadoActual.cerrar(this, fechaCierre, observacion);
         this.estado = "Cerrada";
-        System.out.println(">>> OrdenDeInspeccion.cerrarOrden - nro: " + this.numeroOrden + " - estadoDespues: "
-                + this.getEstadoActual() + " - fechaCierre: " + fechaCierre + " - observacion: " + observacion);
+    }
+
+    public Map<String, Object> obtenerDatosOI() {
+        Map<String, Object> datos = new HashMap<>();
+        datos.put("nroDeOrden", getNroDeOrden());
+        datos.put("fechaFinalizacion", getFechaFinalizacion());
+        datos.put("nombreEstacionSismologica", getNombreEstacionSismologica());
+        datos.put("idSismografo", getIdSismografo());
+        return datos;
     }
 
     /**
@@ -142,7 +147,14 @@ public class OrdenDeInspeccion {
     }
 
     public String getIdSismografo() {
-        return estacion.obtenerIdentificadorSismografo();
+        if (estacion == null) {
+            return "SIN ESTACIÓN";
+        }
+        Sismografo sism = estacion.getSismografo();
+        if (sism == null) {
+            return "SIN SISMOGRAFO";
+        }
+        return sism.getIdentificadorSismografo();
     }
 
     public LocalDateTime getFechaHoraCierre() {
@@ -171,8 +183,16 @@ public class OrdenDeInspeccion {
         return Estado.fromString(this.estado).getClass().getSimpleName();
     }
 
+    public EstacionSismologica getEstacion() {
+        return this.estacion;
+    }
+
     public void setObservacionCierreOrden(String observacionCierreOrden) {
         this.observacionCierreOrden = observacionCierreOrden;
+    }
+
+    public String getObservacionCierreOrden() {
+        return this.observacionCierreOrden;
     }
 
     public boolean sosDeEmpleado(Empleado empleado) {
@@ -183,16 +203,6 @@ public class OrdenDeInspeccion {
 
     public boolean sosCompletamenteRealizada() {
         return "CompletamenteRealizada".equals(this.estado);
-    }
-
-    public Map<String, Object> obtenerDatosOI() {
-        Map<String, Object> datos = new HashMap<>();
-        datos.put("nroDeOrden", getNroDeOrden());
-        datos.put("fechaFinalizacion", getFechaFinalizacion());
-        datos.put("nombreEstacionSismologica", getNombreEstacionSismologica());
-        datos.put("idSismografo", getIdSismografo());
-        System.out.println(">>> obtenerDatosOI: " + datos);
-        return datos;
     }
 
     public void cerrar(Estado estadoCerrado) {

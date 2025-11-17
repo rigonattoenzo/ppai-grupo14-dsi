@@ -1,7 +1,7 @@
 -- Roles
 CREATE TABLE IF NOT EXISTS rol (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    codigo VARCHAR(50) UNIQUE NOT NULL,
+    nombre VARCHAR(50) UNIQUE NOT NULL,
     descripcion VARCHAR(255)
 );
 
@@ -61,7 +61,6 @@ CREATE TABLE IF NOT EXISTS motivo_fuera_de_servicio (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     comentario TEXT,
     motivo_id INTEGER REFERENCES motivo_tipo(id),
-    orden_id INTEGER REFERENCES orden_inspeccion(nro_orden),
     cambio_estado_id INTEGER REFERENCES cambio_de_estado(id)
 );
 

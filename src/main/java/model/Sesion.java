@@ -13,7 +13,15 @@ public class Sesion {
     private static Sesion instancia;
     private Usuario usuario;
 
+    // PATRÓN SINGLETON
     private Sesion() {
+    }
+
+    public static Sesion getInstancia() {
+        if (instancia == null) {
+            instancia = new Sesion();
+        }
+        return instancia;
     }
 
     // Métodos del CU
@@ -32,14 +40,6 @@ public class Sesion {
 
     public boolean estaActiva() {
         return fechaHoraFin == null;
-    }
-
-    // Singleton
-    public static Sesion getInstancia() {
-        if (instancia == null) {
-            instancia = new Sesion();
-        }
-        return instancia;
     }
 
     // Getters

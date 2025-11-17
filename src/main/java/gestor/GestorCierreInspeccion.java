@@ -30,7 +30,6 @@ public class GestorCierreInspeccion {
     private Map<MotivoTipo, String> motivosYComentarios = new HashMap<>();
     private List<MotivoTipo> punterosMotivos = new ArrayList<>();
     private MotivoTipo ultimoMotivoSeleccionado = null;
-    private String confirmacionCierreOrden;
     private LocalDateTime fechaHoraActual = LocalDateTime.now();
     private List<Map<String, Object>> ordenesFiltradasConDatos;
     private Map<String, Object> ordenSeleccionada;
@@ -47,7 +46,7 @@ public class GestorCierreInspeccion {
     private InterfazNotificacionMail interfazMail;
     private List<MonitorCCRS> monitores;
 
-    // ==================== SECCIÓN CONSTRUCTOR Y GETTERS ====================
+    // ==================== SECCIÓN CONSTRUCTOR ====================
     public GestorCierreInspeccion(PantallaInspeccion pantalla) {
         this.pantalla = pantalla;
         this.sesion = Sesion.getInstancia();
@@ -58,6 +57,7 @@ public class GestorCierreInspeccion {
         this.monitores = RepositorioDatos.getMonitores();
     }
 
+    // ==================== GETTERS Y SETTERS ====================
     public Map<String, Object> getOrdenSeleccionada() {
         return this.ordenSeleccionada;
     }
@@ -127,34 +127,26 @@ public class GestorCierreInspeccion {
 
         List<Map<String, Object>> ordenesFiltradas = new ArrayList<>();
 
-        System.out.println(">>> Filtrando órdenes para empleado: " + empleado);
-
         for (OrdenDeInspeccion orden : ordenesDeInspeccion) {
-            System.out.println("   Orden #" + orden.getNroDeOrden() + " - Estado: " + orden.getEstadoActual()
-                    + " - BD: " + orden.sosCompletamenteRealizada());
+            // sosCompletamenteRealizada() se podría quitar por aplicación del state
             if (orden.sosDeEmpleado(empleado) && orden.sosCompletamenteRealizada()) {
                 Map<String, Object> datosOrden = orden.obtenerDatosOI();
-                System.out.println("      -> Orden agregada: " + datosOrden);
                 ordenesFiltradas.add(datosOrden);
             }
         }
 
-        System.out.println(">>> Total órdenes filtradas: " + ordenesFiltradas.size());
-
         this.ordenesFiltradasConDatos = ordenesFiltradas;
-
+        // Alternativa 1: Sin órdenes
         if (ordenesFiltradas.isEmpty()) {
             pantalla.mostrarOrdCompRealizadas(this.ordenesFiltradasConDatos);
         } else {
             ordenarPorFechaDeFinalizacion();
             pantalla.mostrarOrdCompRealizadas(this.ordenesFiltradasConDatos);
-            pedirSelecOrdenInspeccion();
         }
     }
 
     public void ordenarPorFechaDeFinalizacion() {
         if (ordenesFiltradasConDatos == null || ordenesFiltradasConDatos.isEmpty()) {
-            // Revisar método ❗❗❗❗❗❗❗❗❗
             pantalla.mostrarMensaje("No hay órdenes para ordenar");
             return;
         }
@@ -180,9 +172,8 @@ public class GestorCierreInspeccion {
         });
     }
 
-    // REVISAR FLUJO ❗❗❗❗❗❗❗❗❗❗❗❗❗❗ (pantalla.pedirSelecc() -> gestor.pedirSelecc())
-    public void pedirSelecOrdenInspeccion() {
-        pantalla.pedirSelecOrdenInspeccion(this.ordenesFiltradasConDatos);
+    public void pedirSelecOrdenInspeccion(Map<String, Object> orden) {
+        pantalla.pedirSelecOrdenInspeccion(orden);
     }
 
     /**
@@ -212,10 +203,9 @@ public class GestorCierreInspeccion {
      * PASO 6: Sistema muestra tipos de motivos para Fuera de Servicio
      */
     public void buscarTiposMotivosFueraServicio() {
-        // Utilizamos un repositorio de Datos (que reemplazaría a una BD) para
-        // instanciar los objetos
-        // Obtiene todos los MotivoTipo del repositorio de datos
-        this.punterosMotivos = RepositorioDatos.getMotivos();
+        // El repositorio de datos es el que directamente accede a la BD para guardar y
+        // obtener los datos
+        this.punterosMotivos = RepositorioDatos.obtenerMotivos();
         // Lista para guardar solo las descripciones
         List<String> descMotivos = new ArrayList<>();
 
@@ -226,13 +216,6 @@ public class GestorCierreInspeccion {
 
         pantalla.mostrarMotivosTipoFueraServicio(descMotivos, this.punterosMotivos);
     }
-
-    /*
-     * private void pedirSelecMotivosFueraServicio() {
-     * // Primera iteración del loop: pedir primer motivo
-     * pantalla.pedirSelecMotivoTipo();
-     * }
-     */
 
     /**
      * PASO 7: El RI selecciona uno o varios motivos con comentarios
@@ -253,6 +236,7 @@ public class GestorCierreInspeccion {
         }
     }
 
+    // EMPEZAR A MOSTRAR DESDE ACA PARA NO HACERLO LARGO ❗❗❗❗❗❗❗❗
     /**
      * PASO 8: Sistema solicita confirmación para cerrar la orden
      */
@@ -264,26 +248,16 @@ public class GestorCierreInspeccion {
     /**
      * PASO 9: El RI confirma el cierre
      */
-    // ❗❗❗❗❗❗❗❗ Ver de cambiar confirmacionCierreOrden por un int
-    public void tomarConfirmacionCierreOrden(String confirmacionCierre) {
-        this.confirmacionCierreOrden = confirmacionCierre;
-        System.out.println(">>> tomarConfirmacionCierreOrden - recibida confirmacion: " + confirmacionCierre);
-        System.out.println("    Observacion: " + this.observacionCierreOrden);
-        System.out.println("    Motivos en gestor: " + (motivosYComentarios == null ? 0 : motivosYComentarios.size()));
-        System.out.println("    Orden seleccionada (map): " + this.ordenSeleccionada);
-
+    public void tomarConfirmacionCierreOrden(boolean confirmacionCierre) {
         // PASO 10: Sistema valida datos
         if (!validarExistenciaObservacion()) {
-            System.out.println(">>> VALIDACION: falta observacion");
             return;
         }
 
         if (!validarExistenciaMotivoSeleccionado()) {
-            System.out.println(">>> VALIDACION: falta motivo");
             return;
         }
 
-        System.out.println(">>> VALIDACIONES OK - procediendo a cerrar orden");
         // Validaciones exitosas: proceder con cierre
         cerrarOrdenInspeccion();
 
@@ -363,15 +337,9 @@ public class GestorCierreInspeccion {
 
     public void cerrarOrdenInspeccion() {
         // Buscar la orden completa en la lista
-        System.out.println(">>> cerrarOrdenInspeccion - buscando orden en lista de tamaño: "
-                + (ordenesDeInspeccion == null ? 0 : ordenesDeInspeccion.size()));
         String nroSeleccionado = String.valueOf(this.ordenSeleccionada.get("nroDeOrden"));
-        System.out.println("    Nro seleccionado (string): " + nroSeleccionado);
 
         for (OrdenDeInspeccion orden : this.ordenesDeInspeccion) {
-            System.out.println("    Revisando orden en memoria: #" + orden.getNroDeOrden() + " - empleadoId?: "
-                    + (orden.sosDeEmpleado(empleadoLogueado) ? "MATCH" : "NO_MATCH") + " - estado: "
-                    + orden.getEstadoActual());
             if (orden.getNroDeOrden() == Integer.parseInt(nroSeleccionado)) {
                 this.ordenEncontrada = orden;
                 break;
@@ -379,25 +347,19 @@ public class GestorCierreInspeccion {
         }
 
         if (this.ordenEncontrada == null) {
-            System.out.println(">>> ERROR: no se encontró la orden en memoria");
             pantalla.mostrarMensaje("ERROR: No se encontró la orden de inspección");
             return;
         }
 
-        System.out.println(">>> Orden encontrada: #" + ordenEncontrada.getNroDeOrden() + " - estación: "
-                + (ordenEncontrada.getNombreEstacionSismologica()));
         this.fechaHoraActual = LocalDateTime.now();
 
-        System.out.println(">>> Cerrando orden en objeto (estado actual antes): " + ordenEncontrada.getEstadoActual());
         try {
             ordenEncontrada.cerrarOrden(this.fechaHoraActual, this.observacionCierreOrden);
         } catch (Exception e) {
-            System.err.println("!!! excepción al cerrar orden: " + e.getMessage());
             e.printStackTrace();
             pantalla.mostrarMensaje("Error al cerrar la orden: " + e.getMessage());
             return;
         }
-        System.out.println(">>> Orden cerrada (estado actual despues): " + ordenEncontrada.getEstadoActual());
 
         // Poner sismografo fuera de servicio
         ponerSismografoFueraServicio();
@@ -407,25 +369,37 @@ public class GestorCierreInspeccion {
      * PASO 12: Poner sismografo fuera de servicio con motivos
      */
     public void ponerSismografoFueraServicio() {
-        System.out.println(">>> ponerSismografoFueraServicio - preparando motivos para enviar al modelo...");
         List<Map<String, Object>> listaMotivos = convertirMotivoMapALista();
-        System.out.println(
-                "    Motivos convertidos: " + (listaMotivos == null ? 0 : listaMotivos.size()) + " -> " + listaMotivos);
 
         if (this.ordenEncontrada == null) {
             System.out.println("    ERROR: ordenEncontrada es null, abortando ponerSismografoFueraServicio");
             return;
         }
 
-        System.out.println(
-                "    Delegando a OrdenDeInspeccion. estacion: " + this.ordenEncontrada.getNombreEstacionSismologica());
         try {
             this.ordenEncontrada.ponerSismografoFueraServicio(this.fechaHoraActual, listaMotivos);
-            System.out.println(">>> ponerSismografoFueraServicio - retorno OK");
         } catch (Exception e) {
-            System.err.println("!!! excepción al poner sismografo fuera de servicio: " + e.getMessage());
             e.printStackTrace();
             pantalla.mostrarMensaje("Error al poner sismógrafo fuera de servicio: " + e.getMessage());
+            return;
+        }
+
+        // Guardar sismógrafo con sus datos actualizados
+        try {
+            Sismografo sismografoActualizado = this.ordenEncontrada.getEstacion().getSismografo();
+            RepositorioDatos.guardarSismografo(sismografoActualizado);
+        } catch (Exception e) {
+            e.printStackTrace();
+            pantalla.mostrarMensaje("Error al guardar el sismografo: " + e.getMessage());
+            return;
+        }
+
+        // Guardar la orden con sus datos actualizados
+        try {
+            RepositorioDatos.guardarOrden(this.ordenEncontrada);
+        } catch (Exception e) {
+            e.printStackTrace();
+            pantalla.mostrarMensaje("Error al guardar la orden: " + e.getMessage());
             return;
         }
 
@@ -470,7 +444,6 @@ public class GestorCierreInspeccion {
 
     // Envía correos a responsables y publica en monitores
     public void enviarCorreoYPublicar(List<String> mails) {
-        System.out.println("Enviando notificaciones por mail y monitores");
         String mensaje = generarMensajeNotificacion();
 
         // Flujo alternativo A4: Solo mail
@@ -563,7 +536,6 @@ public class GestorCierreInspeccion {
         this.motivosYComentarios.clear();
         this.punterosMotivos.clear();
         this.ultimoMotivoSeleccionado = null;
-        this.confirmacionCierreOrden = null;
         this.ordenSeleccionada = null;
         this.ordenEncontrada = null;
     }

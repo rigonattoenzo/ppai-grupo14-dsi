@@ -2,6 +2,7 @@ import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.geometry.Insets;
@@ -19,7 +20,7 @@ public class MainFX extends Application {
     @Override
     public void start(Stage primaryStage) {
         try {
-            // ✅ Obtener usuario desde BD
+            // Obtener usuario desde BD
             Usuario usuario = RepositorioDatos.getUsuario();
             Sesion.getInstancia().iniciarSesion(usuario, LocalDateTime.now());
 
@@ -52,14 +53,21 @@ public class MainFX extends Application {
             primaryStage.setTitle("Menú Principal - Gestión de Inspecciones");
             primaryStage.setScene(scene);
 
+            primaryStage.setWidth(700); // Ancho
+            primaryStage.setHeight(600); // Alto
+            primaryStage.centerOnScreen(); // Centrar en pantalla
+
+            VBox.setVgrow(root, javafx.scene.layout.Priority.ALWAYS);
+            HBox.setHgrow(root, javafx.scene.layout.Priority.ALWAYS);
+
             primaryStage.setOnCloseRequest(e -> {
                 LocalEntityManagerProvider.close();
-                System.out.println("✅ Base de datos cerrada");
+                System.out.println("Base de datos cerrada");
             });
 
             primaryStage.show();
         } catch (Exception e) {
-            System.err.println("❌ Error al iniciar aplicación: " + e.getMessage());
+            System.err.println("Error al iniciar aplicación: " + e.getMessage());
             e.printStackTrace();
         }
     }

@@ -15,10 +15,14 @@ public final class LocalEntityManagerProvider {
 
     static {
         try {
-            // Inicializa la BD desde el script DDL si es necesario
+            // Crear BD + DDL
             DatabaseInitializer.initializeDatabase();
-            // Crea la fábrica de EntityManager
+
+            // Crear factory
             EMF = Persistence.createEntityManagerFactory(PERSISTENCE_UNIT);
+
+            // Utilizar la seed (EMF ya existe)
+            DataSeeder.initializeTestDataIfEmpty();
         } catch (Exception e) {
             throw new ExceptionInInitializerError("Error inicializando JPA: " + e.getMessage());
         }

@@ -2,39 +2,28 @@ package model.estados;
 
 import model.Sismografo;
 import model.CambioDeEstado;
+import model.Empleado;
 import model.MotivoTipo;
+import model.Sesion;
+import datos.RepositorioDatos;
+
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
 
-/**
- * Estado: Inhabilitado por Inspección - El sismografo está bajo inspección.
- * Este es el estado clave donde ocurre la transición a "Fuera de Servicio".
- * 
- * Transiciones posibles:
- * - A En Línea (si la inspección es satisfactoria)
- * - A Fuera de Servicio (si se detectan problemas)
- */
 public class InhabilitadoPorInspeccion extends Estado {
 
     public InhabilitadoPorInspeccion() {
         super("Inhabilitado Por Inspección", "Sismografo");
     }
 
-    /**
-     * Transición: Inhabilitado por Inspección -> En Línea
-     */
     @Override
     public void enLinea(Sismografo sismografo) {
         System.out.println("Transición: Inhabilitado por Inspección -> En Línea");
         sismografo.setEstadoActual(new EnLinea());
     }
 
-    /**
-     * Transición: Inhabilitado por Inspección -> Fuera de Servicio
-     * Parámetro: List<Map<String, Object>>
-     */
     @Override
     public void fueraServicio(Sismografo sismografo, LocalDateTime fechaActual,
             CambioDeEstado[] cambiosEstado,
@@ -48,10 +37,6 @@ public class InhabilitadoPorInspeccion extends Estado {
         crearEstado(sismografo);
     }
 
-    /**
-     * Finaliza el estado actual buscando el CambioDeEstado que no tiene fecha de
-     * fin.
-     */
     private void finalizarEstadoActual(Sismografo sismografo,
             CambioDeEstado[] cambiosEstado) {
         for (CambioDeEstado cambio : cambiosEstado) {
@@ -64,9 +49,6 @@ public class InhabilitadoPorInspeccion extends Estado {
         }
     }
 
-    /**
-     * Ejecuta el cambio de estado creando un nuevo CambioDeEstado.
-     */
     private void ejecutarCambioEstado(Sismografo sismografo,
             LocalDateTime fechaActual,
             CambioDeEstado[] cambiosEstado,
@@ -76,9 +58,14 @@ public class InhabilitadoPorInspeccion extends Estado {
                 + (listaCambios == null ? 0 : listaCambios.size()));
 
         FueraServicio estadoFueraServicio = new FueraServicio();
-        CambioDeEstado nuevo = new CambioDeEstado(estadoFueraServicio, fechaActual);
 
-        Map<MotivoTipo, String> motivosMap = convertirMotivos(motivos);
+        // 🔑 Obtener el empleado logueado actual
+        Empleado empleadoActual = Sesion.getInstancia().getUsuario().getEmpleado();
+
+        CambioDeEstado nuevo = new CambioDeEstado(estadoFueraServicio, fechaActual, sismografo, empleadoActual);
+
+        // 🔑 BUSCAR MotivoTipos en BD, no crearlos nuevos
+        Map<MotivoTipo, String> motivosMap = convertirMotivosDesdeDescripciones(motivos);
         System.out.println("    motivosMap creado con size=" + (motivosMap == null ? 0 : motivosMap.size()));
 
         nuevo.crearMotivoFueraServicio(motivosMap);
@@ -87,9 +74,6 @@ public class InhabilitadoPorInspeccion extends Estado {
                 + listaCambios.size());
     }
 
-    /**
-     * Crea el nuevo estado (Fuera de Servicio).
-     */
     private void crearEstado(Sismografo sismografo) {
         FueraServicio nuevoEstado = new FueraServicio();
         sismografo.setEstadoActual(nuevoEstado);
@@ -97,9 +81,13 @@ public class InhabilitadoPorInspeccion extends Estado {
 
     /**
      * Convierte List<Map<String, Object>> a Map<MotivoTipo, String>
+     * CLAVE: Busca los MotivoTipo en BD por descripción
      */
-    private Map<MotivoTipo, String> convertirMotivos(List<Map<String, Object>> motivos) {
+    private Map<MotivoTipo, String> convertirMotivosDesdeDescripciones(List<Map<String, Object>> motivos) {
         Map<MotivoTipo, String> resultado = new HashMap<>();
+
+        // Obtener TODOS los MotivoTipo de BD
+        List<MotivoTipo> motivosTiposEnBD = RepositorioDatos.obtenerMotivos();
 
         if (motivos != null) {
             for (Map<String, Object> mapa : motivos) {
@@ -107,8 +95,15 @@ public class InhabilitadoPorInspeccion extends Estado {
                 String comentario = extraerComentario(mapa);
 
                 if (descripcion != null && !descripcion.isEmpty()) {
-                    MotivoTipo tipo = new MotivoTipo(descripcion);
-                    resultado.put(tipo, comentario != null ? comentario : "");
+                    // 🔑 BUSCAR en BD, no crear nuevo
+                    MotivoTipo tipoEnBD = buscarMotivoPorDescripcion(descripcion, motivosTiposEnBD);
+
+                    if (tipoEnBD != null) {
+                        resultado.put(tipoEnBD, comentario != null ? comentario : "");
+                        System.out.println("    ✓ MotivoTipo encontrado en BD: " + descripcion);
+                    } else {
+                        System.err.println("    ❌ MotivoTipo NO encontrado en BD: " + descripcion);
+                    }
                 }
             }
         }
@@ -117,8 +112,17 @@ public class InhabilitadoPorInspeccion extends Estado {
     }
 
     /**
-     * Extrae la descripción del motivo de un Map flexible.
+     * Busca un MotivoTipo en la lista por descripción
      */
+    private MotivoTipo buscarMotivoPorDescripcion(String descripcion, List<MotivoTipo> motivosTipos) {
+        for (MotivoTipo tipo : motivosTipos) {
+            if (tipo.getDescripcion().equalsIgnoreCase(descripcion)) {
+                return tipo;
+            }
+        }
+        return null;
+    }
+
     private String extraerDescripcion(Map<String, Object> mapa) {
         Object valor = mapa.get("tipo");
         if (valor == null)
@@ -131,9 +135,6 @@ public class InhabilitadoPorInspeccion extends Estado {
         return valor != null ? valor.toString() : null;
     }
 
-    /**
-     * Extrae el comentario del motivo de un Map flexible.
-     */
     private String extraerComentario(Map<String, Object> mapa) {
         Object valor = mapa.get("comentario");
         if (valor == null)

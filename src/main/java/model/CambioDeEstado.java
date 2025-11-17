@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.Map;
 import model.estados.Estado;
 
-// Historial de cambios de estado para un objeto.
 @Entity
 @Table(name = "cambio_de_estado")
 public class CambioDeEstado {
@@ -22,17 +21,17 @@ public class CambioDeEstado {
     private LocalDateTime fechaHoraFin;
 
     // Asociación Many-to-One con Sismografo
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "sismografo_id", nullable = true)
     private Sismografo sismografo;
 
     // Asociación Many-to-One con Empleado
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "empleado_id", nullable = true)
     private Empleado empleado;
 
     // Asociación One-to-Many con MotivoFueraDeServicio
-    @OneToMany(cascade = CascadeType.ALL)
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(name = "cambio_estado_id")
     private List<MotivoFueraDeServicio> motivos = new ArrayList<>();
 
@@ -44,16 +43,25 @@ public class CambioDeEstado {
     public CambioDeEstado() {
     }
 
-    // Constructor -> Equivalente al new()
+    // Constructor con estado
     public CambioDeEstado(Estado estado, LocalDateTime inicio) {
         this.estado = estado;
         this.fechaHoraInicio = inicio;
         this.fechaHoraFin = null;
     }
 
-    // Métodos de la realización de caso de uso
+    // Constructor completo para facilitar inicialización
+    public CambioDeEstado(Estado estado, LocalDateTime inicio, Sismografo sismografo, Empleado empleado) {
+        this.estado = estado;
+        this.fechaHoraInicio = inicio;
+        this.sismografo = sismografo;
+        this.empleado = empleado;
+        this.fechaHoraFin = null;
+    }
+
+    // Métodos
     public boolean esEstadoActual() {
-        return this.fechaHoraFin != null;
+        return this.fechaHoraFin == null;
     }
 
     public void crearMotivoFueraServicio(Map<MotivoTipo, String> motivosYComentarios) {
@@ -70,11 +78,15 @@ public class CambioDeEstado {
         this.fechaHoraFin = fechaHoraFin;
     }
 
-    // Métodos extra (no se utilizan, pero los implementamos por si acaso)
     public void setEmpleado(Empleado empleado) {
         this.empleado = empleado;
     }
 
+    public void setSismografo(Sismografo sismografo) {
+        this.sismografo = sismografo;
+    }
+
+    // Getters
     public Estado getEstado() {
         return estado;
     }
@@ -98,23 +110,4 @@ public class CambioDeEstado {
     public Sismografo getSismografo() {
         return sismografo;
     }
-
-    public void setSismografo(Sismografo sismografo) {
-        this.sismografo = sismografo;
-    }
-
-    // Método toString para facilitar impresión
-    /*
-     * @Override
-     * public String toString() {
-     * return "CambioDeEstado{" +
-     * "estado=" + estado.getNombreEstado() +
-     * ", empleado=" + empleado.getNombreCompleto() +
-     * ", inicio=" + fechaHoraInicio +
-     * ", fin=" + fechaHoraFin +
-     * //", motivo=" + (motivo != null ? motivo.getTipo().getDescripcion() : "N/A")
-     * +
-     * '}';
-     * }
-     */
 }

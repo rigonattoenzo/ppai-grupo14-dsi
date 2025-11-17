@@ -26,10 +26,12 @@ datos\repositories\JpaMotivoTipoRepository.class
 model\estados\DeBaja.class
 datos\repositories\JpaRolRepository.class
 boundary\PantallaInspeccion.class
+datos\persistence\DataSeeder.class
 model\estados\Estado.class
 model\estados\Cerrada.class
 model\estados\ParcialmenteRealizada.class
 model\estados\PendienteDeRealizacion.class
+boundary\MonitorManager.class
 gestor\GestorCierreInspeccion.class
 model\estados\Reclamado.class
 boundary\MonitorCCRS.class

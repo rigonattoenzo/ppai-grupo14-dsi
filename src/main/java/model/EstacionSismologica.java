@@ -32,7 +32,8 @@ public class EstacionSismologica {
     private String nroCertificacionAdquisicion;
 
     // Asociación
-    @OneToOne(mappedBy = "estacionSismologica", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @JoinColumn(name = "sismografo_id")
     private Sismografo sismografo;
 
     // Constructor sin parámetros
