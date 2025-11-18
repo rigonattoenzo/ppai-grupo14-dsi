@@ -2,6 +2,7 @@ package model.estados;
 
 import model.Sismografo;
 import model.CambioDeEstado;
+import model.Empleado;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
@@ -62,8 +63,7 @@ public abstract class Estado {
     }
 
     public void fueraServicio(Sismografo sismografo, LocalDateTime fechaActual,
-            CambioDeEstado[] cambiosEstado,
-            List<Map<String, Object>> motivos) {
+            CambioDeEstado[] cambiosEstado, List<Map<String, Object>> motivos, Empleado empleadoActual) {
         throw new UnsupportedOperationException(
                 "No se puede transicionar a 'Fuera de Servicio' desde " + this.nombreEstado);
     }

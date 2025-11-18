@@ -53,10 +53,9 @@ public class CambioDeEstado {
     // Constructor completo para facilitar inicialización
     public CambioDeEstado(Estado estado, LocalDateTime inicio, Sismografo sismografo, Empleado empleado) {
         this.estado = estado;
-        this.fechaHoraInicio = inicio;
         this.sismografo = sismografo;
         this.empleado = empleado;
-        this.fechaHoraFin = null;
+        this.fechaHoraInicio = inicio;
     }
 
     // Métodos
@@ -64,11 +63,14 @@ public class CambioDeEstado {
         return this.fechaHoraFin == null;
     }
 
+    // 20) ❗❗
     public void crearMotivoFueraServicio(Map<MotivoTipo, String> motivosYComentarios) {
+        // En este bucle se crean todos los MotivoFueraServicio
         for (Map.Entry<MotivoTipo, String> motv : motivosYComentarios.entrySet()) {
             MotivoTipo tipo = motv.getKey();
             String comentario = motv.getValue();
 
+            // 21) ❗❗ --> Volver a InhabilitadoPorInspeccion
             MotivoFueraDeServicio motivo = new MotivoFueraDeServicio(comentario, tipo);
             this.motivos.add(motivo);
         }
@@ -87,10 +89,6 @@ public class CambioDeEstado {
     }
 
     // Getters
-    public Estado getEstado() {
-        return estado;
-    }
-
     public Empleado getEmpleado() {
         return empleado;
     }

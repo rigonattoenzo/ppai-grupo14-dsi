@@ -4,7 +4,6 @@ import model.Sismografo;
 import model.CambioDeEstado;
 import model.Empleado;
 import model.MotivoTipo;
-import model.Sesion;
 import datos.RepositorioDatos;
 
 import java.time.LocalDateTime;
@@ -24,59 +23,48 @@ public class InhabilitadoPorInspeccion extends Estado {
         sismografo.setEstadoActual(new EnLinea());
     }
 
-    @Override
+    @Override // 14) ❗❗
     public void fueraServicio(Sismografo sismografo, LocalDateTime fechaActual,
-            CambioDeEstado[] cambiosEstado,
-            List<Map<String, Object>> motivos) {
-        System.out.println(">>> InhabilitadoPorInspeccion.fueraServicio - sismografo: "
-                + (sismografo == null ? "NULL" : sismografo.getIdentificadorSismografo()));
-        System.out.println("    cambiosEstado.length=" + (cambiosEstado == null ? 0 : cambiosEstado.length)
-                + " ; motivos.size=" + (motivos == null ? 0 : motivos.size()));
-        finalizarEstadoActual(sismografo, cambiosEstado);
-        ejecutarCambioEstado(sismografo, fechaActual, cambiosEstado, motivos);
-        crearEstado(sismografo);
-    }
+            CambioDeEstado[] cambiosEstado, List<Map<String, Object>> motivos, Empleado empleadoActual) {
 
-    private void finalizarEstadoActual(Sismografo sismografo,
-            CambioDeEstado[] cambiosEstado) {
-        for (CambioDeEstado cambio : cambiosEstado) {
-            if (cambio != null && cambio.getFechaHoraFin() == null) {
-                cambio.setFechaHoraFin(LocalDateTime.now());
-                System.out.println("Estado anterior finalizado: " +
-                        cambio.getEstado().getNombreEstado());
-                break;
+        if (cambiosEstado != null && cambiosEstado.length > 0) {
+            // 15) ❗❗
+            for (CambioDeEstado c : cambiosEstado) {
+                if (esEstadoActual(c)) {
+                    // 16) ❗❗
+                    c.setFechaHoraFin(fechaActual);
+                    // Con esto se persiste la fecha hora fin
+                    RepositorioDatos.guardarCambioDeEstado(c);
+                    System.out.println("✓ Cambio de estado anterior cerrado con fecha: " + fechaActual);
+
+                    break;
+                }
             }
         }
+
+        // 17) ❗❗
+        ejecutarCambioEstado(sismografo, fechaActual, motivos, empleadoActual);
     }
 
-    private void ejecutarCambioEstado(Sismografo sismografo,
-            LocalDateTime fechaActual,
-            CambioDeEstado[] cambiosEstado,
-            List<Map<String, Object>> motivos) {
-        List<CambioDeEstado> listaCambios = sismografo.getCambiosDeEstado();
-        System.out.println("    ejecutarCambioEstado - listaCambios before.size="
-                + (listaCambios == null ? 0 : listaCambios.size()));
+    private Boolean esEstadoActual(CambioDeEstado cambio) {
+        return (cambio != null && cambio.getFechaHoraFin() == null);
+    }
 
+    private void ejecutarCambioEstado(Sismografo sismografo, LocalDateTime fechaActual,
+            List<Map<String, Object>> motivos, Empleado empleadoActual) {
+
+        // 18) ❗❗
         FueraServicio estadoFueraServicio = new FueraServicio();
-
-        // 🔑 Obtener el empleado logueado actual
-        Empleado empleadoActual = Sesion.getInstancia().getUsuario().getEmpleado();
-
+        // 19) ❗❗
         CambioDeEstado nuevo = new CambioDeEstado(estadoFueraServicio, fechaActual, sismografo, empleadoActual);
 
-        // 🔑 BUSCAR MotivoTipos en BD, no crearlos nuevos
         Map<MotivoTipo, String> motivosMap = convertirMotivosDesdeDescripciones(motivos);
-        System.out.println("    motivosMap creado con size=" + (motivosMap == null ? 0 : motivosMap.size()));
-
+        // 20) ❗❗
         nuevo.crearMotivoFueraServicio(motivosMap);
-        listaCambios.add(nuevo);
-        System.out.println("    ejecutarCambioEstado - nuevo CambioDeEstado añadido. listaCambios after.size="
-                + listaCambios.size());
-    }
 
-    private void crearEstado(Sismografo sismografo) {
-        FueraServicio nuevoEstado = new FueraServicio();
-        sismografo.setEstadoActual(nuevoEstado);
+        // Actualizar estado
+        sismografo.setEstadoActual(estadoFueraServicio); // 22) ❗❗
+        sismografo.setCambioEstado(nuevo); // 23) ❗❗ --> Vuelve al gestor
     }
 
     /**

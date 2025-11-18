@@ -196,6 +196,7 @@ public class RepositorioDatos {
             CambioDeEstado cambioMerged = em.merge(cambio);
             em.flush();
             tx.commit();
+            System.out.println("✓ CambioDeEstado persistido con fechaHoraFin: " + cambio.getFechaHoraFin());
         } catch (Exception e) {
             if (tx.isActive())
                 tx.rollback();

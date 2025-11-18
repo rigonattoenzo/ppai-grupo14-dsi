@@ -51,7 +51,6 @@ public class PantallaInspeccion {
     private Map<MotivoTipo, String> motivosYComentariosLocal = new HashMap<>();
     private VBox listaMotivosSeleccionadosVBox;
     private Label lblVacioMotivos;
-    private String comentarioTemporal;
 
     // ========== PALETA DE COLORES ==========
     private static final String COLOR_FONDO = "#faf6f1"; // Beige muy claro
@@ -163,7 +162,10 @@ public class PantallaInspeccion {
     private Button crearBotonOrden(Map<String, Object> orden) {
         String nro = String.valueOf(orden.get("nroDeOrden"));
         String estacion = String.valueOf(orden.get("nombreEstacionSismologica"));
-        String sismo = String.valueOf(orden.get("idSismografo"));
+        LocalDateTime fechaFin = (LocalDateTime) orden.get("fechaFinalizacion");
+
+        DateTimeFormatter fmt = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+        String fechaFormato = (fechaFin != null) ? fechaFin.format(fmt) : "N/A";
 
         VBox contenidoBoton = new VBox(5);
         contenidoBoton.setPadding(new Insets(12));
@@ -175,10 +177,10 @@ public class PantallaInspeccion {
         Label lblEstacion = new Label("📍 Estación: " + estacion);
         lblEstacion.setFont(FUENTE_NORMAL);
 
-        Label lblSismo = new Label("📡 Sismógrafo: " + sismo);
-        lblSismo.setFont(FUENTE_NORMAL);
+        Label lblFecha = new Label("🕐 Finalizada: " + fechaFormato);
+        lblFecha.setFont(FUENTE_NORMAL);
 
-        contenidoBoton.getChildren().addAll(lblOrden, lblEstacion, lblSismo);
+        contenidoBoton.getChildren().addAll(lblOrden, lblEstacion, lblFecha);
 
         Button btn = new Button();
         btn.setGraphic(contenidoBoton);
@@ -574,24 +576,22 @@ public class PantallaInspeccion {
     }
 
     public void tomarMotivoTipoFueraServicio(int indiceMotivo, String comentario) {
-        this.comentarioTemporal = comentario;
         gestor.tomarMotivoTipoFueraServicio(indiceMotivo);
-        pedirComentario();
+        pedirComentario(comentario);
     }
 
-    public void pedirComentario() {
-        if (this.comentarioTemporal != null && !this.comentarioTemporal.isEmpty()) {
-            tomarComentario();
+    public void pedirComentario(String comentario) {
+        if (comentario != null && !comentario.isEmpty()) {
+            tomarComentario(comentario);
         }
     }
 
-    public void tomarComentario() {
-        if (this.comentarioTemporal != null && !this.comentarioTemporal.isEmpty()) {
+    public void tomarComentario(String comentario) {
+        if (comentario != null && !comentario.isEmpty()) {
             MotivoTipo ultimoMotivo = gestor.getUltimoMotivoSeleccionado();
             if (ultimoMotivo != null) {
-                motivosYComentariosLocal.put(ultimoMotivo, this.comentarioTemporal);
+                motivosYComentariosLocal.put(ultimoMotivo, comentario);
             }
-            this.comentarioTemporal = null;
             actualizarListaMotivosSelecionados();
         }
     }
@@ -656,7 +656,7 @@ public class PantallaInspeccion {
         }
 
         // Confirmar en gestor
-        // ENGANCHE CON EL ANÁLISIS ❗❗❗❗❗❗❗❗❗❗
+        // 1) ENGANCHE CON EL ANÁLISIS ❗❗❗❗❗❗❗❗❗❗
         gestor.tomarConfirmacionCierreOrden(confirmacionCierre);
 
         // Mostrar pantalla de éxito
@@ -779,9 +779,11 @@ public class PantallaInspeccion {
                         "-fx-border-width: 1;" +
                         "-fx-border-radius: 3;" +
                         "-fx-background-color: #f9f9f9");
+        item.setPrefWidth(Double.MAX_VALUE);
 
         HBox header = new HBox(10);
         header.setAlignment(Pos.CENTER_LEFT);
+        header.setPrefWidth(Double.MAX_VALUE);
 
         Label lblNumero = new Label(numero + ".");
         lblNumero.setFont(FUENTE_SUBTITULO);
@@ -791,7 +793,8 @@ public class PantallaInspeccion {
                 descripcion,
                 FUENTE_NORMAL,
                 Color.web(COLOR_PRIMARIO));
-        lblDescripcion.setPrefWidth(300);
+        lblDescripcion.setWrapText(true);
+        HBox.setHgrow(lblDescripcion, javafx.scene.layout.Priority.ALWAYS);
 
         Button btnEliminar = new Button("✕");
         btnEliminar.setStyle(

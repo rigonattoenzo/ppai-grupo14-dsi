@@ -34,19 +34,4 @@ public class Rol {
     public boolean esResponsableReparacion() {
         return nombre.equalsIgnoreCase("RR");
     }
-
-    // Métodos extra (no se utilizan, pero los implementamos por si acaso)
-    public String getDescripcionRol() {
-        return descripcion;
-    }
-
-    /*
-     * @Override
-     * public String toString() {
-     * return "Rol{" +
-     * "nombre='" + nombre + '\'' +
-     * ", descripcion='" + descripcionRol + '\'' +
-     * '}';
-     * }
-     */
 }

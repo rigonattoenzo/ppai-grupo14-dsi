@@ -17,10 +17,6 @@ public class MotivoFueraDeServicio {
     @JoinColumn(name = "motivo_id", nullable = true)
     private MotivoTipo motivoTipo;
 
-    @ManyToOne
-    @JoinColumn(name = "orden_id", nullable = true)
-    private OrdenDeInspeccion orden;
-
     // Constructor con parámetros
     public MotivoFueraDeServicio() {
     }

@@ -108,21 +108,38 @@ public final class DataSeeder {
                 model.estados.Estado inhabilitado = new model.estados.InhabilitadoPorInspeccion();
                 model.estados.Estado fueraDeServicio = new model.estados.FueraServicio();
 
-                CambioDeEstado cambioEstado1 = new CambioDeEstado(enLinea, LocalDateTime.of(2024, 3, 4, 6, 10));
-                CambioDeEstado cambioEstado2 = new CambioDeEstado(inhabilitado, LocalDateTime.of(2023, 6, 7, 16, 45));
-                CambioDeEstado cambioEstado3 = new CambioDeEstado(fueraDeServicio,
-                                LocalDateTime.of(2024, 5, 7, 19, 40));
-                CambioDeEstado cambioEstado4 = new CambioDeEstado(inhabilitado, LocalDateTime.of(2022, 10, 10, 10, 10));
+                LocalDateTime inicio1 = LocalDateTime.of(2024, 3, 4, 6, 10);
+                LocalDateTime fin1 = LocalDateTime.of(2024, 3, 5, 6, 10);
+                CambioDeEstado cambioEstado1 = new CambioDeEstado(enLinea, inicio1);
+                cambioEstado1.setFechaHoraFin(fin1);
+
+                LocalDateTime inicio2 = LocalDateTime.of(2023, 6, 7, 16, 45);
+                LocalDateTime fin2 = LocalDateTime.of(2023, 6, 8, 16, 45);
+                CambioDeEstado cambioEstado2 = new CambioDeEstado(inhabilitado, inicio2);
+                cambioEstado2.setFechaHoraFin(fin2);
+
+                LocalDateTime inicio3 = LocalDateTime.of(2024, 5, 7, 19, 40);
+                LocalDateTime fin3 = LocalDateTime.of(2024, 5, 8, 19, 40);
+                CambioDeEstado cambioEstado3 = new CambioDeEstado(fueraDeServicio, inicio3);
+                cambioEstado3.setFechaHoraFin(fin3);
+
+                LocalDateTime inicio4 = LocalDateTime.of(2022, 10, 10, 10, 10);
+                LocalDateTime fin4 = LocalDateTime.of(2022, 10, 11, 10, 10);
+                CambioDeEstado cambioEstado4 = new CambioDeEstado(inhabilitado, inicio4);
+                cambioEstado4.setFechaHoraFin(fin4);
+
                 em.persist(cambioEstado1);
                 em.persist(cambioEstado2);
                 em.persist(cambioEstado3);
                 em.persist(cambioEstado4);
+
         }
 
         private static void crearEstacionesYSismografos(EntityManager em) {
                 model.estados.Estado inhabilitado = new model.estados.InhabilitadoPorInspeccion();
-                List<CambioDeEstado> cambiosEstado = em
-                                .createQuery("SELECT c FROM CambioDeEstado c", CambioDeEstado.class)
+                List<CambioDeEstado> cambiosEstadoHistoricos = em
+                                .createQuery("SELECT c FROM CambioDeEstado c WHERE c.fechaHoraFin IS NOT NULL",
+                                                CambioDeEstado.class)
                                 .getResultList();
 
                 EstacionSismologica est1 = new EstacionSismologica(
@@ -144,9 +161,9 @@ public final class DataSeeder {
                 sism2.setEstadoActual(inhabilitado);
                 sism3.setEstadoActual(inhabilitado);
 
-                sism1.setCambiosDeEstado(cambiosEstado);
-                sism2.setCambiosDeEstado(cambiosEstado);
-                sism3.setCambiosDeEstado(cambiosEstado);
+                sism1.setCambiosDeEstado(cambiosEstadoHistoricos);
+                sism2.setCambiosDeEstado(cambiosEstadoHistoricos);
+                sism3.setCambiosDeEstado(cambiosEstadoHistoricos);
 
                 // Persistir en orden correcto (primero estaciones, después sismógrafos)
                 em.persist(est1);

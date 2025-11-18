@@ -26,19 +26,4 @@ public class MotivoTipo {
     public String getDescripcion() {
         return descripcion;
     }
-
-    public void setDescripcion(String descripcion) {
-        this.descripcion = descripcion;
-    }
 }
-
-// Métodos extra (no se utilizan, pero los implementamos por si acaso)
-/*
- * @Override
- * public String toString() {
- * return "MotivoTipo{" +
- * "descripcion='" + descripcion + '\'' +
- * '}';
- * }
- * }
- */

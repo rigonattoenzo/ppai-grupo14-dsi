@@ -97,18 +97,18 @@ public class GestorCierreInspeccion {
         return this.sismografoEncontrado;
     }
 
-    // Para imprimir los datos de la orden desde el Map
-    public String asString(Map<String, Object> datosOrden) {
-        String nro = String.valueOf(datosOrden.get("nroDeOrden"));
-        String estacion = String.valueOf(datosOrden.get("nombreEstacionSismologica"));
-        String idSismografo = (sismografoEncontrado != null)
-                ? sismografoEncontrado.getIdentificadorSismografo()
-                : "N/A";
-        String fechaFin = String.valueOf(datosOrden.get("fechaFinalizacion"));
+    // Convierte la estructura Map<MotivoTipo, String> a List<Map<String, Object>>
+    private List<Map<String, Object>> convertirMotivoMapALista() {
+        List<Map<String, Object>> listaMotivos = new ArrayList<>();
 
-        return String.format(
-                "Orden #%s - Estación: %s | Sismógrafo: %s | Finalizada: %s",
-                nro, estacion, idSismografo, fechaFin);
+        for (Map.Entry<MotivoTipo, String> entry : motivosYComentarios.entrySet()) {
+            Map<String, Object> motivo = new HashMap<>();
+            motivo.put("tipo", entry.getKey().getDescripcion());
+            motivo.put("comentario", entry.getValue());
+            listaMotivos.add(motivo);
+        }
+
+        return listaMotivos;
     }
 
     // ==================== SECCIÓN FLUJO DEL CASO DE USO 37 ====================
@@ -189,7 +189,7 @@ public class GestorCierreInspeccion {
         // Busca el sismografo de esta orden
         buscarSismografoDeOrden();
 
-        // ✅ Agregar sismografo al Map después de encontrarlo
+        // Agregar sismografo al Map después de encontrarlo
         if (this.sismografoEncontrado != null) {
             this.ordenSeleccionada.put("idSismografo",
                     this.sismografoEncontrado.getIdentificadorSismografo());
@@ -200,7 +200,7 @@ public class GestorCierreInspeccion {
             System.out.println("✗ No se encontró sismografo para esta orden");
         }
 
-        // ✅ IMPORTANTE: Mostrar la orden seleccionada con el sismografo ya cargado
+        // Mostrar la orden seleccionada con el sismografo ya cargado
         pantalla.mostrarOrdenSeleccionada(this.ordenSeleccionada);
 
         // Luego pedimos la observación
@@ -304,17 +304,21 @@ public class GestorCierreInspeccion {
     /**
      * PASO 9: El RI confirma el cierre
      */
+    // 2) ❗❗
     public void tomarConfirmacionCierreOrden(boolean confirmacionCierre) {
         // PASO 10: Sistema valida datos
+        // 3) ❗❗
         if (!validarExistenciaObservacion()) {
             return;
         }
 
+        // 4) ❗❗
         if (!validarExistenciaMotivoSeleccionado()) {
             return;
         }
 
         // Validaciones exitosas: proceder con cierre
+        // 5) ❗❗
         cerrarOrdenInspeccion();
 
         // Se eliminan en el rediseño: buscarFueraServicio() y buscarEstadoCerrado()
@@ -325,6 +329,7 @@ public class GestorCierreInspeccion {
     /**
      * PASO 10: Sistema valida que exista observación y motivos
      */
+    // 3) ❗❗
     private boolean validarExistenciaObservacion() {
         if (observacionCierreOrden == null || observacionCierreOrden.trim().isEmpty()) {
             pantalla.mostrarError("Validación Fallida", "Debe ingresar una observación de cierre");
@@ -333,6 +338,7 @@ public class GestorCierreInspeccion {
         return true;
     }
 
+    // 4) ❗❗
     public boolean validarExistenciaMotivoSeleccionado() {
         // Flujo alternativo A3: Datos faltantes
         if (this.motivosYComentarios == null || motivosYComentarios.isEmpty()) {
@@ -389,6 +395,7 @@ public class GestorCierreInspeccion {
      * }
      */
 
+    // 5) ❗❗
     public void cerrarOrdenInspeccion() {
         // Buscar la orden completa en la lista
         String nroSeleccionado = String.valueOf(this.ordenSeleccionada.get("nroDeOrden"));
@@ -405,10 +412,11 @@ public class GestorCierreInspeccion {
             return;
         }
 
-        //
+        // 6) ❗❗
         this.fechaHoraActual = getFechaHoraActual();
 
         try {
+            // 7) ❗❗
             ordenEncontrada.cerrarOrden(this.fechaHoraActual, this.observacionCierreOrden);
         } catch (Exception e) {
             e.printStackTrace();
@@ -417,13 +425,13 @@ public class GestorCierreInspeccion {
         }
 
         // Poner sismografo fuera de servicio
-        ponerSismografoFueraServicio();
+        ponerSismografoFueraServicio(); // 12) ❗❗
     }
 
     /**
      * PASO 12: Poner sismografo fuera de servicio con motivos
      */
-    public void ponerSismografoFueraServicio() {
+    public void ponerSismografoFueraServicio() { // 12) ❗❗
         List<Map<String, Object>> listaMotivos = convertirMotivoMapALista();
 
         if (this.ordenEncontrada == null) {
@@ -432,8 +440,8 @@ public class GestorCierreInspeccion {
         }
 
         try {
-            // Continúa con el caso de uso ❗❗
-            this.sismografoEncontrado.fueraDeServicio(this.fechaHoraActual, listaMotivos);
+            // 13) ❗❗
+            this.sismografoEncontrado.fueraDeServicio(this.fechaHoraActual, listaMotivos, this.empleadoLogueado);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -444,6 +452,8 @@ public class GestorCierreInspeccion {
         // Guardar sismógrafo con sus datos actualizados
         try {
             RepositorioDatos.guardarSismografo(this.sismografoEncontrado);
+            System.out.println("✓ Sismografo guardado con " +
+                    this.sismografoEncontrado.getCambiosDeEstado().size() + " cambios de estado");
         } catch (Exception e) {
             e.printStackTrace();
             pantalla.mostrarMensaje("Error al guardar el sismografo: " + e.getMessage());
@@ -459,22 +469,8 @@ public class GestorCierreInspeccion {
             return;
         }
 
-        // Continuar con notificaciones
+        // Continúa con el caso de uso ❗❗ - FIN DE APLICACIÓN DEL PATRÓN STATE
         buscarResponsableReparacion();
-    }
-
-    // Convierte la estructura Map<MotivoTipo, String> a List<Map<String, Object>>
-    private List<Map<String, Object>> convertirMotivoMapALista() {
-        List<Map<String, Object>> listaMotivos = new ArrayList<>();
-
-        for (Map.Entry<MotivoTipo, String> entry : motivosYComentarios.entrySet()) {
-            Map<String, Object> motivo = new HashMap<>();
-            motivo.put("tipo", entry.getKey().getDescripcion());
-            motivo.put("comentario", entry.getValue());
-            listaMotivos.add(motivo);
-        }
-
-        return listaMotivos;
     }
 
     /**

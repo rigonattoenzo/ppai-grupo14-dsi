@@ -1,7 +1,6 @@
 package model.estados;
 
 import model.OrdenDeInspeccion;
-import java.time.LocalDateTime;
 
 /**
  * Estado: Completamente Realizada
@@ -17,11 +16,12 @@ public class CompletamenteRealizada extends Estado {
      * Transición: Completamente Realizada → Cerrada
      * Se ejecuta cuando se cierra definitivamente la orden.
      */
-    @Override
+    @Override // 10) ❗❗
     public void cerrar(Object orden) {
         if (orden instanceof OrdenDeInspeccion) {
             OrdenDeInspeccion oi = (OrdenDeInspeccion) orden;
             System.out.println("Transición: Completamente Realizada → Cerrada");
+            // 11) ❗❗
             oi.setEstadoActual(new Cerrada());
         }
     }

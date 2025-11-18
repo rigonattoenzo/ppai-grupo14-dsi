@@ -67,33 +67,7 @@ public class Empleado {
         return nombre + " " + apellido;
     }
 
-    // Métodos extra (no se utilizan, pero los implementamos por si acaso)
     public Rol getRol() {
         return rol;
     }
-
-    public String getNombre() {
-        return nombre;
-    }
-
-    public String getApellido() {
-        return apellido;
-    }
-
-    public String getTelefono() {
-        return telefono;
-    }
-
-    public void setRol(Rol rol) {
-        this.rol = rol;
-    }
-
-    // Método toString para mejor visualización
-    /*
-     * @Override
-     * public String toString() {
-     * return "Empleado: " + nombre + " " + apellido + ", Tel: " + telefono +
-     * ", Mail: " + mail + ", Rol: " + rol.getNombreRol();
-     * }
-     */
 }

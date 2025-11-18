@@ -87,11 +87,12 @@ public class Sismografo {
     /**
      * Transición: Inhabilitado por Inspección -> Fuera de Servicio
      * Este es el método clave para el caso de uso 37.
-     */
-    public void fueraDeServicio(LocalDateTime fechaActual, List<Map<String, Object>> motivos) {
+     */ // 13) ❗❗
+    public void fueraDeServicio(LocalDateTime fechaActual, List<Map<String, Object>> motivos, Empleado empleadoActual) {
         try {
             CambioDeEstado[] cambiosArray = this.cambiosDeEstado.toArray(new CambioDeEstado[0]);
-            this.estadoActual.fueraServicio(this, fechaActual, cambiosArray, motivos);
+            // 14) ❗❗ --> Ir a InhabilitadoPorInspeccion
+            this.estadoActual.fueraServicio(this, fechaActual, cambiosArray, motivos, empleadoActual);
         } catch (Exception e) {
             e.printStackTrace();
             throw e;
@@ -169,7 +170,7 @@ public class Sismografo {
      * Cambia el estado actual del sismografo.
      * Usado internamente por los estados para transicionar.
      */
-    public void setEstadoActual(Estado nuevoEstado) {
+    public void setEstadoActual(Estado nuevoEstado) { // 22) ❗❗
         this.estadoActual = nuevoEstado;
         this.estado = nuevoEstado.getClass().getSimpleName();
     }
@@ -184,7 +185,7 @@ public class Sismografo {
     /**
      * Agrega un cambio de estado al historial.
      */
-    public void setCambioEstado(CambioDeEstado cambio) {
+    public void setCambioEstado(CambioDeEstado cambio) { // 23) ❗❗
         this.cambiosDeEstado.add(cambio);
     }
 

@@ -47,13 +47,4 @@ public class Usuario {
     public String perfilLogueado() {
         return empleado.getNombreCompleto();
     }
-
-    // Método toString para facilitar la depuración
-    /*
-     * @Override
-     * public String toString() {
-     * return "Usuario: " + nombreUsuario + ", Empleado: " +
-     * empleado.getNombreCompleto();
-     * }
-     */
 }

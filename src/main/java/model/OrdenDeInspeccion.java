@@ -2,7 +2,6 @@ package model;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
 import model.estados.Estado;
@@ -92,10 +91,15 @@ public class OrdenDeInspeccion {
     /**
      * Cierra la orden (transición a Cerrada).
      */
+    // 7) ❗❗
     public void cerrarOrden(LocalDateTime fechaCierre, String observacion) {
-        this.estadoActual.cerrar(this);
+        // 8) ❗❗
         this.setFechaHoraCierre(fechaCierre);
+        // 9) ❗❗
         this.setObservacionCierreOrden(observacion);
+        // 10) ❗❗ -> Ir a CompletamenteRealizada
+        this.estadoActual.cerrar(this);
+
         // Para aplicarle persistencia al estado
         this.estado = "Cerrada";
     }
@@ -143,6 +147,7 @@ public class OrdenDeInspeccion {
         this.fechaHoraCierre = fechaHoraCierre;
     }
 
+    // 11) ❗❗ --> Para 12) volver al gestor
     public void setEstadoActual(Estado nuevoEstado) {
         this.estadoActual = nuevoEstado;
         this.estado = nuevoEstado.getClass().getSimpleName();
@@ -175,10 +180,5 @@ public class OrdenDeInspeccion {
 
     public boolean sosCompletamenteRealizada() {
         return "CompletamenteRealizada".equals(this.estado);
-    }
-
-    public void cerrar(Estado estadoCerrado) {
-        this.setFechaHoraCierre(LocalDateTime.now());
-        this.setEstadoActual(estadoCerrado);
     }
 }
