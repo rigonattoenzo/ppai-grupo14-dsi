@@ -18,13 +18,10 @@ public class CompletamenteRealizada extends Estado {
      * Se ejecuta cuando se cierra definitivamente la orden.
      */
     @Override
-    public void cerrar(Object orden, LocalDateTime fechaCierre, 
-                             String observacionCierre) {
+    public void cerrar(Object orden) {
         if (orden instanceof OrdenDeInspeccion) {
             OrdenDeInspeccion oi = (OrdenDeInspeccion) orden;
             System.out.println("Transición: Completamente Realizada → Cerrada");
-            oi.setFechaHoraCierre(fechaCierre);
-            oi.setObservacionCierreOrden(observacionCierre);
             oi.setEstadoActual(new Cerrada());
         }
     }

@@ -1,4 +1,97 @@
-out
+# ==================== IDE ====================
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+*.iml
+*.iws
+*.ipr
 
-openjfx-24.0.1_windows-x64_bin-sdk.zip
+# ==================== Maven ====================
+target/
+*.jar
+*.war
+*.ear
+*.zip
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+dependency-reduced-pom.xml
+buildNumber.properties
+.mvn/timing.properties
 
+# ==================== Gradle ====================
+.gradle
+build/
+gradle-app.setting
+gradlew.bat
+gradlew
+.gradle/
+
+# ==================== Compilación ====================
+out/
+bin/
+*.class
+*.log
+
+# ==================== Base de Datos ====================
+*.db
+*.sqlite
+*.sqlite3
+ppai_grupo14.db
+
+# ==================== JavaFX ====================
+javafx-sdk-*/
+*.zip
+
+# ==================== Logs ====================
+logs/
+*.log
+*.log.*
+
+# ==================== Archivos de Sistema ====================
+.classpath
+.project
+.settings/
+.metadata/
+.factorypath
+
+# ==================== Node (si aplica) ====================
+node_modules/
+package-lock.json
+npm-debug.log
+
+# ==================== OS Específicos ====================
+# Windows
+Thumbs.db
+*.lnk
+Desktop.ini
+
+# macOS
+.AppleDouble
+.AppleDB
+._*
+
+# Linux
+.Trash-*
+
+# ==================== Archivos Temporales ====================
+*.tmp
+*.bak
+*.orig
+*.temp
+
+# ==================== Archivos del Proyecto ====================
+.env
+.env.local
+.env.*.local
+config.local.xml
+
+# ==================== Archivos de Compilación Temporal ====================
+.asm/
+.ant/
+.m2/

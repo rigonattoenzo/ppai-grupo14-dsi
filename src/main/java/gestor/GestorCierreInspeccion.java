@@ -432,6 +432,7 @@ public class GestorCierreInspeccion {
         }
 
         try {
+            // Continúa con el caso de uso ❗❗
             this.sismografoEncontrado.fueraDeServicio(this.fechaHoraActual, listaMotivos);
 
         } catch (Exception e) {

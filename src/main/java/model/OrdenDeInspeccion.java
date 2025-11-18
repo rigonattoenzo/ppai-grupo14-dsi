@@ -96,6 +96,7 @@ public class OrdenDeInspeccion {
         this.estadoActual.cerrar(this);
         this.setFechaHoraCierre(fechaCierre);
         this.setObservacionCierreOrden(observacion);
+        // Para aplicarle persistencia al estado
         this.estado = "Cerrada";
     }
 
