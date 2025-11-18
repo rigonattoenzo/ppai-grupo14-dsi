@@ -24,8 +24,7 @@ CREATE TABLE IF NOT EXISTS estacion_sismologica (
     longitud REAL,
     documento_certificacion_adq VARCHAR(255),
     fecha_solicitud_certificacion TIMESTAMP,
-    nro_certificacion_adquisicion VARCHAR(50),
-    sismografo_id INTEGER REFERENCES sismografo(id)
+    nro_certificacion_adquisicion VARCHAR(50)
 );
 
 -- Sismógrafos
@@ -34,7 +33,7 @@ CREATE TABLE IF NOT EXISTS sismografo (
     id_sismografo VARCHAR(100) UNIQUE NOT NULL,
     numero_serie VARCHAR(100),
     fecha_adquisicion TIMESTAMP,
-    estacion_id VARCHAR(100) REFERENCES estacion_sismologica(codigo_estacion),
+    estacion_codigo VARCHAR(100) UNIQUE REFERENCES estacion_sismologica(codigo_estacion),
     estado VARCHAR(255)
 );
 

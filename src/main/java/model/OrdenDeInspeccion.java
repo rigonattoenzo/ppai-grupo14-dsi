@@ -93,7 +93,9 @@ public class OrdenDeInspeccion {
      * Cierra la orden (transición a Cerrada).
      */
     public void cerrarOrden(LocalDateTime fechaCierre, String observacion) {
-        this.estadoActual.cerrar(this, fechaCierre, observacion);
+        this.estadoActual.cerrar(this);
+        this.setFechaHoraCierre(fechaCierre);
+        this.setObservacionCierreOrden(observacion);
         this.estado = "Cerrada";
     }
 
@@ -102,35 +104,8 @@ public class OrdenDeInspeccion {
         datos.put("nroDeOrden", getNroDeOrden());
         datos.put("fechaFinalizacion", getFechaFinalizacion());
         datos.put("nombreEstacionSismologica", getNombreEstacionSismologica());
-        datos.put("idSismografo", getIdSismografo());
+        datos.put("codigoEstacionSismologica", getCodigoEstacionSismologica());
         return datos;
-    }
-
-    /**
-     * Pone el sismografo de la estación fuera de servicio.
-     * Parámetros:
-     * - fechaActual: fecha/hora del cambio de estado
-     * - motivos: List<Map<String, Object>> estructura flexible
-     * Ejemplo: [{"tipo": "Avería", "comentario": "Vibración excesiva"}]
-     */
-    public void ponerSismografoFueraServicio(LocalDateTime fechaActual,
-            List<Map<String, Object>> motivos) {
-        System.out.println(">>> OrdenDeInspeccion.ponerSismografoFueraServicio - nro: " + this.numeroOrden);
-        if (this.estacion == null) {
-            System.out.println("    ERROR: estacion es null en la orden");
-            throw new IllegalStateException("Estación no asociada a la orden");
-        }
-        System.out.println("    Delegando a Estacion.fueraDeServicio - estacion: " + this.estacion.getCodigoEstacion()
-                + " / nombre: " + this.estacion.getNombre());
-        System.out.println("    Motivos recibidos: " + (motivos == null ? 0 : motivos.size()) + " -> " + motivos);
-        try {
-            this.estacion.fueraDeServicio(fechaActual, motivos);
-            System.out.println("    Estacion.fueraDeServicio completado OK");
-        } catch (Exception e) {
-            System.err.println("!!! Excepción al delegar fueraDeServicio en Estacion: " + e.getMessage());
-            e.printStackTrace();
-            throw e;
-        }
     }
 
     // ==================== GETTERS Y SETTERS ====================
@@ -146,15 +121,11 @@ public class OrdenDeInspeccion {
         return estacion.getNombre();
     }
 
-    public String getIdSismografo() {
-        if (estacion == null) {
-            return "SIN ESTACIÓN";
+    public String getCodigoEstacionSismologica() {
+        if (this.estacion == null) {
+            return null;
         }
-        Sismografo sism = estacion.getSismografo();
-        if (sism == null) {
-            return "SIN SISMOGRAFO";
-        }
-        return sism.getIdentificadorSismografo();
+        return this.estacion.getCodigoEstacion();
     }
 
     public LocalDateTime getFechaHoraCierre() {

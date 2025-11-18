@@ -38,6 +38,8 @@ public class GestorCierreInspeccion {
     // ==================== ATRIBUTOS REFERENCIALES ====================
     private Empleado empleadoLogueado;
     private Sesion sesion;
+    private Sismografo sismografoEncontrado;
+    private List<Sismografo> todosSismografos;
     // Ya no son necesarios por el rediseño ❗❗❗❗❗❗❗❗❗❗
     // private Estado estadoCerrado;
     // private Estado estadoFueraDeServicio;
@@ -52,6 +54,7 @@ public class GestorCierreInspeccion {
         this.sesion = Sesion.getInstancia();
         this.empleadoLogueado = sesion.getUsuario().getEmpleado();
         this.ordenesDeInspeccion = RepositorioDatos.obtenerOrdenes();
+        this.todosSismografos = RepositorioDatos.obtenerSismografos();
         // Obtiene los monitores y la Interfaz de mail a la que enviará la notificación
         this.interfazMail = RepositorioDatos.getInterfazMail();
         this.monitores = RepositorioDatos.getMonitores();
@@ -74,12 +77,8 @@ public class GestorCierreInspeccion {
         return ordenesFiltradasConDatos;
     }
 
-    public void setFechaHoraActual() {
-        this.fechaHoraActual = LocalDateTime.now();
-    }
-
     public LocalDateTime getFechaHoraActual() {
-        return this.fechaHoraActual;
+        return LocalDateTime.now();
     }
 
     public Map<MotivoTipo, String> getMotivosYComentarios() {
@@ -94,11 +93,17 @@ public class GestorCierreInspeccion {
         this.motivosYComentarios.put(motivo, comentario);
     }
 
+    public Sismografo getSismografoEncontrado() {
+        return this.sismografoEncontrado;
+    }
+
     // Para imprimir los datos de la orden desde el Map
     public String asString(Map<String, Object> datosOrden) {
         String nro = String.valueOf(datosOrden.get("nroDeOrden"));
         String estacion = String.valueOf(datosOrden.get("nombreEstacionSismologica"));
-        String idSismografo = String.valueOf(datosOrden.get("idSismografo"));
+        String idSismografo = (sismografoEncontrado != null)
+                ? sismografoEncontrado.getIdentificadorSismografo()
+                : "N/A";
         String fechaFin = String.valueOf(datosOrden.get("fechaFinalizacion"));
 
         return String.format(
@@ -181,7 +186,58 @@ public class GestorCierreInspeccion {
      */
     public void tomarOrdenInspeccionSelec(Map<String, Object> ordenSeleccionada) {
         this.ordenSeleccionada = ordenSeleccionada;
+        // Busca el sismografo de esta orden
+        buscarSismografoDeOrden();
+
+        // ✅ Agregar sismografo al Map después de encontrarlo
+        if (this.sismografoEncontrado != null) {
+            this.ordenSeleccionada.put("idSismografo",
+                    this.sismografoEncontrado.getIdentificadorSismografo());
+            System.out.println("✓ Sismografo agregado al Map: "
+                    + this.sismografoEncontrado.getIdentificadorSismografo());
+        } else {
+            this.ordenSeleccionada.put("idSismografo", "NO ENCONTRADO");
+            System.out.println("✗ No se encontró sismografo para esta orden");
+        }
+
+        // ✅ IMPORTANTE: Mostrar la orden seleccionada con el sismografo ya cargado
+        pantalla.mostrarOrdenSeleccionada(this.ordenSeleccionada);
+
+        // Luego pedimos la observación
         pedirObservacionCierreOrden();
+    }
+
+    private void buscarSismografoDeOrden() {
+        // Obtener código de estación desde la orden seleccionada
+        String codigoEstacion = (String) this.ordenSeleccionada.get("codigoEstacionSismologica");
+
+        if (codigoEstacion == null || codigoEstacion.isEmpty()) {
+            System.err.println("ERROR: No se encontró código de estación en la orden");
+            this.sismografoEncontrado = null;
+            return;
+        }
+
+        // Pregunta a TODOS los sismógrafos si pertenecen a esta estación
+        this.sismografoEncontrado = null;
+
+        if (this.todosSismografos != null) {
+            for (Sismografo sismoActual : this.todosSismografos) {
+                // Flujo del diagrama: Gestor a Sismografo: *esTuEstacionSismologica()
+                if (sismoActual.esTuEstacionSismologica(codigoEstacion)) {
+                    this.sismografoEncontrado = sismoActual;
+                    System.out.println("✓ Sismografo encontrado: "
+                            + sismoActual.getIdentificadorSismografo()
+                            + " para estación: " + codigoEstacion);
+                    break;
+                }
+            }
+        }
+
+        if (this.sismografoEncontrado == null) {
+            System.out.println("✗ No se encontró sismografo para estación: " + codigoEstacion);
+            pantalla.mostrarError("Advertencia",
+                    "No se encontró sismografo asociado a la estación. El cierre podría fallar.");
+        }
     }
 
     /**
@@ -288,9 +344,7 @@ public class GestorCierreInspeccion {
 
     /**
      * PASO 11: Sistema actualiza orden a cerrada y sismografo a fuera de servicio
-     * 
      */
-
     /*
      * MÉTODOS ELIMINADOS POR APLICACIÓN DEL STATE ❗❗❗❗❗❗❗❗❗
      * public void buscarEstadoCerrado() {
@@ -351,7 +405,8 @@ public class GestorCierreInspeccion {
             return;
         }
 
-        this.fechaHoraActual = LocalDateTime.now();
+        //
+        this.fechaHoraActual = getFechaHoraActual();
 
         try {
             ordenEncontrada.cerrarOrden(this.fechaHoraActual, this.observacionCierreOrden);
@@ -377,7 +432,8 @@ public class GestorCierreInspeccion {
         }
 
         try {
-            this.ordenEncontrada.ponerSismografoFueraServicio(this.fechaHoraActual, listaMotivos);
+            this.sismografoEncontrado.fueraDeServicio(this.fechaHoraActual, listaMotivos);
+
         } catch (Exception e) {
             e.printStackTrace();
             pantalla.mostrarMensaje("Error al poner sismógrafo fuera de servicio: " + e.getMessage());
@@ -386,8 +442,7 @@ public class GestorCierreInspeccion {
 
         // Guardar sismógrafo con sus datos actualizados
         try {
-            Sismografo sismografoActualizado = this.ordenEncontrada.getEstacion().getSismografo();
-            RepositorioDatos.guardarSismografo(sismografoActualizado);
+            RepositorioDatos.guardarSismografo(this.sismografoEncontrado);
         } catch (Exception e) {
             e.printStackTrace();
             pantalla.mostrarMensaje("Error al guardar el sismografo: " + e.getMessage());
@@ -479,14 +534,10 @@ public class GestorCierreInspeccion {
      * nombre del estado, fecha/hora, motivos y comentarios
      */
     public String generarMensajeNotificacion() {
-        // Obtener ID del sismografo
-        String idSismografo = "";
-        if (ordenSeleccionada != null) {
-            Object id = ordenSeleccionada.get("idSismografo");
-            if (id != null) {
-                idSismografo = id.toString();
-            }
-        }
+        // Obtener ID del sismografo encontrado por el gestor
+        String idSismografo = (this.sismografoEncontrado != null)
+                ? this.sismografoEncontrado.getIdentificadorSismografo()
+                : "N/A";
 
         // Nombre del nuevo estado
         String nombreEstado = "Fuera De Servicio";
@@ -538,5 +589,6 @@ public class GestorCierreInspeccion {
         this.ultimoMotivoSeleccionado = null;
         this.ordenSeleccionada = null;
         this.ordenEncontrada = null;
+        this.sismografoEncontrado = null;
     }
 }

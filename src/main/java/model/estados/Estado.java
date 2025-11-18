@@ -101,8 +101,7 @@ public abstract class Estado {
      * Transición: CompletamenteRealizada → Cerrada
      * Se ejecuta cuando se cierra definitivamente la orden.
      */
-    public void cerrar(Object orden, LocalDateTime fechaCierre,
-            String observacionCierre) {
+    public void cerrar(Object orden) {
         throw new UnsupportedOperationException(
                 "No se puede 'Cerrar Orden' desde " + this.nombreEstado);
     }

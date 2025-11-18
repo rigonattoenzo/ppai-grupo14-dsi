@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.ArrayList;
 import java.util.stream.Collectors;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 /**
@@ -59,7 +60,6 @@ public class PantallaInspeccion {
     private static final String COLOR_EXITO = "#d4af37"; // Oro (prevención positiva)
     private static final String COLOR_PELIGRO = "#d97706"; // Ámbar oscuro (cuidado)
     private static final String COLOR_ADVERTENCIA = "#f59e0b"; // Ámbar claro (precaución)
-    private static final String COLOR_ACEPTAR = "#a16207"; // Marrón oscuro (aceptar)
     private static final String COLOR_RECHAZAR = "#ea580c";
 
     // ========== FUENTES ==========
@@ -596,7 +596,6 @@ public class PantallaInspeccion {
         }
     }
 
-    // EMPEZAR A MOSTRAR DESDE ACA PARA NO HACERLO LARGO ❗❗❗❗❗❗❗❗
     /**
      * PASO 8: Pedir confirmación
      */
@@ -638,6 +637,7 @@ public class PantallaInspeccion {
         contenido.getChildren().add(crearBarraBotones(btnConfirmar, btnRechazar));
     }
 
+    // EMPEZAR A MOSTRAR DESDE ACA PARA NO HACERLO LARGO ❗❗❗❗❗❗❗❗
     /**
      * PASO 9: Tomar confirmación
      */
@@ -656,6 +656,7 @@ public class PantallaInspeccion {
         }
 
         // Confirmar en gestor
+        // ENGANCHE CON EL ANÁLISIS ❗❗❗❗❗❗❗❗❗❗
         gestor.tomarConfirmacionCierreOrden(confirmacionCierre);
 
         // Mostrar pantalla de éxito
@@ -691,6 +692,12 @@ public class PantallaInspeccion {
         VBox resumen = new VBox(10);
         resumen.setPadding(new Insets(15));
         resumen.setStyle("-fx-border-color: #eee; -fx-border-width: 1; -fx-background-color: #fafafa");
+
+        String idSismografo = "N/A";
+        Sismografo sismoEncontrado = gestor.getSismografoEncontrado();
+        if (sismoEncontrado != null) {
+            idSismografo = sismoEncontrado.getIdentificadorSismografo();
+        }
 
         resumen.getChildren().addAll(
                 crearLabel("📋 Orden #" + datos.get("nroDeOrden"), FUENTE_NORMAL, Color.web(COLOR_PRIMARIO)),
@@ -798,44 +805,7 @@ public class PantallaInspeccion {
         btnEliminar.setOnAction(e -> {
             motivosYComentariosLocal.remove(motivo);
             actualizarListaMotivosSelecionados();
-
-
-            // Sacar al pingo esto 
-            VBox contenido = obtenerVBoxContenido();
-            for (javafx.scene.Node node : contenido.getChildren()) {
-                if (node instanceof VBox) {
-                    VBox vbox = (VBox) node;
-                    if ("panelSeleccion".equals(vbox.getId())) {
-                        // Encontrar el combo dentro del panel
-                        for (javafx.scene.Node child : vbox.getChildren()) {
-                            if (child instanceof ComboBox) {
-                                ComboBox<String> combo = (ComboBox<String>) child;
-                                List<MotivoTipo> nuevosSeleccionados = new ArrayList<>(
-                                        motivosYComentariosLocal.keySet());
-                                actualizarComboMotivos(combo, descripcionesMotivos, nuevosSeleccionados);
-
-                                // ✅ Habilitar botón agregar si hay motivos
-                                if (!combo.getItems().isEmpty()) {
-                                    combo.setDisable(false);
-                                    // Buscar botón agregar
-                                    for (javafx.scene.Node btnNode : vbox.getChildren()) {
-                                        if (btnNode instanceof HBox) {
-                                            HBox hbox = (HBox) btnNode;
-                                            for (javafx.scene.Node btn : hbox.getChildren()) {
-                                                if (btn instanceof Button) {
-                                                    btn.setDisable(false);
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                                break;
-                            }
-                        }
-                        break;
-                    }
-                }
-            }
+            actualizarComboBoxMotivosDisponibles();
         });
 
         header.getChildren().addAll(lblNumero, lblDescripcion, btnEliminar);
@@ -855,6 +825,30 @@ public class PantallaInspeccion {
         item.getChildren().addAll(header, lblComentarioTitulo, lblComentarioTexto);
 
         return item;
+    }
+
+    private void actualizarComboBoxMotivosDisponibles() {
+        VBox contenido = obtenerVBoxContenido();
+
+        // Buscar el panelSeleccion
+        for (javafx.scene.Node node : contenido.getChildren()) {
+            if (node instanceof VBox) {
+                VBox vbox = (VBox) node;
+                if ("panelSeleccion".equals(vbox.getId())) {
+                    // Buscar el ComboBox dentro
+                    for (javafx.scene.Node child : vbox.getChildren()) {
+                        if (child instanceof ComboBox) {
+                            ComboBox<String> combo = (ComboBox<String>) child;
+                            List<MotivoTipo> motivosYaSeleccionados = new ArrayList<>(
+                                    motivosYComentariosLocal.keySet());
+                            actualizarComboMotivos(combo, descripcionesMotivos, motivosYaSeleccionados);
+                            break;
+                        }
+                    }
+                    break;
+                }
+            }
+        }
     }
 
     public void mostrarError(String titulo, String mensaje) {
@@ -951,5 +945,40 @@ public class PantallaInspeccion {
 
         panel.getChildren().addAll(icono, titulo, descripcion);
         root.getChildren().add(panel);
+    }
+
+    public void mostrarOrdenSeleccionada(Map<String, Object> orden) {
+        if (orden == null) {
+            mostrarError("Error", "No se pudo cargar la orden");
+            return;
+        }
+
+        Integer nroOrden = (Integer) orden.get("nroDeOrden");
+        String estacion = (String) orden.get("nombreEstacionSismologica");
+        String idSismografo = (String) orden.get("idSismografo");
+        LocalDateTime fechaFin = (LocalDateTime) orden.get("fechaFinalizacion");
+
+        inicializarLayout(3, 3);
+        VBox contenido = obtenerVBoxContenido();
+
+        VBox panel = crearPanelContenido();
+        Label titulo = crearLabel("Orden Seleccionada", FUENTE_TITULO, Color.web(COLOR_PRIMARIO));
+
+        VBox resumen = new VBox(10);
+        resumen.setPadding(new Insets(15));
+        resumen.setStyle("-fx-border-color: #ddd; -fx-border-width: 1; -fx-background-color: #f5f5f5");
+
+        DateTimeFormatter fmt = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+        String fechaFormato = (fechaFin != null) ? fechaFin.format(fmt) : "N/A";
+
+        resumen.getChildren().addAll(
+                crearLabel("📋 Orden #" + nroOrden, FUENTE_SUBTITULO, Color.web(COLOR_PRIMARIO)),
+                crearLabel("📍 Estación: " + estacion, FUENTE_NORMAL, Color.web("#333")),
+                crearLabel("📡 Sismógrafo: " + (idSismografo != null ? idSismografo : "NO ENCONTRADO"),
+                        FUENTE_NORMAL, Color.web(idSismografo != null ? "#333" : COLOR_PELIGRO)),
+                crearLabel("🕐 Finalizada: " + fechaFormato, FUENTE_NORMAL, Color.web("#333")));
+
+        panel.getChildren().addAll(titulo, resumen);
+        contenido.getChildren().add(panel);
     }
 }

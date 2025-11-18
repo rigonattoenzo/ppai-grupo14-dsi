@@ -2,8 +2,6 @@ package model;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
-import java.util.Map;
-import java.util.List;
 
 // Representa una Estación Sismológica.
 @Entity
@@ -31,11 +29,6 @@ public class EstacionSismologica {
     @Column(name = "nro_certificacion_adquisicion", length = 50)
     private String nroCertificacionAdquisicion;
 
-    // Asociación
-    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    @JoinColumn(name = "sismografo_id")
-    private Sismografo sismografo;
-
     // Constructor sin parámetros
     public EstacionSismologica() {
     }
@@ -47,8 +40,7 @@ public class EstacionSismologica {
             double latitud,
             double longitud,
             String nombre,
-            String nroCertificacionAdquisicion,
-            Sismografo sismografo) {
+            String nroCertificacionAdquisicion) {
         this.codigoEstacion = codigoEstacion;
         this.documentoCertificacionAdq = documentoCertificacionAdq;
         this.fechaSolicitudCertificacion = fechaSolicitudCertificacion;
@@ -56,45 +48,15 @@ public class EstacionSismologica {
         this.longitud = longitud;
         this.nombre = nombre;
         this.nroCertificacionAdquisicion = nroCertificacionAdquisicion;
-        this.sismografo = sismografo;
     }
 
-    // Métodos de la realización de caso de uso
-    /**
-     * Pone el sismografo fuera de servicio con motivos.
-     * Parámetros ajustados para el patrón State:
-     * - fechaActual: fecha/hora del cambio
-     * - motivos: matriz de [descripcion, comentario]
-     */
-    public void fueraDeServicio(LocalDateTime fechaActual,
-            List<Map<String, Object>> motivos) {
-        // System.out.println("EstacionSismologica: Llamando a
-        // sismografo.fueraDeServicio()");
-        this.sismografo.fueraDeServicio(fechaActual, motivos);
-    }
-
-    /*
-     * public void ponerSismografoFueraServicio(Estado estado, Map<MotivoTipo,
-     * String> motivosYComentarios){
-     * this.sismografo.fueraDeServicio(estado, motivosYComentarios);
-     * }
-     */
-
+    // ==================== GETTERS ====================
     public String getCodigoEstacion() {
         return codigoEstacion;
     }
 
     public String getNombre() {
         return nombre;
-    }
-
-    public String obtenerIdentificadorSismografo() {
-        return sismografo.getIdentificadorSismografo();
-    }
-
-    // Métodos extra (no se utilizan, pero los implementamos por si acaso)
-    public Sismografo getSismografo() {
-        return sismografo;
     }
 
     public String getDocumentoCertificacionAdq() {
@@ -117,8 +79,17 @@ public class EstacionSismologica {
         return nroCertificacionAdquisicion;
     }
 
-    public void setSismografo(Sismografo sismografo) {
-        this.sismografo = sismografo;
+    // ==================== SETTERS ====================
+    public void setNombre(String nombre) {
+        this.nombre = nombre;
+    }
+
+    public void setLatitud(double latitud) {
+        this.latitud = latitud;
+    }
+
+    public void setLongitud(double longitud) {
+        this.longitud = longitud;
     }
 
     /*

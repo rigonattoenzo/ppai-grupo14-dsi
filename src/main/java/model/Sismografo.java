@@ -30,7 +30,8 @@ public class Sismografo {
     private LocalDateTime fechaAdquisicion;
 
     // Estación donde está instalado
-    @OneToOne(mappedBy = "sismografo", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @OneToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "estacion_codigo", nullable = false, unique = true)
     private EstacionSismologica estacionSismologica;
 
     // Historial de cambios de estado
@@ -87,22 +88,11 @@ public class Sismografo {
      * Transición: Inhabilitado por Inspección -> Fuera de Servicio
      * Este es el método clave para el caso de uso 37.
      */
-    public void fueraDeServicio(LocalDateTime fechaActual,
-            List<Map<String, Object>> motivos) {
-        System.out.println(">>> Sismografo.fueraDeServicio - id: " + this.identificadorSismografo + " - estadoAntes: "
-                + (estadoActual == null ? "NULL" : estadoActual.toString()));
-        System.out.println("    cambiosDeEstado.size=" + (cambiosDeEstado == null ? 0 : cambiosDeEstado.size())
-                + " ; motivos=" + (motivos == null ? 0 : motivos.size()));
+    public void fueraDeServicio(LocalDateTime fechaActual, List<Map<String, Object>> motivos) {
         try {
             CambioDeEstado[] cambiosArray = this.cambiosDeEstado.toArray(new CambioDeEstado[0]);
             this.estadoActual.fueraServicio(this, fechaActual, cambiosArray, motivos);
-            System.out.println(">>> Sismografo.fueraDeServicio - estadoDespues: "
-                    + (estadoActual == null ? "NULL" : estadoActual.toString()));
-            System.out.println(
-                    "    cambiosDeEstado ahora.size=" + (cambiosDeEstado == null ? 0 : cambiosDeEstado.size()));
         } catch (Exception e) {
-            System.err.println("!!! Excepción en Sismografo.fueraDeServicio para sismógrafo "
-                    + this.identificadorSismografo + ": " + e.getMessage());
             e.printStackTrace();
             throw e;
         }
@@ -199,6 +189,14 @@ public class Sismografo {
     }
 
     /**
+     * Verifica si este sismografo pertenece a una estación específica
+     */
+    public boolean esTuEstacionSismologica(String codEstacion) {
+        return this.estacionSismologica != null
+                && this.estacionSismologica.getCodigoEstacion().equals(codEstacion);
+    }
+
+    /**
      * Métodos getter existentes
      */
     public String getIdentificadorSismografo() {
@@ -228,61 +226,4 @@ public class Sismografo {
     public void setCambiosDeEstado(List<CambioDeEstado> cambiosDeEstado) {
         this.cambiosDeEstado = cambiosDeEstado;
     }
-
-    /*
-     * // Métodos de la realización de caso de uso
-     * public String getIdentificadorSismografo() {
-     * return identificadorSismografo;
-     * }
-     * 
-     * public void fueraDeServicio(Estado estado, Map<MotivoTipo, String>
-     * motivosYComentarios) {
-     * CambioDeEstado actual = null;
-     * for (CambioDeEstado cambio : cambiosDeEstado) {
-     * if (cambio.esEstadoActual()) {
-     * actual = cambio;
-     * break;
-     * }
-     * }
-     * 
-     * if (actual != null) {
-     * actual.setFechaHoraFin(LocalDateTime.now());
-     * }
-     * 
-     * ejecutarCambioDeEstado(estado, motivosYComentarios);
-     * }
-     * 
-     * public void ejecutarCambioDeEstado(Estado estado, Map<MotivoTipo, String>
-     * motivosYComentarios) {
-     * CambioDeEstado nuevo = new CambioDeEstado(estado, LocalDateTime.now());
-     * nuevo.crearMotivoFueraServicio(motivosYComentarios);
-     * }
-     * 
-     * // agregarCambioEstado está de más
-     * 
-     * // Métodos extra (no se utilizan, pero los implementamos por si acaso)
-     * public List<CambioDeEstado> getCambiosDeEstado() {
-     * return cambiosDeEstado;
-     * }
-     * 
-     * public EstacionSismologica getEstacion() {
-     * return estacionSismologica;
-     * }
-     * 
-     * public LocalDateTime getFechaAdquisicion() {
-     * return fechaAdquisicion;
-     * }
-     * 
-     * public String getNroSerie() {
-     * return nroSerie;
-     * }
-     * 
-     * public void setEstacion(EstacionSismologica estacion) {
-     * this.estacionSismologica = estacion;
-     * }
-     * 
-     * public void setCambiosDeEstado(List<CambioDeEstado> cambiosDeEstado) {
-     * this.cambiosDeEstado = cambiosDeEstado;
-     * }
-     */
 }

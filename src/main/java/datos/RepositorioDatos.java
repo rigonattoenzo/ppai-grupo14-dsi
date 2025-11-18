@@ -32,6 +32,21 @@ public class RepositorioDatos {
         }
     }
 
+    public static List<Sismografo> obtenerSismografos() {
+        EntityManager em = LocalEntityManagerProvider.createEntityManager();
+        try {
+            JpaSismografoRepository repo = new JpaSismografoRepository(em);
+            List<Sismografo> sismografos = repo.findAll();
+            return sismografos;
+        } catch (Exception e) {
+            System.err.println("Error al obtener sismógrafos: " + e.getMessage());
+            e.printStackTrace();
+            return new ArrayList<>();
+        } finally {
+            em.close();
+        }
+    }
+
     public static Usuario getUsuario() {
         EntityManager em = LocalEntityManagerProvider.createEntityManager();
         try {
