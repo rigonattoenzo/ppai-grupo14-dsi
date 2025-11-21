@@ -103,7 +103,7 @@ public class GestorCierreInspeccion {
 
         for (Map.Entry<MotivoTipo, String> entry : motivosYComentarios.entrySet()) {
             Map<String, Object> motivo = new HashMap<>();
-            motivo.put("tipo", entry.getKey().getDescripcion());
+            motivo.put("tipo", entry.getKey());
             motivo.put("comentario", entry.getValue());
             listaMotivos.add(motivo);
         }
@@ -342,7 +342,8 @@ public class GestorCierreInspeccion {
     public boolean validarExistenciaMotivoSeleccionado() {
         // Flujo alternativo A3: Datos faltantes
         if (this.motivosYComentarios == null || motivosYComentarios.isEmpty()) {
-            pantalla.mostrarError("Validación Fallida", "Debe seleccionar al menos un motivo");
+            pantalla.mostrarError("Validación Fallida",
+                    "Debe seleccionar AL MENOS UN motivo para cerrar la orden");
             return false;
         }
         return true;
@@ -452,8 +453,6 @@ public class GestorCierreInspeccion {
         // Guardar sismógrafo con sus datos actualizados
         try {
             RepositorioDatos.guardarSismografo(this.sismografoEncontrado);
-            System.out.println("✓ Sismografo guardado con " +
-                    this.sismografoEncontrado.getCambiosDeEstado().size() + " cambios de estado");
         } catch (Exception e) {
             e.printStackTrace();
             pantalla.mostrarMensaje("Error al guardar el sismografo: " + e.getMessage());

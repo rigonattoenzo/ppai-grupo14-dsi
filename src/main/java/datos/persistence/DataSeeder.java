@@ -109,24 +109,24 @@ public final class DataSeeder {
                 model.estados.Estado fueraDeServicio = new model.estados.FueraServicio();
 
                 LocalDateTime inicio1 = LocalDateTime.of(2024, 3, 4, 6, 10);
-                LocalDateTime fin1 = LocalDateTime.of(2024, 3, 5, 6, 10);
-                CambioDeEstado cambioEstado1 = new CambioDeEstado(enLinea, inicio1);
-                cambioEstado1.setFechaHoraFin(fin1);
+                // LocalDateTime fin1 = LocalDateTime.of(2024, 3, 5, 6, 10);
+                CambioDeEstado cambioEstado1 = new CambioDeEstado(inhabilitado, inicio1);
+                // cambioEstado1.setFechaHoraFin(fin1);
 
                 LocalDateTime inicio2 = LocalDateTime.of(2023, 6, 7, 16, 45);
-                LocalDateTime fin2 = LocalDateTime.of(2023, 6, 8, 16, 45);
+                // LocalDateTime fin2 = LocalDateTime.of(2023, 6, 8, 16, 45);
                 CambioDeEstado cambioEstado2 = new CambioDeEstado(inhabilitado, inicio2);
-                cambioEstado2.setFechaHoraFin(fin2);
+                // cambioEstado2.setFechaHoraFin(fin2);
 
                 LocalDateTime inicio3 = LocalDateTime.of(2024, 5, 7, 19, 40);
-                LocalDateTime fin3 = LocalDateTime.of(2024, 5, 8, 19, 40);
-                CambioDeEstado cambioEstado3 = new CambioDeEstado(fueraDeServicio, inicio3);
-                cambioEstado3.setFechaHoraFin(fin3);
+                // LocalDateTime fin3 = LocalDateTime.of(2024, 5, 8, 19, 40);
+                CambioDeEstado cambioEstado3 = new CambioDeEstado(inhabilitado, inicio3);
+                // cambioEstado3.setFechaHoraFin(fin3);
 
                 LocalDateTime inicio4 = LocalDateTime.of(2022, 10, 10, 10, 10);
-                LocalDateTime fin4 = LocalDateTime.of(2022, 10, 11, 10, 10);
+                // LocalDateTime fin4 = LocalDateTime.of(2022, 10, 11, 10, 10);
                 CambioDeEstado cambioEstado4 = new CambioDeEstado(inhabilitado, inicio4);
-                cambioEstado4.setFechaHoraFin(fin4);
+                // cambioEstado4.setFechaHoraFin(fin4);
 
                 em.persist(cambioEstado1);
                 em.persist(cambioEstado2);
@@ -137,8 +137,10 @@ public final class DataSeeder {
 
         private static void crearEstacionesYSismografos(EntityManager em) {
                 model.estados.Estado inhabilitado = new model.estados.InhabilitadoPorInspeccion();
-                List<CambioDeEstado> cambiosEstadoHistoricos = em
-                                .createQuery("SELECT c FROM CambioDeEstado c WHERE c.fechaHoraFin IS NOT NULL",
+
+                // ✅ Obtener cambios de estado ACTUALES (sin fecha fin)
+                List<CambioDeEstado> cambiosEstadoActuales = em
+                                .createQuery("SELECT c FROM CambioDeEstado c WHERE c.fechaHoraFin IS NULL",
                                                 CambioDeEstado.class)
                                 .getResultList();
 
@@ -161,21 +163,36 @@ public final class DataSeeder {
                 sism2.setEstadoActual(inhabilitado);
                 sism3.setEstadoActual(inhabilitado);
 
-                sism1.setCambiosDeEstado(cambiosEstadoHistoricos);
-                sism2.setCambiosDeEstado(cambiosEstadoHistoricos);
-                sism3.setCambiosDeEstado(cambiosEstadoHistoricos);
+                // Asignar cambios de estado a cada sismografo
+                if (cambiosEstadoActuales.size() >= 1) {
+                        cambiosEstadoActuales.get(0).setSismografo(sism1);
+                        sism1.setCambiosDeEstado(java.util.List.of(cambiosEstadoActuales.get(0)));
+                }
+                if (cambiosEstadoActuales.size() >= 2) {
+                        cambiosEstadoActuales.get(1).setSismografo(sism2);
+                        sism2.setCambiosDeEstado(java.util.List.of(cambiosEstadoActuales.get(1)));
+                }
+                if (cambiosEstadoActuales.size() >= 4) {
+                        cambiosEstadoActuales.get(2).setSismografo(sism3);
+                        cambiosEstadoActuales.get(3).setSismografo(sism3);
+                        sism3.setCambiosDeEstado(java.util.List.of(
+                                        cambiosEstadoActuales.get(2),
+                                        cambiosEstadoActuales.get(3)));
+                }
 
-                // Persistir en orden correcto (primero estaciones, después sismógrafos)
+                // Persistir en orden correcto
                 em.persist(est1);
                 em.persist(est2);
                 em.persist(est3);
                 em.persist(sism1);
                 em.persist(sism2);
                 em.persist(sism3);
+
+                System.out.println("✓ Sismógrafos creados y vinculados con cambios de estado");
         }
 
         private static void crearOrdenes(EntityManager em) {
-                System.out.println("8️⃣ Creando órdenes de inspección...");
+                System.out.println("Creando órdenes de inspección...");
                 Empleado emp1 = em.createQuery("SELECT e FROM Empleado e WHERE e.codigo = '0001'", Empleado.class)
                                 .getSingleResult();
                 Empleado emp2 = em.createQuery("SELECT e FROM Empleado e WHERE e.codigo = '0002'", Empleado.class)

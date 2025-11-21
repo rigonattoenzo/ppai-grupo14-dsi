@@ -193,13 +193,16 @@ public class RepositorioDatos {
         EntityTransaction tx = em.getTransaction();
         try {
             tx.begin();
+
             CambioDeEstado cambioMerged = em.merge(cambio);
+
             em.flush();
             tx.commit();
-            System.out.println("✓ CambioDeEstado persistido con fechaHoraFin: " + cambio.getFechaHoraFin());
+
         } catch (Exception e) {
             if (tx.isActive())
                 tx.rollback();
+            System.err.println("❌ ERROR al guardar CambioDeEstado: " + e.getMessage());
             e.printStackTrace();
             throw e;
         } finally {

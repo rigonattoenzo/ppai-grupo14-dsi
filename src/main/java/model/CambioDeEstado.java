@@ -22,7 +22,7 @@ public class CambioDeEstado {
 
     // Asociación Many-to-One con Sismografo
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "sismografo_id", nullable = true)
+    @JoinColumn(name = "sismografo_id")
     private Sismografo sismografo;
 
     // Asociación Many-to-One con Empleado
@@ -43,18 +43,18 @@ public class CambioDeEstado {
     public CambioDeEstado() {
     }
 
-    // Constructor con estado
-    public CambioDeEstado(Estado estado, LocalDateTime inicio) {
+    // Constructor con sismografo (para CREAR un nuevo cambio)
+    public CambioDeEstado(Estado estado, LocalDateTime fechaHoraInicio, Sismografo sismografo) {
         this.estado = estado;
-        this.fechaHoraInicio = inicio;
-        this.fechaHoraFin = null;
+        this.fechaHoraInicio = fechaHoraInicio;
+        this.sismografo = sismografo;
+        this.fechaHoraFin = null; // Null porque está abierto
+        this.empleado = null; // Null porque no se cerró aún
     }
 
     // Constructor completo para facilitar inicialización
-    public CambioDeEstado(Estado estado, LocalDateTime inicio, Sismografo sismografo, Empleado empleado) {
+    public CambioDeEstado(Estado estado, LocalDateTime inicio) {
         this.estado = estado;
-        this.sismografo = sismografo;
-        this.empleado = empleado;
         this.fechaHoraInicio = inicio;
     }
 
@@ -66,6 +66,7 @@ public class CambioDeEstado {
     // 20) ❗❗
     public void crearMotivoFueraServicio(Map<MotivoTipo, String> motivosYComentarios) {
         // En este bucle se crean todos los MotivoFueraServicio
+        // Cada MotivoFueraServicio tendrá 1 MotivoTipo
         for (Map.Entry<MotivoTipo, String> motv : motivosYComentarios.entrySet()) {
             MotivoTipo tipo = motv.getKey();
             String comentario = motv.getValue();

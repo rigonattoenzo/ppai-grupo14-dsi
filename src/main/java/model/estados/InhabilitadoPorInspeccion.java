@@ -29,13 +29,15 @@ public class InhabilitadoPorInspeccion extends Estado {
 
         if (cambiosEstado != null && cambiosEstado.length > 0) {
             // 15) ❗❗
+
             for (CambioDeEstado c : cambiosEstado) {
                 if (esEstadoActual(c)) {
                     // 16) ❗❗
                     c.setFechaHoraFin(fechaActual);
-                    // Con esto se persiste la fecha hora fin
+                    c.setEmpleado(empleadoActual);
+
+                    // Con esto se persisten los datos del cambio de estado anterior
                     RepositorioDatos.guardarCambioDeEstado(c);
-                    System.out.println("✓ Cambio de estado anterior cerrado con fecha: " + fechaActual);
 
                     break;
                 }
@@ -43,7 +45,7 @@ public class InhabilitadoPorInspeccion extends Estado {
         }
 
         // 17) ❗❗
-        ejecutarCambioEstado(sismografo, fechaActual, motivos, empleadoActual);
+        ejecutarCambioEstado(sismografo, fechaActual, motivos);
     }
 
     private Boolean esEstadoActual(CambioDeEstado cambio) {
@@ -51,17 +53,19 @@ public class InhabilitadoPorInspeccion extends Estado {
     }
 
     private void ejecutarCambioEstado(Sismografo sismografo, LocalDateTime fechaActual,
-            List<Map<String, Object>> motivos, Empleado empleadoActual) {
+            List<Map<String, Object>> motivos) {
 
         // 18) ❗❗
         FueraServicio estadoFueraServicio = new FueraServicio();
         // 19) ❗❗
-        CambioDeEstado nuevo = new CambioDeEstado(estadoFueraServicio, fechaActual, sismografo, empleadoActual);
+        CambioDeEstado nuevo = new CambioDeEstado(estadoFueraServicio, fechaActual, sismografo);
 
         Map<MotivoTipo, String> motivosMap = convertirMotivosDesdeDescripciones(motivos);
+
         // 20) ❗❗
         nuevo.crearMotivoFueraServicio(motivosMap);
 
+        RepositorioDatos.guardarCambioDeEstado(nuevo);
         // Actualizar estado
         sismografo.setEstadoActual(estadoFueraServicio); // 22) ❗❗
         sismografo.setCambioEstado(nuevo); // 23) ❗❗ --> Vuelve al gestor
@@ -74,24 +78,26 @@ public class InhabilitadoPorInspeccion extends Estado {
     private Map<MotivoTipo, String> convertirMotivosDesdeDescripciones(List<Map<String, Object>> motivos) {
         Map<MotivoTipo, String> resultado = new HashMap<>();
 
-        // Obtener TODOS los MotivoTipo de BD
-        List<MotivoTipo> motivosTiposEnBD = RepositorioDatos.obtenerMotivos();
+        if (motivos != null && !motivos.isEmpty()) {
+            for (Map<String, Object> motivoData : motivos) {
+                // ✅ INTENTAR OBTENER COMO OBJETO PRIMERO
+                Object tipoObj = motivoData.get("tipo");
+                MotivoTipo tipo = null;
 
-        if (motivos != null) {
-            for (Map<String, Object> mapa : motivos) {
-                String descripcion = extraerDescripcion(mapa);
-                String comentario = extraerComentario(mapa);
+                if (tipoObj instanceof MotivoTipo) {
+                    // ✅ YA ES UN MotivoTipo
+                    tipo = (MotivoTipo) tipoObj;
+                } else if (tipoObj instanceof String) {
+                    // ✅ ES UN String (descripción), buscar en BD
+                    String descripcion = (String) tipoObj;
+                    List<MotivoTipo> motivosTiposEnBD = RepositorioDatos.obtenerMotivos();
+                    tipo = buscarMotivoPorDescripcion(descripcion, motivosTiposEnBD);
+                }
 
-                if (descripcion != null && !descripcion.isEmpty()) {
-                    // 🔑 BUSCAR en BD, no crear nuevo
-                    MotivoTipo tipoEnBD = buscarMotivoPorDescripcion(descripcion, motivosTiposEnBD);
+                String comentario = (String) motivoData.get("comentario");
 
-                    if (tipoEnBD != null) {
-                        resultado.put(tipoEnBD, comentario != null ? comentario : "");
-                        System.out.println("    ✓ MotivoTipo encontrado en BD: " + descripcion);
-                    } else {
-                        System.err.println("    ❌ MotivoTipo NO encontrado en BD: " + descripcion);
-                    }
+                if (tipo != null && comentario != null) {
+                    resultado.put(tipo, comentario);
                 }
             }
         }

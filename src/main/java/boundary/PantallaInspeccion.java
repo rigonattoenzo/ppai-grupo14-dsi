@@ -18,7 +18,6 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
-import java.util.ArrayList;
 import java.util.stream.Collectors;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -51,6 +50,7 @@ public class PantallaInspeccion {
     private Map<MotivoTipo, String> motivosYComentariosLocal = new HashMap<>();
     private VBox listaMotivosSeleccionadosVBox;
     private Label lblVacioMotivos;
+    private ComboBox<String> comboMotivoActual;
 
     // ========== PALETA DE COLORES ==========
     private static final String COLOR_FONDO = "#faf6f1"; // Beige muy claro
@@ -400,9 +400,7 @@ public class PantallaInspeccion {
                 Color.web("#666"));
 
         panelMotivos.getChildren().addAll(titulo, descripcion);
-
-        Separator sep1 = new Separator();
-        panelMotivos.getChildren().add(sep1);
+        panelMotivos.getChildren().add(new Separator());
 
         Label lblMotivosTitulo = crearLabel(
                 "Motivos disponibles:",
@@ -452,10 +450,13 @@ public class PantallaInspeccion {
         btnContinuar.setOnAction(e -> {
             if (motivosYComentariosLocal.isEmpty()) {
                 mostrarError("Motivos requeridos",
-                        "Debe seleccionar al least un motivo antes de continuar.");
+                        "Debe seleccionar AL MENOS UN motivo antes de continuar.");
                 return;
             }
-            // Continúa el caso de uso
+
+            for (Map.Entry<MotivoTipo, String> entry : motivosYComentariosLocal.entrySet()) {
+                gestor.agregarMotivoAlGestor(entry.getKey(), entry.getValue());
+            }
             gestor.pedirConfirmacionCierreOrden();
         });
 
@@ -498,18 +499,17 @@ public class PantallaInspeccion {
                 Color.web(COLOR_PRIMARIO));
         panelSeleccion.getChildren().add(lblSeleccionar);
 
-        ComboBox<String> comboMotivos = new ComboBox<>();
-        actualizarComboMotivos(comboMotivos, descripcionesMotivos,
-                new ArrayList<>(motivosYComentariosLocal.keySet()));
+        comboMotivoActual = new ComboBox<>();
+        actualizarComboMotivos(comboMotivoActual);
 
-        comboMotivos.setStyle(
+        comboMotivoActual.setStyle(
                 "-fx-background-color: white;" +
                         "-fx-border-color: " + COLOR_SECUNDARIO + ";" +
                         "-fx-padding: 8;" +
                         "-fx-font-size: 12px");
-        comboMotivos.setPrefWidth(Double.MAX_VALUE);
+        comboMotivoActual.setPrefWidth(Double.MAX_VALUE);
 
-        panelSeleccion.getChildren().add(comboMotivos);
+        panelSeleccion.getChildren().add(comboMotivoActual);
 
         Label lblComentario = crearLabel("Comentario:", FUENTE_NORMAL, Color.web(COLOR_PRIMARIO));
         panelSeleccion.getChildren().add(lblComentario);
@@ -542,7 +542,7 @@ public class PantallaInspeccion {
         panelSeleccion.getChildren().add(hboxAgregar);
 
         btnAgregar.setOnAction(e -> {
-            String motivoSeleccionado = comboMotivos.getValue();
+            String motivoSeleccionado = comboMotivoActual.getValue();
             String comentario = areaComentario.getText().trim();
 
             if (motivoSeleccionado == null || motivoSeleccionado.isEmpty()) {
@@ -563,10 +563,8 @@ public class PantallaInspeccion {
 
             areaComentario.clear();
 
-            List<MotivoTipo> nuevosSeleccionados = new ArrayList<>(motivosYComentariosLocal.keySet());
-            actualizarComboMotivos(comboMotivos, descripcionesMotivos, nuevosSeleccionados);
-
-            comboMotivos.getSelectionModel().selectFirst();
+            actualizarComboMotivos(comboMotivoActual);
+            comboMotivoActual.getSelectionModel().selectFirst();
         });
 
         int indiceInsercion = panelPrincipal.getChildren().indexOf(listaMotivosSeleccionadosVBox);
@@ -624,12 +622,43 @@ public class PantallaInspeccion {
         panel.getChildren().addAll(icono, titulo, descripcion);
         contenido.getChildren().add(panel);
 
-        Button btnConfirmar = crearBotonPrimario("Confirmar cierre");
+        if (!motivosYComentariosLocal.isEmpty()) {
+            Separator sep = new Separator();
+            panel.getChildren().add(sep);
+
+            Label lblResumenMotivos = crearLabel("Motivos a registrar:", FUENTE_SUBTITULO, Color.web(COLOR_PRIMARIO));
+            panel.getChildren().add(lblResumenMotivos);
+
+            VBox resumenMotivos = new VBox(8);
+            resumenMotivos.setPadding(new Insets(10));
+            resumenMotivos.setStyle("-fx-border-color: #ddd; -fx-border-width: 1; -fx-background-color: #fafafa");
+
+            int contador = 1;
+            for (Map.Entry<MotivoTipo, String> entry : motivosYComentariosLocal.entrySet()) {
+                Label lblMotivo = crearLabel(
+                        contador + ". " + entry.getKey().getDescripcion(),
+                        FUENTE_NORMAL,
+                        Color.web(COLOR_PRIMARIO));
+
+                Label lblComent = crearLabel(
+                        "  → \"" + entry.getValue() + "\"",
+                        FUENTE_PEQUEÑA,
+                        Color.web("#666"));
+                lblComent.setStyle("-fx-font-style: italic");
+
+                resumenMotivos.getChildren().addAll(lblMotivo, lblComent);
+                contador++;
+            }
+
+            panel.getChildren().add(resumenMotivos);
+        }
+
+        Button btnConfirmar = crearBotonPrimario("✓ Confirmar cierre");
         btnConfirmar.setStyle(
                 btnConfirmar.getStyle() + "; -fx-background-color: " + COLOR_EXITO);
         btnConfirmar.setOnAction(e -> tomarConfirmacionCierreOrden(true));
 
-        Button btnRechazar = crearBotonSecundario("Rechazar");
+        Button btnRechazar = crearBotonSecundario("✕ Rechazar");
         btnRechazar.setStyle(
                 btnRechazar.getStyle() + "; -fx-background-color: " + COLOR_RECHAZAR);
         btnRechazar.setOnAction(e -> mostrarConfirmacionRechazo());
@@ -649,11 +678,6 @@ public class PantallaInspeccion {
         }
 
         Map<String, Object> datos = gestor.getOrdenSeleccionada();
-
-        // Agregar motivos al gestor
-        for (Map.Entry<MotivoTipo, String> entry : motivosYComentariosLocal.entrySet()) {
-            gestor.agregarMotivoAlGestor(entry.getKey(), entry.getValue());
-        }
 
         // Confirmar en gestor
         // 1) ENGANCHE CON EL ANÁLISIS ❗❗❗❗❗❗❗❗❗❗
@@ -727,18 +751,16 @@ public class PantallaInspeccion {
     }
 
     // ==================== MÉTODOS AUXILIARES ====================
-
-    private void actualizarComboMotivos(ComboBox<String> comboBox, List<String> todasLasDescripciones,
-            List<MotivoTipo> motivosSeleccionados) {
+    private void actualizarComboMotivos(ComboBox<String> comboBox) {
         comboBox.getItems().clear();
 
-        Set<Integer> indicesSeleccionados = motivosSeleccionados.stream()
+        Set<Integer> indicesSeleccionados = motivosYComentariosLocal.keySet().stream()
                 .map(m -> punteroMotivos.indexOf(m))
                 .collect(Collectors.toSet());
 
-        for (int i = 0; i < todasLasDescripciones.size(); i++) {
+        for (int i = 0; i < descripcionesMotivos.size(); i++) {
             if (!indicesSeleccionados.contains(i)) {
-                comboBox.getItems().add((i + 1) + ": " + todasLasDescripciones.get(i));
+                comboBox.getItems().add((i + 1) + ": " + descripcionesMotivos.get(i));
             }
         }
 
@@ -808,7 +830,10 @@ public class PantallaInspeccion {
         btnEliminar.setOnAction(e -> {
             motivosYComentariosLocal.remove(motivo);
             actualizarListaMotivosSelecionados();
-            actualizarComboBoxMotivosDisponibles();
+            if (comboMotivoActual != null) {
+                actualizarComboMotivos(comboMotivoActual);
+                comboMotivoActual.getSelectionModel().selectFirst();
+            }
         });
 
         header.getChildren().addAll(lblNumero, lblDescripcion, btnEliminar);
@@ -828,30 +853,6 @@ public class PantallaInspeccion {
         item.getChildren().addAll(header, lblComentarioTitulo, lblComentarioTexto);
 
         return item;
-    }
-
-    private void actualizarComboBoxMotivosDisponibles() {
-        VBox contenido = obtenerVBoxContenido();
-
-        // Buscar el panelSeleccion
-        for (javafx.scene.Node node : contenido.getChildren()) {
-            if (node instanceof VBox) {
-                VBox vbox = (VBox) node;
-                if ("panelSeleccion".equals(vbox.getId())) {
-                    // Buscar el ComboBox dentro
-                    for (javafx.scene.Node child : vbox.getChildren()) {
-                        if (child instanceof ComboBox) {
-                            ComboBox<String> combo = (ComboBox<String>) child;
-                            List<MotivoTipo> motivosYaSeleccionados = new ArrayList<>(
-                                    motivosYComentariosLocal.keySet());
-                            actualizarComboMotivos(combo, descripcionesMotivos, motivosYaSeleccionados);
-                            break;
-                        }
-                    }
-                    break;
-                }
-            }
-        }
     }
 
     public void mostrarError(String titulo, String mensaje) {
