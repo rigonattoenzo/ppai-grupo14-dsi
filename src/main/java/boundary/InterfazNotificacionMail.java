@@ -13,7 +13,7 @@ public class InterfazNotificacionMail {
         return instancia;
     }
 
-    // ✅ Método correcto (sin parámetros repetidos)
+    // Método correcto (sin parámetros repetidos)
     public void enviarNotificacion(String correo, String mensaje) {
         System.out.println("\n📧 Email enviado a: " + correo);
         System.out.println("─────────────────────────────");

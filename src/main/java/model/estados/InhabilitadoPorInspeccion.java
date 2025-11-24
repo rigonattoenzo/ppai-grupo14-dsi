@@ -31,7 +31,7 @@ public class InhabilitadoPorInspeccion extends Estado {
             // 15) ❗❗
 
             for (CambioDeEstado c : cambiosEstado) {
-                if (esEstadoActual(c)) {
+                if (c.esEstadoActual()) {
                     // 16) ❗❗
                     c.setFechaHoraFin(fechaActual);
                     c.setEmpleado(empleadoActual);
@@ -48,15 +48,11 @@ public class InhabilitadoPorInspeccion extends Estado {
         ejecutarCambioEstado(sismografo, fechaActual, motivos);
     }
 
-    private Boolean esEstadoActual(CambioDeEstado cambio) {
-        return (cambio != null && cambio.getFechaHoraFin() == null);
-    }
-
     private void ejecutarCambioEstado(Sismografo sismografo, LocalDateTime fechaActual,
             List<Map<String, Object>> motivos) {
 
         // 18) ❗❗
-        FueraServicio estadoFueraServicio = new FueraServicio();
+        FueraDeServicio estadoFueraServicio = new FueraDeServicio();
         // 19) ❗❗
         CambioDeEstado nuevo = new CambioDeEstado(estadoFueraServicio, fechaActual, sismografo);
 
@@ -80,15 +76,15 @@ public class InhabilitadoPorInspeccion extends Estado {
 
         if (motivos != null && !motivos.isEmpty()) {
             for (Map<String, Object> motivoData : motivos) {
-                // ✅ INTENTAR OBTENER COMO OBJETO PRIMERO
+                // INTENTAR OBTENER COMO OBJETO PRIMERO
                 Object tipoObj = motivoData.get("tipo");
                 MotivoTipo tipo = null;
 
                 if (tipoObj instanceof MotivoTipo) {
-                    // ✅ YA ES UN MotivoTipo
+                    // YA ES UN MotivoTipo
                     tipo = (MotivoTipo) tipoObj;
                 } else if (tipoObj instanceof String) {
-                    // ✅ ES UN String (descripción), buscar en BD
+                    // ES UN String (descripción), buscar en BD
                     String descripcion = (String) tipoObj;
                     List<MotivoTipo> motivosTiposEnBD = RepositorioDatos.obtenerMotivos();
                     tipo = buscarMotivoPorDescripcion(descripcion, motivosTiposEnBD);
@@ -117,29 +113,32 @@ public class InhabilitadoPorInspeccion extends Estado {
         return null;
     }
 
-    private String extraerDescripcion(Map<String, Object> mapa) {
-        Object valor = mapa.get("tipo");
-        if (valor == null)
-            valor = mapa.get("descripcion");
-        if (valor == null)
-            valor = mapa.get("motivo");
-        if (valor == null)
-            valor = mapa.get("description");
-
-        return valor != null ? valor.toString() : null;
-    }
-
-    private String extraerComentario(Map<String, Object> mapa) {
-        Object valor = mapa.get("comentario");
-        if (valor == null)
-            valor = mapa.get("comment");
-        if (valor == null)
-            valor = mapa.get("detalle");
-        if (valor == null)
-            valor = mapa.get("detail");
-
-        return valor != null ? valor.toString() : "";
-    }
+    /*
+     * private String extraerDescripcion(Map<String, Object> mapa) {
+     * Object valor = mapa.get("tipo");
+     * if (valor == null)
+     * valor = mapa.get("descripcion");
+     * if (valor == null)
+     * valor = mapa.get("motivo");
+     * if (valor == null)
+     * valor = mapa.get("description");
+     * 
+     * return valor != null ? valor.toString() : null;
+     * }
+     * 
+     * private String extraerComentario(Map<String, Object> mapa) {
+     * Object valor = mapa.get("comentario");
+     * if (valor == null)
+     * valor = mapa.get("comment");
+     * if (valor == null)
+     * valor = mapa.get("detalle");
+     * if (valor == null)
+     * valor = mapa.get("detail");
+     * 
+     * return valor!=null?valor.toString():"";
+     * 
+     * }
+     */
 
     @Override
     public String toString() {

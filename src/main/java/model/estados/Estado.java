@@ -172,9 +172,9 @@ public abstract class Estado {
             case "InhabilitadoPorInspeccion":
             case "Inhabilitado Por Inspección":
                 return new InhabilitadoPorInspeccion();
-            case "FueraServicio":
+            case "FueraDeServicio":
             case "Fuera De Servicio":
-                return new FueraServicio();
+                return new FueraDeServicio();
             case "Reclamado":
                 return new Reclamado();
             case "DeBaja":

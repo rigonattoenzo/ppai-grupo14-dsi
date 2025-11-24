@@ -436,7 +436,7 @@ public class GestorCierreInspeccion {
         List<Map<String, Object>> listaMotivos = convertirMotivoMapALista();
 
         if (this.ordenEncontrada == null) {
-            System.out.println("    ERROR: ordenEncontrada es null, abortando ponerSismografoFueraServicio");
+            System.out.println("ERROR: ordenEncontrada es null, abortando ponerSismografoFueraServicio");
             return;
         }
 
@@ -556,15 +556,15 @@ public class GestorCierreInspeccion {
 
         // Armar mensaje completo (Observación 2)
         StringBuilder mensaje = new StringBuilder();
-        mensaje.append("═══════════════════════════════════════════════════════════\n");
-        mensaje.append("NOTIFICACIÓN: CAMBIO DE ESTADO DE SISMOGRAFO\n");
-        mensaje.append("═══════════════════════════════════════════════════════════\n\n");
-        mensaje.append("Identificación del Sismografo: ").append(idSismografo).append("\n");
+        mensaje.append("=========================================================\n");
+        mensaje.append("NOTIFICACION: CAMBIO DE ESTADO DE SISMOGRAFO\n");
+        mensaje.append("=========================================================\n\n");
+        mensaje.append("Identificacion del Sismografo: ").append(idSismografo).append("\n");
         mensaje.append("Nuevo Estado: ").append(nombreEstado).append("\n");
         mensaje.append("Fecha y Hora de Cambio: ").append(fechaHora).append("\n\n");
         mensaje.append("MOTIVOS Y COMENTARIOS:\n");
         mensaje.append(motivosTexto);
-        mensaje.append("\n═══════════════════════════════════════════════════════════\n");
+        mensaje.append("\n=========================================================\n");
 
         return mensaje.toString();
     }

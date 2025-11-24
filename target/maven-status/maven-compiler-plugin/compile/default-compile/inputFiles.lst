@@ -1,3 +1,4 @@
+C:\Users\Educacion\Documents\Facu\ppai-grupo14-dsi\src\main\java\model\estados\FueraDeServicio.java
 C:\Users\Educacion\Documents\Facu\ppai-grupo14-dsi\src\main\java\model\estados\EnEsperaCertificacion.java
 C:\Users\Educacion\Documents\Facu\ppai-grupo14-dsi\src\main\java\datos\repositories\JpaSismografoRepository.java
 C:\Users\Educacion\Documents\Facu\ppai-grupo14-dsi\src\main\java\model\estados\Cerrada.java
@@ -38,7 +39,6 @@ C:\Users\Educacion\Documents\Facu\ppai-grupo14-dsi\src\main\java\gestor\GestorCi
 C:\Users\Educacion\Documents\Facu\ppai-grupo14-dsi\src\main\java\model\MotivoTipo.java
 C:\Users\Educacion\Documents\Facu\ppai-grupo14-dsi\src\main\java\boundary\MonitorManager.java
 C:\Users\Educacion\Documents\Facu\ppai-grupo14-dsi\src\main\java\model\estados\Estado.java
-C:\Users\Educacion\Documents\Facu\ppai-grupo14-dsi\src\main\java\model\estados\FueraServicio.java
 C:\Users\Educacion\Documents\Facu\ppai-grupo14-dsi\src\main\java\model\estados\EnInstalacion.java
 C:\Users\Educacion\Documents\Facu\ppai-grupo14-dsi\src\main\java\datos\persistence\LocalEntityManagerProvider.java
 C:\Users\Educacion\Documents\Facu\ppai-grupo14-dsi\src\main\java\model\estados\Disponible.java

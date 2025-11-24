@@ -13,6 +13,7 @@ datos\repositories\JpaUsuarioRepository.class
 model\estados\HabilitadoParaConstruccion.class
 model\estados\CompletamenteRealizada.class
 model\CambioDeEstado.class
+model\estados\FueraDeServicio.class
 model\MotivoFueraDeServicio.class
 model\estados\InhabilitadoPorInspeccion.class
 datos\repositories\JpaRepositoryBase.class
@@ -20,7 +21,6 @@ datos\persistence\LocalEntityManagerProvider.class
 model\MotivoTipo.class
 datos\persistence\DatabaseInitializer.class
 datos\RepositorioDatos.class
-model\estados\FueraServicio.class
 model\Sismografo.class
 datos\repositories\JpaMotivoTipoRepository.class
 model\estados\DeBaja.class

@@ -22,5 +22,5 @@ public class MonitorCCRS {
         System.out.println("\nMonitor CCRS:");
         System.out.println(mensaje);
         System.out.println("-------------------------");
-    } // a esto va a haber que cambiarlo
+    }
 }

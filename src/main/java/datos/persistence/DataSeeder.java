@@ -24,12 +24,12 @@ public final class DataSeeder {
                                         .getSingleResult();
 
                         if (usuarioCount > 0) {
-                                System.out.println("⏭️ [DataSeeder] Datos ya existen - Saltando seed");
+                                System.out.println("[DataSeeder] Datos ya existen - Saltando seed");
                                 return;
                         }
 
                         System.out.println("\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
-                        System.out.println("📝 INSERTANDO DATOS DE PRUEBA");
+                        System.out.println("         INSERTANDO DATOS DE PRUEBA");
                         System.out.println("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
 
                         EntityTransaction tx = em.getTransaction();
@@ -42,7 +42,7 @@ public final class DataSeeder {
                         crearCambiosDeEstado(em);
                         crearEstacionesYSismografos(em);
                         crearOrdenes(em);
-                        crearMonitores(); // ✅ Monitores en memoria, no persisten
+                        crearMonitores(); // Monitores en memoria, no persisten
 
                         tx.commit();
                 } catch (Exception e) {
@@ -106,27 +106,19 @@ public final class DataSeeder {
         private static void crearCambiosDeEstado(EntityManager em) {
                 model.estados.Estado enLinea = new model.estados.EnLinea();
                 model.estados.Estado inhabilitado = new model.estados.InhabilitadoPorInspeccion();
-                model.estados.Estado fueraDeServicio = new model.estados.FueraServicio();
+                model.estados.Estado fueraDeServicio = new model.estados.FueraDeServicio();
 
                 LocalDateTime inicio1 = LocalDateTime.of(2024, 3, 4, 6, 10);
-                // LocalDateTime fin1 = LocalDateTime.of(2024, 3, 5, 6, 10);
                 CambioDeEstado cambioEstado1 = new CambioDeEstado(inhabilitado, inicio1);
-                // cambioEstado1.setFechaHoraFin(fin1);
 
                 LocalDateTime inicio2 = LocalDateTime.of(2023, 6, 7, 16, 45);
-                // LocalDateTime fin2 = LocalDateTime.of(2023, 6, 8, 16, 45);
-                CambioDeEstado cambioEstado2 = new CambioDeEstado(inhabilitado, inicio2);
-                // cambioEstado2.setFechaHoraFin(fin2);
+                CambioDeEstado cambioEstado2 = new CambioDeEstado(fueraDeServicio, inicio2);
 
                 LocalDateTime inicio3 = LocalDateTime.of(2024, 5, 7, 19, 40);
-                // LocalDateTime fin3 = LocalDateTime.of(2024, 5, 8, 19, 40);
                 CambioDeEstado cambioEstado3 = new CambioDeEstado(inhabilitado, inicio3);
-                // cambioEstado3.setFechaHoraFin(fin3);
 
                 LocalDateTime inicio4 = LocalDateTime.of(2022, 10, 10, 10, 10);
-                // LocalDateTime fin4 = LocalDateTime.of(2022, 10, 11, 10, 10);
-                CambioDeEstado cambioEstado4 = new CambioDeEstado(inhabilitado, inicio4);
-                // cambioEstado4.setFechaHoraFin(fin4);
+                CambioDeEstado cambioEstado4 = new CambioDeEstado(enLinea, inicio4);
 
                 em.persist(cambioEstado1);
                 em.persist(cambioEstado2);
@@ -138,7 +130,7 @@ public final class DataSeeder {
         private static void crearEstacionesYSismografos(EntityManager em) {
                 model.estados.Estado inhabilitado = new model.estados.InhabilitadoPorInspeccion();
 
-                // ✅ Obtener cambios de estado ACTUALES (sin fecha fin)
+                // Obtener cambios de estado ACTUALES (sin fecha fin)
                 List<CambioDeEstado> cambiosEstadoActuales = em
                                 .createQuery("SELECT c FROM CambioDeEstado c WHERE c.fechaHoraFin IS NULL",
                                                 CambioDeEstado.class)

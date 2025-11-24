@@ -8,9 +8,9 @@ import model.Sismografo;
  * - A En Línea (después de completar la reparación)
  * - A De Baja (si es irreparable)
  */
-public class FueraServicio extends Estado {
+public class FueraDeServicio extends Estado {
 
-    public FueraServicio() {
+    public FueraDeServicio() {
         super("Fuera De Servicio", "Sismografo");
     }
 

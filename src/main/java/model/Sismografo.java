@@ -88,11 +88,12 @@ public class Sismografo {
      * Transición: Inhabilitado por Inspección -> Fuera de Servicio
      * Este es el método clave para el caso de uso 37.
      */ // 13) ❗❗
-    public void fueraDeServicio(LocalDateTime fechaActual, List<Map<String, Object>> motivos, Empleado empleadoActual) {
+    public void fueraDeServicio(LocalDateTime fechaActual, List<Map<String, Object>> motivos,
+            Empleado empleadoLogueado) {
         try {
             CambioDeEstado[] cambiosArray = this.cambiosDeEstado.toArray(new CambioDeEstado[0]);
             // 14) ❗❗ --> Ir a InhabilitadoPorInspeccion
-            this.estadoActual.fueraServicio(this, fechaActual, cambiosArray, motivos, empleadoActual);
+            this.estadoActual.fueraServicio(this, fechaActual, cambiosArray, motivos, empleadoLogueado);
         } catch (Exception e) {
             e.printStackTrace();
             throw e;

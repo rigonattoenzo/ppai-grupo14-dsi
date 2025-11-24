@@ -22,9 +22,9 @@ public class MotivoFueraDeServicio {
     }
 
     // Constructor -> Equivalente al new()
-    public MotivoFueraDeServicio(String comentario, MotivoTipo motivoTipo) {
+    public MotivoFueraDeServicio(String comentario, MotivoTipo motivo) {
         this.comentario = comentario;
-        this.motivoTipo = motivoTipo;
+        this.motivoTipo = motivo;
     }
 
     // Métodos extra (no se utilizan, pero los implementamos por si acaso)

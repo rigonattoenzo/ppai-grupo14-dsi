@@ -202,7 +202,7 @@ public class RepositorioDatos {
         } catch (Exception e) {
             if (tx.isActive())
                 tx.rollback();
-            System.err.println("❌ ERROR al guardar CambioDeEstado: " + e.getMessage());
+            System.err.println("ERROR al guardar CambioDeEstado: " + e.getMessage());
             e.printStackTrace();
             throw e;
         } finally {
