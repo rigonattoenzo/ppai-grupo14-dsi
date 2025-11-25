@@ -17,9 +17,6 @@ import model.estados.EnLinea;
 @Table(name = "sismografo")
 public class Sismografo {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
-
     @Column(name = "id_sismografo", unique = true, nullable = false, length = 100)
     private String identificadorSismografo;
 
@@ -91,6 +88,9 @@ public class Sismografo {
     public void fueraDeServicio(LocalDateTime fechaActual, List<Map<String, Object>> motivos,
             Empleado empleadoLogueado) {
         try {
+            // .toArray() es un método de List que convierte a Array
+            // new CambioDeEstado[0] determina el tipo de dato del Array (funciona como
+            // molde)
             CambioDeEstado[] cambiosArray = this.cambiosDeEstado.toArray(new CambioDeEstado[0]);
             // 14) ❗❗ --> Ir a InhabilitadoPorInspeccion
             this.estadoActual.fueraServicio(this, fechaActual, cambiosArray, motivos, empleadoLogueado);

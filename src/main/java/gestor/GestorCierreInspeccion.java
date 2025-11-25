@@ -401,6 +401,7 @@ public class GestorCierreInspeccion {
         // Buscar la orden completa en la lista
         String nroSeleccionado = String.valueOf(this.ordenSeleccionada.get("nroDeOrden"));
 
+        // Recorre todas las ordenes de inspección buscando el puntero a la seleccionada
         for (OrdenDeInspeccion orden : this.ordenesDeInspeccion) {
             if (orden.getNroDeOrden() == Integer.parseInt(nroSeleccionado)) {
                 this.ordenEncontrada = orden;
@@ -408,6 +409,7 @@ public class GestorCierreInspeccion {
             }
         }
 
+        // Valida si encontró algo
         if (this.ordenEncontrada == null) {
             pantalla.mostrarMensaje("ERROR: No se encontró la orden de inspección");
             return;

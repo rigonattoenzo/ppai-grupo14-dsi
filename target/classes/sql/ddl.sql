@@ -29,8 +29,7 @@ CREATE TABLE IF NOT EXISTS estacion_sismologica (
 
 -- Sismógrafos
 CREATE TABLE IF NOT EXISTS sismografo (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    id_sismografo VARCHAR(100) UNIQUE NOT NULL,
+    id_sismografo VARCHAR(100) PRIMARY KEY UNIQUE NOT NULL,
     numero_serie VARCHAR(100),
     fecha_adquisicion TIMESTAMP,
     estacion_codigo VARCHAR(100) UNIQUE REFERENCES estacion_sismologica(codigo_estacion),
